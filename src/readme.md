@@ -1,0 +1,4 @@
+--controls  		控件，只要在html文件中放置一个html标签(input, select, span等)实现，post 回 web 服务器时只有一个 form 值
+--components  		组件，需要在html文件中放置多个html标签(button input, ul li, div等)实现，post 回 web 服务器时有一个或多个 form 值
+--layouts  			布局，web页面布局解决方案
+--module  			模块，不涉及html dom、只有js或/和css的针对某个问题的解决方案代码

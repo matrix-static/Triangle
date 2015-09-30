@@ -1,0 +1,22 @@
+1. 开发controls（考虑做成自动化脚本）
+	1.1 在src目录下的controls下创建一个文件夹，名称为控件名，并创建对应的文件，以spinner为例：
+		--src
+			...
+			--controls
+				--spinner
+					--index.html
+					--index.js
+					--index.less
+			...
+	1.2 在demo目录下的controls下创建一个文件夹，名称为控件名，并创建对应的文件，以spinner为例：
+		--demo
+			...
+			--controls
+				--spinner
+					--spinner-ng.js
+					--spinner.js
+					--spinner.less
+			...
+
+2. 开发components
+	同开发controls，将controls目录改为components目录

@@ -1,0 +1,12 @@
+components
+	组件
+controls
+	控件
+guideline
+	向导
+layouts
+	布局
+media
+	媒体(图像、声音、视频)
+modules
+	模块
