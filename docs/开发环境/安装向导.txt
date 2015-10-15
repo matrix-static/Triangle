@@ -1,0 +1,10 @@
+一、 安装SVN
+二、 安装sublime text 3
+三、 安装Python(node-gyp要求python v2.7.3 https://github.com/nodejs/node-gyp)
+四、 安装NodeJS
+五、 安装gulp
+
+
+附：
+cnpm，淘宝的npm镜像
+https://npm.taobao.org/

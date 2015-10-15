@@ -1,0 +1,22 @@
+--lib			// 第三方库
+--framework		// 框架代码
+	--controls  		控件，只要在html文件中放置一个html标签(input, select, span等)实现，post 回 web 服务器时只有一个 form 值
+	--components  		组件，需要在html文件中放置多个html标签(button input, ul li, div等)实现，post 回 web 服务器时有一个或多个 form 值
+	--layouts  			布局，web页面布局解决方案
+	--module  			模块，不涉及(或基本不涉及)html dom、只有js或/和css的针对某个问题的解决方案代码
+--demo			// 开发向导，控件示例、组件示例、模块示例
+	--assets			资产，demo运行所必需的静态文件，和frame无依赖。
+	--media				媒体，demo运行所必需的多媒体文件(图片、声音视频等)，和frame无依赖。
+	--shared			共享，demo页面的公共部分，和frame无依赖。
+	--home				主页
+	--guideline			向导
+	--controls			控件
+	--components		组件
+	--layouts  			布局
+	--module  			模块
+--examples		// 前端整站示例
+	--default			默认示例(最简示例，在单个页面中使用框架代码)
+	--jQuery			jQuery示例(在jQuery上下文中使用框架代码)
+	--AngularJS			AngularJS示例(在AngularJS上下文中使用框架代码)
+
+

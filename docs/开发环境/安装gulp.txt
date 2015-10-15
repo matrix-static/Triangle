@@ -1,0 +1,66 @@
+零、 检查 node 和 npm 是否已安装
+
+一、 安装gulp
+	0. 进入项目本地目录
+		打开一个命令行进入本项目本地目录
+			cd /d <path>/项目目录  		// 比如：cd /d D:\work_area\Triangle
+	1. 安装全局 gulp
+		输入以下命令
+			npm install gulp --global
+	2. 验证全局 gulp
+		输入以下命令
+			gulp --version
+		输出
+			CLI version 3.9.0
+		表示安装成功
+	3. 安装本地 gulp
+		输入以下命令
+			npm install gulp --save-dev
+	4. 验证本地 gulp
+		输入以下命令
+			gulp --version
+		输出
+			CLI version 3.9.0
+			Local version 3.9.0
+		表示安装成功
+二、 安装 gulp 插件
+	0. 进入项目本地目录
+		打开一个命令行进入本项目本地目录
+			cd /d <path>/项目目录  		// 比如：cd /d D:\work_area\Triangle
+	1. util
+		输入以下命令
+			npm install gulp-util --save-dev
+	2. 微型web服务器
+		输入以下命令
+			npm install browser-sync --save-dev
+	3. 合并文件
+		输入以下命令
+			npm install gulp-concat --save-dev
+	4. 修改文件名
+		输入以下命令
+			npm install gulp-rename --save-dev
+	5. html包含
+		输入以下命令
+			npm install gulp-file-include --save-dev
+	6. less 支持
+		输入以下命令
+			npm install gulp-less --save-dev
+	7. css压缩
+		输入以下命令
+			npm install gulp-minify-css --save-dev
+	8. js语法检查
+		输入以下命令
+			npm install gulp-jshint --save-dev
+	9. js压缩
+		输入以下命令
+			npm install gulp-uglify --save-dev
+	10. 清理文件
+		输入以下命令
+			npm install gulp-clean --save-dev
+	
+	
+		
+			
+			
+			
+			

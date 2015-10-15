@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!-- http://tools.ietf.org/html/bcp47 -->
+<html lang="zh-cmn-Hans">
+	<head>
+    	@@include('../assets/shared/head.html')
+	</head>
+	<body>
+    	<!-- 文档主菜单 -->
+		@@include('../assets/shared/header.html')
+
+		<!-- 文档页布局 -->
+		@@include('../assets/shared/kiss.html')		
+
+		<div class="container bs-docs-container">
+			<div class="row">
+
+				<div class="col-md-3" role="complementary">
+
+					@@include('./sidenav.html')
+
+				</div>
+
+				<div class="col-md-9" role="main">
+					
+					@@include('./overview.html')
+
+					@@include('./requirement.html')
+
+					@@include('./specification.html')
+
+					@@include('./version-management.html')
+
+					@@include('./test-management.html')
+
+					@@include('./issue-management.html')
+
+					@@include('./release-management.html')
+
+					@@include('./glossary.html')
+
+				</div>
+
+			</div>
+		</div>
+
+
+		@@include('../assets/shared/footer.html')
+
+	</body>
+</html>

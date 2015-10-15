@@ -1,0 +1,32 @@
+零、 清除老版本 NodeJS
+	1. 卸载 node
+		控制面板->程序->程序和功能
+	2. 删除文件夹
+		C:\Users\matrix\AppData\Roaming\npm
+		C:\Users\matrix\AppData\Roaming\npm-cache
+	3. 删除 nodejs 环境变量
+		右键我的电脑->属性->高级->环境变量->系统变量->path
+	4. 删除以下目录的临时文件
+		C:\Users\matrix\AppData\Local\Temp
+
+一、 安装 NodeJS
+	1. 安装/tool/node-v4.1.2-x64.msi
+		双击安装文件，建议安装路径为D:\nodejs或者D:\rt\nodejs\4.1.2，其它选项全部默认设置，一直下一步到完成。
+	2. 验证NodeJS安装
+		打开一个命令行输入
+			node --version
+		输出
+			v4.1.2
+		表示安装成功
+	3. 验证npm安装
+		在命令行输入
+			npm --version
+		输出
+			2.14.4
+		表示安装成功
+
+二、 安装 NodeJS 组件(可选，在%AppData\Roaming%\nodejs cache里可能没有)
+	1. 安装 uglify-js
+		npm install uglify-js --save-dev
+	2. 安装 through2
+		npm install through2 --save-dev

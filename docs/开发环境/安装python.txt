@@ -1,0 +1,28 @@
+零、 清除老版本 python
+	1. 卸载 python
+		控制面板->程序->程序和功能
+	2. 删除 python 环境变量
+		右键我的电脑->属性->高级->环境变量->系统变量->path，将 python 的安装路径从环境变量中删除。
+	3. 删除以下目录的临时文件
+		C:\Users\matrix\AppData\Local\Temp
+
+一、 安装 python
+	1. 安装/tool/python-2.7.3.amd64.msi
+		双击安装文件，建议安装路径为D:\python或者D:\rt\python\2.7.3，选中添加到paht环境变量，其它选项全部默认设置，一直下一步到完成。
+	2. 修改环境变量 path ，添加python安装路径
+		右键我的电脑->属性->高级->环境变量->系统变量->path，将python的安装路径添加到环境变量中 path 。
+	3. 验证 python 安装
+		打开一个命令行输入
+			python --version
+		输出
+			Python 2.7.3
+		表示安装成功
+
+
+
+
+
+附：
+python环境变量切换
+D:\rt\python\3.5.0\Scripts\;D:\rt\python\3.5.0\;
+D:\rt\python\2.7.3\;
