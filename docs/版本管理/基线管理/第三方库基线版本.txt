@@ -1,6 +1,0 @@
-Bootsrtap 3.3.5
-AngularJS 1.4.6
-jQuery    1.11.3
-
-
-(待定)RequireJS 2.1.20
