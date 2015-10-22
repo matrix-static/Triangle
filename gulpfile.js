@@ -130,6 +130,16 @@ gulp.task('default', ['demo'])
 			}) )
 			.pipe( gulp.dest('build/demo') );
 
+		// 复制布局示例文件
+		gulp.src( ['src/framework/layouts/*/*.html'] )
+			.pipe( rename(function (path) {	// 'index.html'
+				//path.dirname += "/dir";
+				//path.basename += "-goodbye";
+				path.basename = 'example';
+				//path.extname = ".html"
+			}) )
+			.pipe( gulp.dest('build/demo/layouts') );
+
 		// 复制 app.js 到 build
 		gulp.src( [
 				'src/demo/controls/*/index.js',
