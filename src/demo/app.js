@@ -24,12 +24,12 @@ angular.module('pnApp.services', ['ngResource']).value('version', '0.1')
 angular.module('pnApp.controllers', [])
 	.controller('fooController', ['$scope', '$rootScope', function ($scope, $rootScope){
 		console.log('app controller');
-	}]
+	}]);
 
 
 
 angular.module('pnApp.directives', [])
-	.directive('fooDirective', ['$rootScope', '$compile', function($rootScope, $compile){
+    .directive('fooDirective', ['$rootScope', '$compile', function($rootScope, $compile){
 		console.log('app directive');
 
 		function link(){
@@ -39,14 +39,15 @@ angular.module('pnApp.directives', [])
 		return {
 			scope:{
 				instance: '=controller',
-				templateUrl: '@'
+				templateUrl: '@',
 				unload: '&'
 			},
 			restric: 'A',
 			transclude: false,
 			link: link
 		};
-	});
+	}]);
+
 
 var pnApp = angular.module('pnApp', [
 		'pnApp.filters', 
