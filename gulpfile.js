@@ -141,14 +141,18 @@ gulp.task('default', ['demo'])
 			}) )
 			.pipe( gulp.dest('build/demo') );
 
+
+		// ===================================================================
+		// 非框架部分
+		// ===================================================================
 		// 复制组件示例文件
-		gulp.src( ['src/framework/components/*/*.html'] )
-			.pipe( rename(function (path) {	// 'index.html'
+		gulp.src( ['src/demo/components/*/example.html'] )
+			/*.pipe( rename(function (path) {	// 'index.html'
 				//path.dirname += "/dir";
 				//path.basename += "-goodbye";
 				path.basename = 'example';
 				//path.extname = ".html"
-			}) )
+			}) )*/
 			.pipe( gulp.dest('build/demo/components') );
 
 		// 复制布局示例文件
@@ -161,6 +165,7 @@ gulp.task('default', ['demo'])
 		gulp.src( [
 				'src/framework/layouts/*/*.less',
 			] )
+			.pipe( less() )
 			.pipe( rename(function (path) {	// 'index.html'
 				//path.dirname += "/dir";
 				//path.basename += "-goodbye";
@@ -173,6 +178,19 @@ gulp.task('default', ['demo'])
 		// // 复制布局临时引用文件
 		// gulp.src( ['src/framework/layouts/*/*/*.*'] )
 		// 	.pipe( gulp.dest('build/demo/layouts') );
+
+
+		// 复制 *.less 到 build
+		gulp.src( [
+				'src/demo/controls/*/index.less',
+				'src/demo/components/*/index.less',
+				'!src/demo/layouts/*/index.less',
+				'src/demo/modules/*/index.less',
+				'src/demo/app.less'
+			] )
+			.pipe( less() )
+			.pipe( concat('app.css') )
+			.pipe( gulp.dest('build/demo') );
 
 
 		// 复制 app.js 到 build
@@ -268,7 +286,8 @@ gulp.task('default', ['demo'])
 	/* 监视 文件的变化 */
 	.task('watch', function () {
 	    gulp.watch('src/framework/**/*.less', ['build-fram']);
-	    gulp.watch('src/framework/**/*.js', ['build-fram']);	    
+	    gulp.watch('src/framework/**/*.js', ['build-fram']);
+	    gulp.watch('src/framework/**/*.html', ['build-fram', 'build-demo']);
 
 	    gulp.watch('src/demo/**/*.html', ['build-demo']);
 	    gulp.watch('src/demo/**/*.less', ['build-demo']);
