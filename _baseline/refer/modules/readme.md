@@ -1,6 +1,9 @@
 DD_belatedPNG
 解决IE6下PNG图片不透明的方案
 
+FontAwesome
+开源CSS字体
+https://github.com/FortAwesome/Font-Awesome
 
 JSON
 JSON库
