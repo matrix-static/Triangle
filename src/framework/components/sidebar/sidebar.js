@@ -9,13 +9,25 @@
  * Under MIT License
  */
 ;(function($, window, document, undefined) {
+    // 严格模式
+    'use strict';
 
-    var pluginName = "sidebar",
-        defaults = {
-            toggle: true,
-            doubleTapToGo: false
-        };
+    // 控件类名
+    var pluginName = "sidebar";
 
+    // 默认值
+    var defaults = {
+        toggle: true,
+        doubleTapToGo: false
+    };
+
+    // html 属性(angular)值 -- 类属性名 映射
+    var attributeMap = {
+        toggle: 'toggle',
+        doubleTapToGo: 'double-tap-togo'
+    };
+
+    // 构造函数
     function Plugin(element, options) {
         this.element = $(element);
         this.settings = $.extend({}, defaults, options);
@@ -24,6 +36,7 @@
         this.init();
     }
 
+    // 原型
     Plugin.prototype = {
         init: function() {
 
@@ -108,15 +121,19 @@
 
     };
 
+    // 胶水代码
     $.fn[pluginName] = function(options) {
+
         this.each(function () {
-            var el = $(this);
-            if (el.data(pluginName)) {
-                el.data(pluginName).remove();
+            var jElement = $(this);
+            if (jElement.data(pluginName)) {
+                jElement.data(pluginName).remove();
             }
-            el.data(pluginName, new Plugin(this, options));
+            jElement.data(pluginName, new Plugin(this, options));
         });
+
         return this;
+
     };
 
 })(jQuery, window, document);

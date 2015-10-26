@@ -11,7 +11,7 @@ angular.module('pnApp.filters', [])
 	}]);
 
 
-angular.module('pnApp.services', ['ngResource']).value('version', '0.1')
+angular.module('pnApp.services', []).value('version', '0.1')	// 'ngResource'
 	.factory('fooService', function (){
 
 		console.log('app service');
@@ -38,46 +38,64 @@ angular.module('pnApp.directives', [])
 
 		return {
 			scope:{
-				instance: '=controller',
-				templateUrl: '@',
-				unload: '&'
+				instance     : '=controller',
+				templateUrl  : '@',
+				unload       : '&'
 			},
-			restric: 'A',
-			transclude: false,
-			link: link
+			restric          : 'A',
+			transclude       : false,
+			//replace          : false,
+			//template         : '<div></div>'
+			link             : link
 		};
 	}]);
 
 
 var pnApp = angular.module('pnApp', [
+		'ngRoute',
+		'triangle.controls',
 		'pnApp.filters', 
 		'pnApp.services', 
-		'pnAppdirectives', 
-		'pnApp.controllers', 
-		'ui.router', 
-		'ui.bootstrap'
+		'pnApp.directives', 
+		'pnApp.controllers'//, 
+		//'ui.router', 
+		//'ui.bootstrap'
 	]);
 
 // ui-route
 pnApp.config([
-		'$stateProvider', 
-		'$urlRouterProvider', 
-		'$compileProvider', 
-		'$httpProvider', 
-		function ($stateProvider, $urlRouterProvider, $compileProvider, $httpProvider){
-			$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|javascript):/),
-		    $urlRouterProvider.otherwise("/home"),
-		    $stateProvider.state("task", {
-		        url: "/task/:uuid",
-		        templateUrl: "/partials/taskview",
-		        controller: "TaskviewCtrl"
-		    });
+		//'$stateProvider', 
+		'$routeProvider',
+		//'$urlRouterProvider', 
+		//'$compileProvider', 
+		//'$httpProvider', 
+		//function ($stateProvider, $urlRouterProvider, $compileProvider, $httpProvider){
+		function ($routeProvider){
+			//$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|javascript):/),
+		    //$urlRouterProvider.otherwise("/home"),
+		    //$stateProvider.state("task", {
+		    //    url: "/task/:uuid",
+		    //    templateUrl: "/partials/taskview",
+		    //    controller: "TaskviewCtrl"
+		    //});
 		    // $httpProvider.responseInterceptors.push
 		    // $httpProvider.defaults.transformRequest.push
 		    // $httpProvider.interceptors.push
+		    $routeProvider
+		    	.when('/home',{
+		    		templateUrl:'/demo/home/index.html'
+		    	})
+		    	.otherwise({
+		    		redirectTo:'/home'
+		    	});
 		}
-	]);
+	])
+	.run(function($rootScope){
+		console.log('app run');
+	});
 
-pnApp.run(function ($rootScope) {
+angular.bootstrap(document, ['pnApp']);
+
+/*pnApp.run(function ($rootScope) {
 	;
-});
+});*/
