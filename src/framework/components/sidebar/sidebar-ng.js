@@ -1,11 +1,11 @@
-/* accordion menu javascript AngularJS */
+/* sidebar menu javascript AngularJS */
 
 //angular.module('triangle.controls', [])
 Triangle.ngControls
-	.directive('accomenu', ['$rootScope', '$compile', function($rootScope, $compile){
+	.directive('sidebar', ['$rootScope', '$compile', function($rootScope, $compile){
 
 		function link($scope, $element, $attrs, undefined, link){
-			$element.accoMenu({});
+			$element.sidebar({});
 		}
 
 		return {

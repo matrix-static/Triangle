@@ -10,7 +10,7 @@
  */
 ;(function($, window, document, undefined) {
 
-    var pluginName = "accoMenu",
+    var pluginName = "sidebar",
         defaults = {
             toggle: true,
             doubleTapToGo: false

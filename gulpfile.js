@@ -141,6 +141,30 @@ gulp.task('default', ['demo'])
 			}) )
 			.pipe( gulp.dest('build/demo') );
 
+		// 复制 *.less 到 build
+		gulp.src( [
+				'src/demo/controls/*/index.less',
+				'src/demo/components/*/index.less',
+				'!src/demo/layouts/*/index.less',
+				'src/demo/modules/*/index.less',
+				'src/demo/app.less'
+			] )
+			.pipe( less() )
+			.pipe( concat('app.css') )
+			.pipe( gulp.dest('build/demo') );
+
+
+		// 复制 app.js 到 build
+		gulp.src( [
+				'src/demo/controls/*/index.js',
+				'src/demo/components/*/index.js',
+				'src/demo/layouts/*/index.js',
+				'src/demo/modules/*/index.js',
+				'src/demo/app.js'
+			] )
+			.pipe( concat('app.js') )
+			.pipe( gulp.dest('build/demo') );
+
 
 		// ===================================================================
 		// 非框架部分
@@ -178,31 +202,6 @@ gulp.task('default', ['demo'])
 		// // 复制布局临时引用文件
 		// gulp.src( ['src/framework/layouts/*/*/*.*'] )
 		// 	.pipe( gulp.dest('build/demo/layouts') );
-
-
-		// 复制 *.less 到 build
-		gulp.src( [
-				'src/demo/controls/*/index.less',
-				'src/demo/components/*/index.less',
-				'!src/demo/layouts/*/index.less',
-				'src/demo/modules/*/index.less',
-				'src/demo/app.less'
-			] )
-			.pipe( less() )
-			.pipe( concat('app.css') )
-			.pipe( gulp.dest('build/demo') );
-
-
-		// 复制 app.js 到 build
-		gulp.src( [
-				'src/demo/controls/*/index.js',
-				'src/demo/components/*/index.js',
-				'src/demo/layouts/*/index.js',
-				'src/demo/modules/*/index.js',
-				'src/demo/app.js'
-			] )
-			.pipe( concat('app.js') )
-			.pipe( gulp.dest('build/demo') );
 	})
 	// 构建 示例
 	.task('build-exam', ['build-libs', 'build-fram', 'build-demo'], function(){
@@ -221,7 +220,8 @@ gulp.task('default', ['demo'])
 					'dist/libs', 
 					'dist/framework', 
 					'dist/demo', 
-					'dist/examples'
+					'dist/examples',
+					'dist/refer'
 				] )
 			.pipe( clean({force: true}) );
 	})
