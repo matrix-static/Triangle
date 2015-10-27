@@ -1,7 +1,7 @@
 /* sidebar menu javascript AngularJS */
 
 //angular.module('triangle.controls', [])
-Triangle.ngControls
+T.ngComponents
 	.directive('sidebar', ['$rootScope', '$compile', function($rootScope, $compile){
 
 		function link($scope, $element, $attrs, undefined, link){

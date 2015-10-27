@@ -3,14 +3,14 @@
 /*
  *  Bootstrap TouchSpin - v3.0.1
  *  A mobile and touch friendly input spinner component for Bootstrap 3.
- *  http://www.virtuosoft.eu/code/bootstrap-touchspin/
+ *  http://www.virtuosoft.eu/code/bootstrap-spinner/
  *
  *  Made by István Ujj-Mészáros
  *  Under Apache License v2.0 License
  */
 (function($) {
   // 严格模式
-    'use strict';
+  'use strict';
 
   // 控件类名
   var pluginName = "spinner";
@@ -77,14 +77,37 @@
     buttonup_class: 'button-up-class'
   };
 
-  // 构造函数
-  function Plugin(element, options) {
+  T.UI.Controls.BaseControl=new T.Clazz({
+    defaults:{},
+    attributeMap:{},
+    initSettings:function(options){
+      this.settings = $.extend({}, this.defaults, this.element_data, this._parseAttributes(), options);
+    },
+    _parseAttributes : function () {
+      var context=this;
 
-    if (options === 'destroy') {
-      this.each(function() {
-        var element = $(this),
-            element_data = element.data();
-        $(document).off(_scopeEventNames([
+      var data = {};
+      $.each(attributeMap, function(key, value) {
+        //var attrName = 'bts-' + value + '';
+        var attrName = 's-' + value + '';
+        if (context.element.is('[data-' + attrName + ']')) {
+          data[key] = context.element.data(attrName);
+        }
+      });
+      return data;
+    }
+  });
+
+  T.UI.Controls.Spinner=new T.Clazz({extend : T.UI.Controls.BaseControl}, {
+    defaults : defaults,
+    attributeMap : attributeMap,
+    // 构造函数
+    init:function(element, options){
+      if (options === 'destroy') {
+        this.each(function() {
+          var element = $(this),
+          element_data = element.data();
+          $(document).off(_scopeEventNames([
           'mouseup',
           'touchend',
           'touchcancel',
@@ -92,54 +115,49 @@
           'touchmove',
           'scroll',
           'scrollstart'], element_data.pluginId).join(' '));
-      });
-      return;
-    }
-
-    this.element = $(element);
-    this.settings,
-    this.element_data = this.element.data(),
-
-    this.container,
-    this.elements,
-
-    this.value,
-
-    this.downSpinTimer,
-    this.upSpinTimer,
-    this.downDelayTimeout,
-    this.upDelayTimeout,
-    this.spincount = 0,
-    this.spinning = false;
-
-    this.init(options);
-  }
-
-  // 原型
-  Plugin.prototype = {
-    init: function(options) {
-      if (this.element.data('alreadyinitialized')) {
+        });
         return;
       }
 
-      this.element.data('alreadyinitialized', true);
-      _currentPluginId += 1;
-      this.element.data('pluginId', _currentPluginId);
+      this.element = $(element);
+      //this.settings,
+      this.element_data = this.element.data(),
 
+      this.container,
+      this.elements,
+
+      this.value,
+
+      this.downSpinTimer,
+      this.upSpinTimer,
+      this.downDelayTimeout,
+      this.upDelayTimeout,
+      this.spincount = 0,
+      this.spinning = false;
 
       if (!this.element.is('input')) {
         console.log('Must be an input.');
         return;
       }
 
+      if (this.element.data('alreadyinitialized')) {
+        return;
+      }
+
+      this.element.data('alreadyinitialized', true);
+      _currentPluginId += 1;
+      this.element.data('pluginId', _currentPluginId);      
+
       // 初始化选项
-      this._initSettings(options);
+      this.initSettings(options);
       // 设置初始值
-      this._setInitval();
+      if (this.settings.initval !== '' && this.element.val() === '') {
+        this.element.val(this.settings.initval);
+      }
       // 校验值是否合法
       this._checkValue();
       // 构建html DOM
-      this._buildHtml();
+      this.buildHtml();
       // 初始化 html DOM 元素
       this._initElements();
       // 隐藏空的前后缀
@@ -150,14 +168,7 @@
       this._bindEventsInterface();
       // ...
       this.elements.input.css('display', 'block');
-    },
-    _initSettings:function (options) {
-        this.settings = $.extend({}, defaults, this.element_data, this._parseAttributes(), options);
-    },
-    _setInitval:function() {
-      if (this.settings.initval !== '' && this.element.val() === '') {
-        this.element.val(this.settings.initval);
-      }
+
     },
 
     changeSettings:function(newsettings) {
@@ -172,25 +183,13 @@
       }
     },
 
-      _parseAttributes : function () {
-        var context=this;
-
-        var data = {};
-        $.each(attributeMap, function(key, value) {
-          //var attrName = 'bts-' + value + '';
-          var attrName = 's-' + value + '';
-          if (context.element.is('[data-' + attrName + ']')) {
-            data[key] = context.element.data(attrName);
-          }
-        });
-        return data;
-      },
+      
 
       _updateSettings:function (newsettings) {
         this.settings = $.extend({}, settings, newsettings);
       },
 
-      _buildHtml:function () {
+      buildHtml:function () {
         var initval = this.element.val(),
             parentelement = this.element.parent();
 
@@ -210,31 +209,31 @@
       },
 
       _advanceInputGroup:function (parentelement) {
-        parentelement.addClass('bootstrap-touchspin');
+        parentelement.addClass('bootstrap-spinner');
 
         var prev = this.element.prev(),
             next = this.element.next();
 
         var downhtml,
             uphtml,
-            prefixhtml = '<span class="input-group-addon bootstrap-touchspin-prefix">' + this.settings.prefix + '</span>',
-            postfixhtml = '<span class="input-group-addon bootstrap-touchspin-postfix">' + this.settings.postfix + '</span>';
+            prefixhtml = '<span class="input-group-addon bootstrap-spinner-prefix">' + this.settings.prefix + '</span>',
+            postfixhtml = '<span class="input-group-addon bootstrap-spinner-postfix">' + this.settings.postfix + '</span>';
 
         if (prev.hasClass('input-group-btn')) {
-          downhtml = '<button class="' + this.settings.buttondown_class + ' bootstrap-touchspin-down" type="button">-</button>';
+          downhtml = '<button class="' + this.settings.buttondown_class + ' bootstrap-spinner-down" type="button">-</button>';
           prev.append(downhtml);
         }
         else {
-          downhtml = '<span class="input-group-btn"><button class="' + this.settings.buttondown_class + ' bootstrap-touchspin-down" type="button">-</button></span>';
+          downhtml = '<span class="input-group-btn"><button class="' + this.settings.buttondown_class + ' bootstrap-spinner-down" type="button">-</button></span>';
           $(downhtml).insertBefore(this.element);
         }
 
         if (next.hasClass('input-group-btn')) {
-          uphtml = '<button class="' + this.settings.buttonup_class + ' bootstrap-touchspin-up" type="button">+</button>';
+          uphtml = '<button class="' + this.settings.buttonup_class + ' bootstrap-spinner-up" type="button">+</button>';
           next.prepend(uphtml);
         }
         else {
-          uphtml = '<span class="input-group-btn"><button class="' + this.settings.buttonup_class + ' bootstrap-touchspin-up" type="button">+</button></span>';
+          uphtml = '<span class="input-group-btn"><button class="' + this.settings.buttonup_class + ' bootstrap-spinner-up" type="button">+</button></span>';
           $(uphtml).insertAfter(this.element);
         }
 
@@ -248,15 +247,15 @@
         var html;
 
         if (this.settings.verticalbuttons) {
-          html = '<div class="input-group bootstrap-touchspin"><span class="input-group-addon bootstrap-touchspin-prefix">' + this.settings.prefix + '</span><span class="input-group-addon bootstrap-touchspin-postfix">' + this.settings.postfix + '</span><span class="input-group-btn-vertical"><button class="' + this.settings.buttondown_class + ' bootstrap-touchspin-up" type="button"><i class="' + this.settings.verticalupclass + '"></i></button><button class="' + this.settings.buttonup_class + ' bootstrap-touchspin-down" type="button"><i class="' + this.settings.verticaldownclass + '"></i></button></span></div>';
+          html = '<div class="input-group bootstrap-spinner"><span class="input-group-addon bootstrap-spinner-prefix">' + this.settings.prefix + '</span><span class="input-group-addon bootstrap-spinner-postfix">' + this.settings.postfix + '</span><span class="input-group-btn-vertical"><button class="' + this.settings.buttondown_class + ' bootstrap-spinner-up" type="button"><i class="' + this.settings.verticalupclass + '"></i></button><button class="' + this.settings.buttonup_class + ' bootstrap-spinner-down" type="button"><i class="' + this.settings.verticaldownclass + '"></i></button></span></div>';
         }
         else {
-          html = '<div class="input-group bootstrap-touchspin"><span class="input-group-btn"><button class="' + this.settings.buttondown_class + ' bootstrap-touchspin-down" type="button">-</button></span><span class="input-group-addon bootstrap-touchspin-prefix">' + this.settings.prefix + '</span><span class="input-group-addon bootstrap-touchspin-postfix">' + this.settings.postfix + '</span><span class="input-group-btn"><button class="' + this.settings.buttonup_class + ' bootstrap-touchspin-up" type="button">+</button></span></div>';
+          html = '<div class="input-group bootstrap-spinner"><span class="input-group-btn"><button class="' + this.settings.buttondown_class + ' bootstrap-spinner-down" type="button">-</button></span><span class="input-group-addon bootstrap-spinner-prefix">' + this.settings.prefix + '</span><span class="input-group-addon bootstrap-spinner-postfix">' + this.settings.postfix + '</span><span class="input-group-btn"><button class="' + this.settings.buttonup_class + ' bootstrap-spinner-up" type="button">+</button></span></div>';
         }
 
         this.container = $(html).insertBefore(this.element);
 
-        $('.bootstrap-touchspin-prefix', this.container).after(this.element);
+        $('.bootstrap-spinner-prefix', this.container).after(this.element);
 
         if (this.element.hasClass('input-sm')) {
           this.container.addClass('input-group-sm');
@@ -268,11 +267,11 @@
 
       _initElements:function () {
         this.elements = {
-          down: $('.bootstrap-touchspin-down', this.container),
-          up: $('.bootstrap-touchspin-up', this.container),
+          down: $('.bootstrap-spinner-down', this.container),
+          up: $('.bootstrap-spinner-up', this.container),
           input: $('input', this.container),
-          prefix: $('.bootstrap-touchspin-prefix', this.container).addClass(this.settings.prefix_extraclass),
-          postfix: $('.bootstrap-touchspin-postfix', this.container).addClass(this.settings.postfix_extraclass)
+          prefix: $('.bootstrap-spinner-prefix', this.container).addClass(this.settings.prefix_extraclass),
+          postfix: $('.bootstrap-spinner-postfix', this.container).addClass(this.settings.postfix_extraclass)
         };
       },
 
@@ -366,8 +365,8 @@
           }
         });
 
-        elements.down.on('mousedown.touchspin', function(ev) {
-          elements.down.off('touchstart.touchspin');  // android 4 workaround
+        elements.down.on('mousedown.spinner', function(ev) {
+          elements.down.off('touchstart.spinner');  // android 4 workaround
 
           if (element.is(':disabled')) {
             return;
@@ -380,8 +379,8 @@
           ev.stopPropagation();
         });
 
-        elements.down.on('touchstart.touchspin', function(ev) {
-          elements.down.off('mousedown.touchspin');  // android 4 workaround
+        elements.down.on('touchstart.spinner', function(ev) {
+          elements.down.off('mousedown.spinner');  // android 4 workaround
 
           if (element.is(':disabled')) {
             return;
@@ -394,8 +393,8 @@
           ev.stopPropagation();
         });
 
-        elements.up.on('mousedown.touchspin', function(ev) {
-          elements.up.off('touchstart.touchspin');  // android 4 workaround
+        elements.up.on('mousedown.spinner', function(ev) {
+          elements.up.off('touchstart.spinner');  // android 4 workaround
 
           if (element.is(':disabled')) {
             return;
@@ -408,8 +407,8 @@
           ev.stopPropagation();
         });
 
-        elements.up.on('touchstart.touchspin', function(ev) {
-          elements.up.off('mousedown.touchspin');  // android 4 workaround
+        elements.up.on('touchstart.spinner', function(ev) {
+          elements.up.off('mousedown.spinner');  // android 4 workaround
 
           if (element.is(':disabled')) {
             return;
@@ -499,29 +498,29 @@
         var context=this;
         var element=this.element;
 
-        element.on('touchspin.uponce', function() {
+        element.on('spinner.uponce', function() {
           context.stopSpin();
           upOnce();
         });
 
-        element.on('touchspin.downonce', function() {
+        element.on('spinner.downonce', function() {
           context.stopSpin();
           downOnce();
         });
 
-        element.on('touchspin.startupspin', function() {
+        element.on('spinner.startupspin', function() {
           startUpSpin();
         });
 
-        element.on('touchspin.startdownspin', function() {
+        element.on('spinner.startdownspin', function() {
           startDownSpin();
         });
 
-        element.on('touchspin.stopspin', function() {
+        element.on('spinner.stopspin', function() {
           context.stopSpin();
         });
 
-        element.on('touchspin.updatesettings', function(e, newsettings) {
+        element.on('spinner.updatesettings', function(e, newsettings) {
           context.changeSettings(newsettings);
         });
       },
@@ -591,7 +590,7 @@
           if (this.settings.maxboostedstep) {
             if (boosted > this.settings.maxboostedstep) {
               boosted = this.settings.maxboostedstep;
-              value = Math.round((value / boosted)) * boosted;
+              this.value = Math.round((this.value / boosted)) * boosted;
             }
           }
 
@@ -614,7 +613,7 @@
 
         if (value > this.settings.max) {
           value = this.settings.max;
-          this.element.trigger('touchspin.on.max');
+          this.element.trigger('spinner.on.max');
           this.stopSpin();
         }
 
@@ -640,7 +639,7 @@
 
         if (value < this.settings.min) {
           value = this.settings.min;
-          this.element.trigger('touchspin.on.min');
+          this.element.trigger('spinner.on.min');
           this.stopSpin();
         }
 
@@ -658,8 +657,8 @@
         this.spincount = 0;
         this.spinning = 'down';
 
-        this.element.trigger('touchspin.on.startspin');
-        this.element.trigger('touchspin.on.startdownspin');
+        this.element.trigger('spinner.on.startspin');
+        this.element.trigger('spinner.on.startdownspin');
 
         this.downDelayTimeout = setTimeout(function() {
           context.downSpinTimer = setInterval(function() {
@@ -676,8 +675,8 @@
         this.spincount = 0;
         this.spinning = 'up';
 
-        this.element.trigger('touchspin.on.startspin');
-        this.element.trigger('touchspin.on.startupspin');
+        this.element.trigger('spinner.on.startspin');
+        this.element.trigger('spinner.on.startupspin');
 
         this.upDelayTimeout = setTimeout(function() {
           context.upSpinTimer = setInterval(function() {
@@ -695,19 +694,19 @@
 
         switch (this.spinning) {
           case 'up':
-            this.element.trigger('touchspin.on.stopupspin');
-            this.element.trigger('touchspin.on.stopspin');
+            this.element.trigger('spinner.on.stopupspin');
+            this.element.trigger('spinner.on.stopspin');
             break;
           case 'down':
-            this.element.trigger('touchspin.on.stopdownspin');
-            this.element.trigger('touchspin.on.stopspin');
+            this.element.trigger('spinner.on.stopdownspin');
+            this.element.trigger('spinner.on.stopspin');
             break;
         }
 
         this.spincount = 0;
         this.spinning = false;
       }
-  }
+  });
 
     // 胶水代码
   $.fn[pluginName] = function(options) {
@@ -717,7 +716,7 @@
       if (jElement.data(pluginName)) {
         jElement.data(pluginName).remove();
       }
-      jElement.data(pluginName, new Plugin(this, options));
+      jElement.data(pluginName, new T.UI.Controls.Spinner(this, options));
     });
 
     return this;
