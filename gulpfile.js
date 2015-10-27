@@ -105,8 +105,12 @@ gulp.task('default', ['demo'])
 
 		/* 合并 js 文件 */
 		gulp.src( [
-				'src/framework/**/*.js', 
-				'!src/framework/layouts/**/*.js', 		// layouts是完整示例，不需要整合进Triangle.js
+				'src/framework/modules/core.js', 
+				'src/framework/modules/base.js', 
+				'src/framework/framework.js', 
+				'src/framework/controls/**/*.js', 
+				'src/framework/components/**/*.js', 
+				//'!src/framework/layouts/**/*.js', 		// layouts是完整示例，不需要整合进Triangle.js
 				'!src/framework/**/*-ng.js'
 			] )
 			// .pipe( jshint('.jshintrc') )

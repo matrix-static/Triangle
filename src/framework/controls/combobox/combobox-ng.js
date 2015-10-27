@@ -1,7 +1,7 @@
 /* combobox javascript AngularJS */
 
 //angular.module('triangle.controls', [])
-T.ngControls
+Tx.ngControls
 	.directive('combobox', ['$rootScope', '$compile', function($rootScope, $compile){
 
 		function link($scope, $element, $attrs, undefined, link){

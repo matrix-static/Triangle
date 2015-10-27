@@ -1,19 +1,6 @@
-/* spinner javascript jQuery */
-
-/*
- *  Bootstrap TouchSpin - v3.0.1
- *  A mobile and touch friendly input spinner component for Bootstrap 3.
- *  http://www.virtuosoft.eu/code/bootstrap-spinner/
- *
- *  Made by István Ujj-Mészáros
- *  Under Apache License v2.0 License
- */
-(function($) {
+Tx().$package("tx.ui.controls", function(T){
   // 严格模式
   'use strict';
-
-  // 控件类名
-  var pluginName = "spinner";
 
 
   // 全局变量、函数、对象
@@ -77,28 +64,8 @@
     buttonup_class: 'button-up-class'
   };
 
-  T.UI.Controls.BaseControl=new T.Clazz({
-    defaults:{},
-    attributeMap:{},
-    initSettings:function(options){
-      this.settings = $.extend({}, this.defaults, this.element_data, this._parseAttributes(), options);
-    },
-    _parseAttributes : function () {
-      var context=this;
 
-      var data = {};
-      $.each(attributeMap, function(key, value) {
-        //var attrName = 'bts-' + value + '';
-        var attrName = 's-' + value + '';
-        if (context.element.is('[data-' + attrName + ']')) {
-          data[key] = context.element.data(attrName);
-        }
-      });
-      return data;
-    }
-  });
-
-  T.UI.Controls.Spinner=new T.Clazz({extend : T.UI.Controls.BaseControl}, {
+  this.Spinner = new T.Class({extend : tx.ui.BaseControl}, {
     defaults : defaults,
     attributeMap : attributeMap,
     // 构造函数
@@ -707,6 +674,24 @@
         this.spinning = false;
       }
   });
+});
+
+/* spinner javascript jQuery */
+
+/*
+ *  Bootstrap TouchSpin - v3.0.1
+ *  A mobile and touch friendly input spinner component for Bootstrap 3.
+ *  http://www.virtuosoft.eu/code/bootstrap-spinner/
+ *
+ *  Made by István Ujj-Mészáros
+ *  Under Apache License v2.0 License
+ */
+(function($) {
+  // 严格模式
+  'use strict';
+
+  // 控件类名
+  var pluginName = "spinner";
 
     // 胶水代码
   $.fn[pluginName] = function(options) {
@@ -716,7 +701,7 @@
       if (jElement.data(pluginName)) {
         jElement.data(pluginName).remove();
       }
-      jElement.data(pluginName, new T.UI.Controls.Spinner(this, options));
+      jElement.data(pluginName, new tx.ui.controls.Spinner(this, options));
     });
 
     return this;
