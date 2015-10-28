@@ -82,7 +82,7 @@
      * };
      * 
      */
-    Tx = function(ver, isCreateNew){
+    Tx = function(isCreateNew){
         var J = this;
 
         var instanceOf = function(o, type) {
@@ -92,7 +92,7 @@
         if(isCreateNew){
             // 如果是第一次执行则初始化对象
             if ( !( instanceOf(J, Tx) ) ) {
-                J = new Tx(ver);
+                J = new Tx();
             } else {
                 J._init();
             }
@@ -267,7 +267,7 @@
      * @ignore
      * @type Object
      */
-    Tx.Root = new Tx(version, true);
+    Tx.Root = new Tx(true);
 
     /**
      * Tx 对象验证标记
