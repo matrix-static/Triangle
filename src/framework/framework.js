@@ -1,11 +1,19 @@
-Tx().$package("tx.ui", function(T){
+Jx().package("T.UI", function(J){
 	// 严格模式
 	'use strict';
 
-	this.BaseControl = new T.Class({
-		defaults:{},
-		attributeMap:{},
-		initSettings:function(options){
+	this.BaseControl = new J.Class({
+
+		defaults: {},
+		attributeMap: {},
+
+        /*
+        element: {},
+        elements: {},
+        init: function{},
+        */
+
+		initSettings: function(options){
 			this.settings = $.extend({}, this.defaults, this.element_data, this.parseAttributes(), options);
 		},
 		parseAttributes : function () {
@@ -19,6 +27,45 @@ Tx().$package("tx.ui", function(T){
 				}
 			});
 			return data;
-		}
+		}//,
+
+        /*
+        buildHtml: function () {
+            ;
+        },
+        initElements: function () {
+            this.elements = {
+                input: $('.tui-controlname-elementname', this.container)
+            }
+        },
+        bindEvents: function () {
+            var context=this;
+
+            var element=this.element;
+            var elements=this.elements;
+
+            element.on('eventname', function(e) {
+                actionOne();
+            });
+
+            elements.up.on('eventname', function(ev) {
+                ;
+            });
+        },
+        bindEventsInterface: function () {
+            var context=this;
+            var element=this.element;
+
+            element.on('address.foo', function() {
+                context.foo();
+                foo();
+            });
+        },
+
+        actionOne: function(){
+            this.element.trigger('controlname.on.eventname');
+        }
+        */
+
 	});
 });

@@ -1,6 +1,6 @@
 /* AngularJS 胶水代码 */
 
-Tx.ngControls = angular.module('triangle.controls', []);
-Tx.ngComponents = angular.module('triangle.components', []);
-Tx.ngLayouts = angular.module('triangle.layouts', []);
-Tx.ngModules = angular.module('triangle.modules', []);
+T.UI.ngControls = angular.module('T.UI.ngControls', []);
+T.UI.ngComponents = angular.module('T.UI.ngComponents', []);
+T.UI.ngLayouts = angular.module('T.UI.ngLayouts', []);
+T.UI.ngModules = angular.module('T.UI.ngModules', []);

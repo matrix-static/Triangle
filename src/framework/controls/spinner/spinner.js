@@ -1,10 +1,10 @@
-Tx().$package("tx.ui.controls", function(T){
+Jx().package("T.UI.Controls", function(J){
 
     // 严格模式
     'use strict';
 
 
-      // 全局变量、函数、对象
+    // 全局变量、函数、对象
     var _currentPluginId = 0;
 
     function _scopedEventName(name, id) {
@@ -65,77 +65,75 @@ Tx().$package("tx.ui.controls", function(T){
         buttonup_class: 'button-up-class'
     };
 
-
-    this.Spinner = new T.Class({extend : tx.ui.BaseControl}, {
+    this.Spinner = new J.Class({extend : T.UI.BaseControl}, {
         defaults : defaults,
         attributeMap : attributeMap,
         // 构造函数
         init:function(element, options){
-          if (options === 'destroy') {
-            this.each(function() {
-              var element = $(this),
-              element_data = element.data();
-              $(document).off(_scopeEventNames([
-              'mouseup',
-              'touchend',
-              'touchcancel',
-              'mousemove',
-              'touchmove',
-              'scroll',
-              'scrollstart'], element_data.pluginId).join(' '));
-            });
-            return;
-          }
+            if (options === 'destroy') {
+                this.each(function() {
+                    var element = $(this),
+                    element_data = element.data();
+                    $(document).off(_scopeEventNames([
+                    'mouseup',
+                    'touchend',
+                    'touchcancel',
+                    'mousemove',
+                    'touchmove',
+                    'scroll',
+                    'scrollstart'], element_data.pluginId).join(' '));
+                });
+                return;
+            }
 
-          this.element = $(element);
-          //this.settings,
-          this.element_data = this.element.data(),
+            this.element = $(element);
+            //this.settings,
+            this.element_data = this.element.data();
 
-          this.container,
-          this.elements,
+            this.container;
+            this.elements;
 
-          this.value,
+            this.value;
 
-          this.downSpinTimer,
-          this.upSpinTimer,
-          this.downDelayTimeout,
-          this.upDelayTimeout,
-          this.spincount = 0,
-          this.spinning = false;
+            this.downSpinTimer;
+            this.upSpinTimer;
+            this.downDelayTimeout;
+            this.upDelayTimeout;
+            this.spincount = 0;
+            this.spinning = false;
 
-          if (!this.element.is('input')) {
-            console.log('Must be an input.');
-            return;
-          }
+            if (!this.element.is('input')) {
+                console.log('Must be an input.');
+                return;
+            }
 
-          if (this.element.data('alreadyinitialized')) {
-            return;
-          }
+            if (this.element.data('alreadyinitialized')) {
+                return;
+            }
+            this.element.data('alreadyinitialized', true);
+            _currentPluginId += 1;
+            this.element.data('pluginId', _currentPluginId);      
 
-          this.element.data('alreadyinitialized', true);
-          _currentPluginId += 1;
-          this.element.data('pluginId', _currentPluginId);      
-
-          // 初始化选项
-          this.initSettings(options);
-          // 设置初始值
-          if (this.settings.initval !== '' && this.element.val() === '') {
-            this.element.val(this.settings.initval);
-          }
-          // 校验值是否合法
-          this._checkValue();
-          // 构建html DOM
-          this.buildHtml();
-          // 初始化 html DOM 元素
-          this._initElements();
-          // 隐藏空的前后缀
-          this._hideEmptyPrefixPostfix();
-          // 绑定事件
-          this._bindEvents();
-          // 绑定事件接口
-          this._bindEventsInterface();
-          // ...
-          this.elements.input.css('display', 'block');
+            // 初始化选项
+            this.initSettings(options);
+            // 设置初始值
+            if (this.settings.initval !== '' && this.element.val() === '') {
+                this.element.val(this.settings.initval);
+            }
+            // 校验值是否合法
+            this._checkValue();
+            // 构建html DOM
+            this.buildHtml();
+            // 初始化 html DOM 元素
+            this._initElements();
+            // 隐藏空的前后缀
+            this._hideEmptyPrefixPostfix();
+            // 绑定事件
+            this._bindEvents();
+            // 绑定事件接口
+            this._bindEventsInterface();
+            // ...
+            this.elements.input.css('display', 'block');
 
         },
 
@@ -151,7 +149,7 @@ Tx().$package("tx.ui.controls", function(T){
             }
         },
 
-          
+            
 
         _updateSettings:function (newsettings) {
             this.settings = $.extend({}, settings, newsettings);
@@ -245,11 +243,11 @@ Tx().$package("tx.ui.controls", function(T){
 
         _hideEmptyPrefixPostfix:function () {
             if (this.settings.prefix === '') {
-              this.elements.prefix.hide();
+                this.elements.prefix.hide();
             }
 
             if (this.settings.postfix === '') {
-              this.elements.postfix.hide();
+                this.elements.postfix.hide();
             }
         },
 
@@ -260,419 +258,419 @@ Tx().$package("tx.ui.controls", function(T){
             var elements=this.elements;
 
             element.on('keydown', function(ev) {
-              var code = ev.keyCode || ev.which;
+                var code = ev.keyCode || ev.which;
 
-              if (code === 38) {
-                if (context.spinning !== 'up') {
-                  upOnce();
-                  startUpSpin();
+                if (code === 38) {
+                    if (context.spinning !== 'up') {
+                        upOnce();
+                        startUpSpin();
+                    }
+                    ev.preventDefault();
                 }
-                ev.preventDefault();
-              }
-              else if (code === 40) {
-                if (context.spinning !== 'down') {
-                  downOnce();
-                  startDownSpin();
+                else if (code === 40) {
+                    if (context.spinning !== 'down') {
+                        downOnce();
+                        startDownSpin();
+                    }
+                    ev.preventDefault();
                 }
-                ev.preventDefault();
-              }
             });
 
             element.on('keyup', function(ev) {
-              var code = ev.keyCode || ev.which;
+                var code = ev.keyCode || ev.which;
 
-              if (code === 38) {
-                context.stopSpin();
-              }
-              else if (code === 40) {
-                context.stopSpin();
-              }
+                if (code === 38) {
+                    context.stopSpin();
+                }
+                else if (code === 40) {
+                    context.stopSpin();
+                }
             });
 
             element.on('blur', function() {
-              context._checkValue();
+                context._checkValue();
             });
 
             elements.down.on('keydown', function(ev) {
-              var code = ev.keyCode || ev.which;
+                var code = ev.keyCode || ev.which;
 
-              if (code === 32 || code === 13) {
-                if (context.spinning !== 'down') {
-                  context.downOnce();
-                  context.startDownSpin();
+                if (code === 32 || code === 13) {
+                    if (context.spinning !== 'down') {
+                        context.downOnce();
+                        context.startDownSpin();
+                    }
+                    ev.preventDefault();
                 }
-                ev.preventDefault();
-              }
             });
 
             elements.down.on('keyup', function(ev) {
-              var code = ev.keyCode || ev.which;
+                var code = ev.keyCode || ev.which;
 
-              if (code === 32 || code === 13) {
-                context.stopSpin();
-              }
+                if (code === 32 || code === 13) {
+                    context.stopSpin();
+                }
             });
 
             elements.up.on('keydown', function(ev) {
-              var code = ev.keyCode || ev.which;
+                var code = ev.keyCode || ev.which;
 
-              if (code === 32 || code === 13) {
-                if (context.spinning !== 'up') {
-                  context.upOnce();
-                  context.startUpSpin();
+                if (code === 32 || code === 13) {
+                    if (context.spinning !== 'up') {
+                        context.upOnce();
+                        context.startUpSpin();
+                    }
+                    ev.preventDefault();
                 }
-                ev.preventDefault();
-              }
             });
 
             elements.up.on('keyup', function(ev) {
-              var code = ev.keyCode || ev.which;
+                var code = ev.keyCode || ev.which;
 
-              if (code === 32 || code === 13) {
-                context.stopSpin();
-              }
+                if (code === 32 || code === 13) {
+                    context.stopSpin();
+                }
             });
 
             elements.down.on('mousedown.spinner', function(ev) {
-              elements.down.off('touchstart.spinner');  // android 4 workaround
+                elements.down.off('touchstart.spinner');  // android 4 workaround
 
-              if (element.is(':disabled')) {
-                return;
-              }
+                if (element.is(':disabled')) {
+                    return;
+                }
 
-              context.downOnce();
-              context.startDownSpin();
+                context.downOnce();
+                context.startDownSpin();
 
-              ev.preventDefault();
-              ev.stopPropagation();
+                ev.preventDefault();
+                ev.stopPropagation();
             });
 
             elements.down.on('touchstart.spinner', function(ev) {
-              elements.down.off('mousedown.spinner');  // android 4 workaround
+                elements.down.off('mousedown.spinner');  // android 4 workaround
 
-              if (element.is(':disabled')) {
-                return;
-              }
+                if (element.is(':disabled')) {
+                    return;
+                }
 
-              context.downOnce();
-              context.startDownSpin();
+                context.downOnce();
+                context.startDownSpin();
 
-              ev.preventDefault();
-              ev.stopPropagation();
+                ev.preventDefault();
+                ev.stopPropagation();
             });
 
             elements.up.on('mousedown.spinner', function(ev) {
-              elements.up.off('touchstart.spinner');  // android 4 workaround
+                elements.up.off('touchstart.spinner');  // android 4 workaround
 
-              if (element.is(':disabled')) {
-                return;
-              }
+                if (element.is(':disabled')) {
+                    return;
+                }
 
-              context.upOnce();
-              context.startUpSpin();
+                context.upOnce();
+                context.startUpSpin();
 
-              ev.preventDefault();
-              ev.stopPropagation();
+                ev.preventDefault();
+                ev.stopPropagation();
             });
 
             elements.up.on('touchstart.spinner', function(ev) {
-              elements.up.off('mousedown.spinner');  // android 4 workaround
+                elements.up.off('mousedown.spinner');  // android 4 workaround
 
-              if (element.is(':disabled')) {
-                return;
-              }
+                if (element.is(':disabled')) {
+                    return;
+                }
 
-              context.upOnce();
-              context.startUpSpin();
+                context.upOnce();
+                context.startUpSpin();
 
-              ev.preventDefault();
-              ev.stopPropagation();
+                ev.preventDefault();
+                ev.stopPropagation();
             });
 
             elements.up.on('mouseout touchleave touchend touchcancel', function(ev) {
-              if (!context.spinning) {
-                return;
-              }
+                if (!context.spinning) {
+                    return;
+                }
 
-              ev.stopPropagation();
-              context.stopSpin();
+                ev.stopPropagation();
+                context.stopSpin();
             });
 
             elements.down.on('mouseout touchleave touchend touchcancel', function(ev) {
-              if (!context.spinning) {
-                return;
-              }
+                if (!context.spinning) {
+                    return;
+                }
 
-              ev.stopPropagation();
-              context.stopSpin();
+                ev.stopPropagation();
+                context.stopSpin();
             });
 
             elements.down.on('mousemove touchmove', function(ev) {
-              if (!context.spinning) {
-                return;
-              }
+                if (!context.spinning) {
+                    return;
+                }
 
-              ev.stopPropagation();
-              ev.preventDefault();
+                ev.stopPropagation();
+                ev.preventDefault();
             });
 
             elements.up.on('mousemove touchmove', function(ev) {
-              if (!context.spinning) {
-                return;
-              }
+                if (!context.spinning) {
+                    return;
+                }
 
-              ev.stopPropagation();
-              ev.preventDefault();
+                ev.stopPropagation();
+                ev.preventDefault();
             });
 
             $(document).on(_scopeEventNames(['mouseup', 'touchend', 'touchcancel'], _currentPluginId).join(' '), function(ev) {
-              if (!context.spinning) {
-                return;
-              }
+                if (!context.spinning) {
+                    return;
+                }
 
-              ev.preventDefault();
-              context.stopSpin();
+                ev.preventDefault();
+                context.stopSpin();
             });
 
             $(document).on(_scopeEventNames(['mousemove', 'touchmove', 'scroll', 'scrollstart'], _currentPluginId).join(' '), function(ev) {
-              if (!context.spinning) {
-                return;
-              }
+                if (!context.spinning) {
+                    return;
+                }
 
-              ev.preventDefault();
-              context.stopSpin();
+                ev.preventDefault();
+                context.stopSpin();
             });
 
             element.on('mousewheel DOMMouseScroll', function(ev) {
-              if (!context.settings.mousewheel || !context.element.is(':focus')) {
-                return;
-              }
+                if (!context.settings.mousewheel || !context.element.is(':focus')) {
+                    return;
+                }
 
-              var delta = ev.originalEvent.wheelDelta || -ev.originalEvent.deltaY || -ev.originalEvent.detail;
+                var delta = ev.originalEvent.wheelDelta || -ev.originalEvent.deltaY || -ev.originalEvent.detail;
 
-              ev.stopPropagation();
-              ev.preventDefault();
+                ev.stopPropagation();
+                ev.preventDefault();
 
-              if (delta < 0) {
-                context.downOnce();
-              }
-              else {
-                context.upOnce();
-              }
+                if (delta < 0) {
+                    context.downOnce();
+                }
+                else {
+                    context.upOnce();
+                }
             });
         },
 
         _bindEventsInterface:function () {
-          var context=this;
-          var element=this.element;
+            var context=this;
+            var element=this.element;
 
-          element.on('spinner.uponce', function() {
-            context.stopSpin();
-            upOnce();
-          });
+            element.on('spinner.uponce', function() {
+                context.stopSpin();
+                context.upOnce();
+            });
 
-          element.on('spinner.downonce', function() {
-            context.stopSpin();
-            downOnce();
-          });
+            element.on('spinner.downonce', function() {
+                context.stopSpin();
+                context.downOnce();
+            });
 
-          element.on('spinner.startupspin', function() {
-            startUpSpin();
-          });
+            element.on('spinner.startupspin', function() {
+                context.startUpSpin();
+            });
 
-          element.on('spinner.startdownspin', function() {
-            startDownSpin();
-          });
+            element.on('spinner.startdownspin', function() {
+                context.startDownSpin();
+            });
 
-          element.on('spinner.stopspin', function() {
-            context.stopSpin();
-          });
+            element.on('spinner.stopspin', function() {
+                context.stopSpin();
+            });
 
-          element.on('spinner.updatesettings', function(e, newsettings) {
-            context.changeSettings(newsettings);
-          });
+            element.on('spinner.updatesettings', function(e, newsettings) {
+                context.changeSettings(newsettings);
+            });
         },
 
         _forcestepdivisibility: function (value) {
-          var settings=this.settings;
-          switch (settings.forcestepdivisibility) {
+            var settings=this.settings;
+            switch (settings.forcestepdivisibility) {
             case 'round':
-              return (Math.round(value / settings.step) * settings.step).toFixed(settings.decimals);
+                return (Math.round(value / settings.step) * settings.step).toFixed(settings.decimals);
             case 'floor':
-              return (Math.floor(value / settings.step) * settings.step).toFixed(settings.decimals);
+                return (Math.floor(value / settings.step) * settings.step).toFixed(settings.decimals);
             case 'ceil':
-              return (Math.ceil(value / settings.step) * settings.step).toFixed(settings.decimals);
+                return (Math.ceil(value / settings.step) * settings.step).toFixed(settings.decimals);
             default:
-              return value;
-          }
+                return value;
+            }
         },
 
         _checkValue: function () {
-          var val, parsedval, returnval;
+            var val, parsedval, returnval;
 
-          val = this.element.val();
+            val = this.element.val();
 
-          if (val === '') {
-            return;
-          }
+            if (val === '') {
+                return;
+            }
 
-          if (this.settings.decimals > 0 && val === '.') {
-            return;
-          }
+            if (this.settings.decimals > 0 && val === '.') {
+                return;
+            }
 
-          parsedval = parseFloat(val);
+            parsedval = parseFloat(val);
 
-          if (isNaN(parsedval)) {
-            parsedval = 0;
-          }
+            if (isNaN(parsedval)) {
+                parsedval = 0;
+            }
 
-          returnval = parsedval;
-
-          if (parsedval.toString() !== val) {
             returnval = parsedval;
-          }
 
-          if (parsedval < this.settings.min) {
-            returnval = this.settings.min;
-          }
+            if (parsedval.toString() !== val) {
+                returnval = parsedval;
+            }
 
-          if (parsedval > this.settings.max) {
-            returnval = this.settings.max;
-          }
+            if (parsedval < this.settings.min) {
+                returnval = this.settings.min;
+            }
 
-          returnval = this._forcestepdivisibility(returnval);
+            if (parsedval > this.settings.max) {
+                returnval = this.settings.max;
+            }
 
-          if (Number(val).toString() !== returnval.toString()) {
-            this.element.val(returnval);
-            this.element.trigger('change');
-          }
+            returnval = this._forcestepdivisibility(returnval);
+
+            if (Number(val).toString() !== returnval.toString()) {
+                this.element.val(returnval);
+                this.element.trigger('change');
+            }
         },
 
         _getBoostedStep: function () {
-          if (!this.settings.booster) {
-            return this.settings.step;
-          }
-          else {
-            var boosted = Math.pow(2, Math.floor(this.spincount / this.settings.boostat)) * this.settings.step;
-
-            if (this.settings.maxboostedstep) {
-              if (boosted > this.settings.maxboostedstep) {
-                boosted = this.settings.maxboostedstep;
-                this.value = Math.round((this.value / boosted)) * boosted;
-              }
+            if (!this.settings.booster) {
+                return this.settings.step;
             }
+            else {
+                var boosted = Math.pow(2, Math.floor(this.spincount / this.settings.boostat)) * this.settings.step;
 
-            return Math.max(this.settings.step, boosted);
-          }
+                if (this.settings.maxboostedstep) {
+                    if (boosted > this.settings.maxboostedstep) {
+                        boosted = this.settings.maxboostedstep;
+                        this.value = Math.round((this.value / boosted)) * boosted;
+                    }
+                }
+
+                return Math.max(this.settings.step, boosted);
+            }
         },
 
         upOnce:function () {
-          this._checkValue();
+            this._checkValue();
 
-          var value = parseFloat(this.elements.input.val());
-          if (isNaN(value)) {
-            value = 0;
-          }
+            var value = parseFloat(this.elements.input.val());
+            if (isNaN(value)) {
+                value = 0;
+            }
 
-          var initvalue = value,
-              boostedstep = this._getBoostedStep();
+            var initvalue = value,
+                boostedstep = this._getBoostedStep();
 
-          value = value + boostedstep;
+            value = value + boostedstep;
 
-          if (value > this.settings.max) {
-            value = this.settings.max;
-            this.element.trigger('spinner.on.max');
-            this.stopSpin();
-          }
+            if (value > this.settings.max) {
+                value = this.settings.max;
+                this.element.trigger('spinner.on.max');
+                this.stopSpin();
+            }
 
-          this.elements.input.val(Number(value).toFixed(this.settings.decimals));
+            this.elements.input.val(Number(value).toFixed(this.settings.decimals));
 
-          if (initvalue !== value) {
-            this.element.trigger('change');
-          }
+            if (initvalue !== value) {
+                this.element.trigger('change');
+            }
         },
 
         downOnce:function () {
-          this._checkValue();
+            this._checkValue();
 
-          var value = parseFloat(this.elements.input.val());
-          if (isNaN(value)) {
-            value = 0;
-          }
+            var value = parseFloat(this.elements.input.val());
+            if (isNaN(value)) {
+                value = 0;
+            }
 
-          var initvalue = value,
-              boostedstep = this._getBoostedStep();
+            var initvalue = value,
+                boostedstep = this._getBoostedStep();
 
-          value = value - boostedstep;
+            value = value - boostedstep;
 
-          if (value < this.settings.min) {
-            value = this.settings.min;
-            this.element.trigger('spinner.on.min');
-            this.stopSpin();
-          }
+            if (value < this.settings.min) {
+                value = this.settings.min;
+                this.element.trigger('spinner.on.min');
+                this.stopSpin();
+            }
 
-          this.elements.input.val(value.toFixed(this.settings.decimals));
+            this.elements.input.val(value.toFixed(this.settings.decimals));
 
-          if (initvalue !== value) {
-            this.element.trigger('change');
-          }
+            if (initvalue !== value) {
+                this.element.trigger('change');
+            }
         },
 
         startDownSpin : function () {
-          var context=this;
-          this.stopSpin();
+            var context=this;
+            this.stopSpin();
 
-          this.spincount = 0;
-          this.spinning = 'down';
+            this.spincount = 0;
+            this.spinning = 'down';
 
-          this.element.trigger('spinner.on.startspin');
-          this.element.trigger('spinner.on.startdownspin');
+            this.element.trigger('spinner.on.startspin');
+            this.element.trigger('spinner.on.startdownspin');
 
-          this.downDelayTimeout = setTimeout(function() {
-            context.downSpinTimer = setInterval(function() {
-              context.spincount++;
-              context.downOnce();
-            }, context.settings.stepinterval);
-          }, this.settings.stepintervaldelay);
+            this.downDelayTimeout = setTimeout(function() {
+                context.downSpinTimer = setInterval(function() {
+                    context.spincount++;
+                    context.downOnce();
+                }, context.settings.stepinterval);
+            }, this.settings.stepintervaldelay);
         },
 
         startUpSpin: function () {
-          var context=this;
-          this.stopSpin();
+            var context=this;
+            this.stopSpin();
 
-          this.spincount = 0;
-          this.spinning = 'up';
+            this.spincount = 0;
+            this.spinning = 'up';
 
-          this.element.trigger('spinner.on.startspin');
-          this.element.trigger('spinner.on.startupspin');
+            this.element.trigger('spinner.on.startspin');
+            this.element.trigger('spinner.on.startupspin');
 
-          this.upDelayTimeout = setTimeout(function() {
-            context.upSpinTimer = setInterval(function() {
-              context.spincount++;
-              context.upOnce();
-            }, context.settings.stepinterval);
-          }, this.settings.stepintervaldelay);
+            this.upDelayTimeout = setTimeout(function() {
+                context.upSpinTimer = setInterval(function() {
+                    context.spincount++;
+                    context.upOnce();
+                }, context.settings.stepinterval);
+            }, this.settings.stepintervaldelay);
         },
 
         stopSpin: function () {
-          clearTimeout(this.downDelayTimeout);
-          clearTimeout(this.upDelayTimeout);
-          clearInterval(this.downSpinTimer);
-          clearInterval(this.upSpinTimer);
+            clearTimeout(this.downDelayTimeout);
+            clearTimeout(this.upDelayTimeout);
+            clearInterval(this.downSpinTimer);
+            clearInterval(this.upSpinTimer);
 
-          switch (this.spinning) {
-            case 'up':
-              this.element.trigger('spinner.on.stopupspin');
-              this.element.trigger('spinner.on.stopspin');
-              break;
-            case 'down':
-              this.element.trigger('spinner.on.stopdownspin');
-              this.element.trigger('spinner.on.stopspin');
-              break;
-          }
+            switch (this.spinning) {
+                case 'up':
+                    this.element.trigger('spinner.on.stopupspin');
+                    this.element.trigger('spinner.on.stopspin');
+                    break;
+                case 'down':
+                    this.element.trigger('spinner.on.stopdownspin');
+                    this.element.trigger('spinner.on.stopspin');
+                    break;
+            }
 
-          this.spincount = 0;
-          this.spinning = false;
+            this.spincount = 0;
+            this.spinning = false;
         }
     });
 });
@@ -688,25 +686,25 @@ Tx().$package("tx.ui.controls", function(T){
  *  Under Apache License v2.0 License
  */
 (function($) {
-  // 严格模式
-  'use strict';
+    // 严格模式
+    'use strict';
 
-  // 控件类名
-  var pluginName = "spinner";
+    // 控件类名
+    var pluginName = "spinner";
 
-    // 胶水代码
-  $.fn[pluginName] = function(options) {
+        // 胶水代码
+    $.fn[pluginName] = function(options) {
 
-    this.each(function () {
-      var jElement = $(this);
-      if (jElement.data(pluginName)) {
-        jElement.data(pluginName).remove();
-      }
-      jElement.data(pluginName, new tx.ui.controls.Spinner(this, options));
-    });
+        this.each(function () {
+            var jElement = $(this);
+            if (jElement.data(pluginName)) {
+                jElement.data(pluginName).remove();
+            }
+            jElement.data(pluginName, new T.UI.Controls.Spinner(this, options));
+        });
 
-    return this;
+        return this;
 
-  };
+    };
 
 })(jQuery);

@@ -53,7 +53,7 @@ angular.module('pnApp.directives', [])
 
 var pnApp = angular.module('pnApp', [
 		'ngRoute',
-		'triangle.controls',
+		'T.UI.ngControls',
 		'pnApp.filters', 
 		'pnApp.services', 
 		'pnApp.directives', 

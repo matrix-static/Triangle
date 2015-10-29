@@ -1,7 +1,7 @@
 /* spinner javascript AngularJS */
 
 //angular.module('triangle.controls', [])
-Tx.ngControls
+T.UI.ngControls
 	.directive('spinner', ['$rootScope', '$compile', function($rootScope, $compile){
 
 		function link($scope, $element, $attrs, undefined, link){

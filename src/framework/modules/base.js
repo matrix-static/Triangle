@@ -2,7 +2,7 @@
 /**
  * 2.[Javascript core]: 常用工具函数扩展
  */
-Tx().$package(function(T){
+Jx().package(function(J){
     var isUndefined,
         isNull,
         isNumber,
@@ -14,6 +14,8 @@ Tx().$package(function(T){
         isFunction,
         $typeof,
         
+        emptyFunc,
+
         random,
 
         extend,
@@ -214,9 +216,9 @@ Tx().$package(function(T){
      * @return {Mixed} 返回被扩展后的对象或数组
      * 
      * @example
-     * T().$package(function(J){
+     * J().package(function(J){
      *     // 用 objB 和objC 扩展 objA 对象；
-     *     T.extend(objA, objB, objC);
+     *     J.extend(objA, objB, objC);
      * };
      * 
      */
@@ -259,6 +261,8 @@ Tx().$package(function(T){
 
         return beExtendObj;
     };
+
+    emptyFunc = function(){};
     
     /**
      * 创建Class类的类
@@ -270,8 +274,8 @@ Tx().$package(function(T){
      * @return {Object} 返回生成的日期时间字符串
      * 
      * @example
-     * T().$package(function(J){
-     *     var Person = new T.Class({
+     * J().package(function(J){
+     *     var Person = new J.Class({
      *      init : function(name){
      *          this.name = name;
      *          alert("init");
@@ -284,7 +288,7 @@ Tx().$package(function(T){
      *  });
      *  
      *  // 继承Person
-     *     var Person2 = new T.Class({extend : Person}, {
+     *     var Person2 = new J.Class({extend : Person}, {
      *      init : function(name){
      *          this.name = name;
      *          alert("init");
@@ -347,7 +351,7 @@ Tx().$package(function(T){
             // 重新指定构造函数
             subClass.prototype.constructor = subClass;
             
-            T.extend(subClass.prototype, option);
+            J.extend(subClass.prototype, option);
             
             /**
              * @ignore
@@ -377,19 +381,21 @@ Tx().$package(function(T){
         
     }; 
     
-    T.isUndefined = isUndefined;
-    T.isNull = isNull;
-    T.isNumber = isNumber;
-    T.isString = isString;
-    T.isBoolean = isBoolean;
-    T.isObject = isObject;
-    T.isArray = isArray;
-    T.isArguments = isArguments;
-    T.isFunction = isFunction;
-    T.$typeof = $typeof;
+    J.isUndefined = isUndefined;
+    J.isNull = isNull;
+    J.isNumber = isNumber;
+    J.isString = isString;
+    J.isBoolean = isBoolean;
+    J.isObject = isObject;
+    J.isArray = isArray;
+    J.isArguments = isArguments;
+    J.isFunction = isFunction;
+    J.$typeof = $typeof;
 
-    T.random = random;
+    J.emptyFunc=emptyFunc;
 
-    T.extend = extend;
-    T.Class = Class;
+    J.random = random;
+
+    J.extend = extend;
+    J.Class = Class;
 });
