@@ -1,6 +1,9 @@
 DD_belatedPNG
 解决IE6下PNG图片不透明的方案
 
+anchorjs
+给demo用
+
 FontAwesome
 开源CSS字体
 https://github.com/FortAwesome/Font-Awesome
@@ -8,6 +11,7 @@ https://github.com/FortAwesome/Font-Awesome
 JSON
 JSON库
 https://github.com/douglascrockford/JSON-js
+https://github.com/bestiejs/json3
 
 
 html5shiv
@@ -19,6 +23,10 @@ https://github.com/afarkas/html5shiv
 Respond
 让IE6-8 支持 CSS3 Media Query
 https://github.com/scottjehl/Respond
+
+es5-shim
+让IE6-8 支持 ECMAScript 5 api
+https://github.com/es-shims/es5-shim
 
 
 modernizr

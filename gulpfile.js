@@ -61,7 +61,8 @@ gulp.task('default', ['demo'])
 					'build/framework', 
 					'build/demo', 
 					'build/examples',
-					'build/refer'
+					'build/refer',
+                    'build/iefix'
 				] )
 			.pipe( clean({force: true}) );
 	})
@@ -127,6 +128,14 @@ gulp.task('default', ['demo'])
 			// .pipe( jshint.reporter('default') )	// js语法检查
 			.pipe( concat(NAME+'-ng.js') )
 			.pipe( gulp.dest('build/framework') );
+
+        // 复制refer modules
+        gulp.src(['refer/modules/**/*'])
+            .pipe( gulp.dest('build/refer/modules') );
+
+        /* 发布ie fix文件 */
+        gulp.src( ['src/iefix/**/*'] )
+        .pipe( gulp.dest('build/iefix') )
 	})
 	// 构建 演示
 	.task('build-demo', ['build-libs', 'build-fram'], function(){
@@ -209,10 +218,6 @@ gulp.task('default', ['demo'])
 	})
 	// 构建 示例
 	.task('build-exam', ['build-libs', 'build-fram', 'build-demo'], function(){
-		// 复制refer modules
-		gulp.src(['refer/modules/**/*'])
-			.pipe( gulp.dest('build/refer/modules') );
-
 		gulp.src(['src/examples/**/*'])
 			.pipe( gulp.dest('build/examples') );
 	})
