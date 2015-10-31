@@ -134,7 +134,6 @@ Jx().package("T.UI.Controls", function(J){
             this._bindEventsInterface();
             // ...
             this.elements.input.css('display', 'block');
-
         },
 
         changeSettings:function(newsettings) {
@@ -148,8 +147,6 @@ Jx().package("T.UI.Controls", function(J){
                 elements.input.val(value.toFixed(this.settings.decimals));
             }
         },
-
-            
 
         _updateSettings:function (newsettings) {
             this.settings = $.extend({}, settings, newsettings);

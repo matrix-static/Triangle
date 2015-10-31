@@ -2,7 +2,7 @@
  
 $(function() {
 
-    $('#side-menu').accoMenu();
+    $('#side-menu').sidebar();
 
 });
 
