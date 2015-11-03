@@ -12,27 +12,6 @@ Jx().package("T.UI.Controls", function(J){
     /* ===================================================================
         省/市/区县 数据
        =================================================================== */
-    var areaRank={
-        province:{
-            name:'province',
-            parent:false//,
-            //child:'city'
-        },
-        city:{
-            name:'city'//,
-            //parent:'province',
-            //child:'area'
-        },
-        area:{
-            name:'area',
-            //parent:'city',
-            child:false
-        }
-    };
-    areaRank.province.child=areaRank.city;
-    areaRank.city.child=areaRank.area;
-    areaRank.city.parent=areaRank.province;
-    areaRank.area.parent=areaRank.city;
 
     var provinces = [
         ["340000", "安徽"], 
@@ -3459,14 +3438,27 @@ Jx().package("T.UI.Controls", function(J){
             // 直接使用地址类实例的设置
             this.settings=options;
 
-            // 初始化数据
-            this.getData();
+            this.settings.ranks=[
+                {
+                    name:'province',
+                    text:'省'
+                },
+                {
+                    name:'city',
+                    text:'市'
+                },
+                {
+                    name:'area',
+                    text:'区/县'
+                },
+            ];
 
             // 保存当前行政级别
-            this.areaRank={
-                ids:[]
-            };
-            this.activeRankName='provinde';
+            this.activeRankIndex=0;
+            this.treePath=[];
+
+            // 初始化数据
+            this.getData();
 
             // 构建html DOM
             this.buildHtml();
@@ -3480,6 +3472,9 @@ Jx().package("T.UI.Controls", function(J){
             this.bindEventsInterface();
 
             //this.buildItems();
+
+            // 激活当前(第一个)tab
+            this.activeTab();
         },
         getData:function(){
             this.data.areaTree=areaTree;
@@ -3489,45 +3484,35 @@ Jx().package("T.UI.Controls", function(J){
             this._buildItems();
         },
         _buildTab:function(){
+            var htmlTabs='';
+            var htmlContents='';
+            for(var i=0; i<this.settings.ranks.length; i++){
+                var rank=this.settings.ranks[i];
+                htmlTabs += '<li data-s-rank="'+ i +'" class="tab-' + rank.name + '"><a href="#">' + rank.text + '<span class="caret"></span></a></li>';
+                htmlContents += '<div class="address-' + rank.name + ' address-content"></div>';
+            }
+
             var htmlTemplate = ''+
                 '<div class="address-pop dropdown-menu">'+
                 '    <div class="address-path">'+
                 '        <ul class="address-tabs">'+
-                '            <li data-s-rank="province" class="tab-province active"><a href="#">省<span class="caret"></span></a></li>'+
-                '            <li data-s-rank="city" class="tab-city"><a href="#">市<span class="caret"></span></a></li>'+
-                '            <li data-s-rank="area" class="tab-area"><a href="#">区/县<span class="caret"></span></a></li>'+
+                htmlTabs +
                 '        </ul>'+
                 '    </div>'+
-                '    <div class="address-province address-content">'+
-                //'        <ul class="address-item">'+
-                //'            <li>北京</li><li>上海</li><li>天津</li><li>重庆</li>'+
-                //'            <li>河北</li><li>山西</li><li>河南</li><li>辽宁</li>'+
-                //'            <li>香港</li><li>澳门</li><li>钓鱼岛</li>'+
-                //// htmlProvinces+
-                //'        <ul>'+
-                '    </div>'+
-                '    <div class="address-city address-content" style="display:none;">'+
-                //'        <ul class="address-item">'+
-                //'            <li>长沙市</li><li>株洲市</li><li>湘潭市</li>'+
-                //'        <ul>'+
-                '    </div>'+
-                '    <div class="address-area address-content" style="display:none;">'+
-                //'        <ul class="address-item">'+
-                //'            <li>南县</li><li>桃江县</li><li>安化县</li>'+
-                //'        </ul>'+
-                '    </div>'+
+                htmlContents +
                 '</div>';
 
             this.container=$(htmlTemplate);
             this.container.insertAfter(this.element);
         },
         _buildItems:function(){
-            var childs=areaTree.childs;
-            for(var i=0; i<this.areaRank.ids; i++){
-                var id=this.areaRank.ids[i];
-                childs=childs[id];
+            var item=areaTree;
+            for(var i=0; i<this.activeRankIndex; i++){
+                var id=this.treePath[i];
+                item=item.childs[id];
             }
 
+            var childs=item.childs;
             var htmlTemplate='<ul class="address-item">';
             for(var p in childs){
                 var childId=p;
@@ -3536,9 +3521,9 @@ Jx().package("T.UI.Controls", function(J){
             }
             htmlTemplate+='</ul>';
 
-            var areaName=this._getRankName();
+            var activeRank=this.settings.ranks[this.activeRankIndex];
 
-            var itemsContainerSelector='.address-'+areaName;
+            var itemsContainerSelector='.address-'+activeRank.name;
             var itemsContainer= $(itemsContainerSelector, this.container);
 
             itemsContainer.empty().append(htmlTemplate);
@@ -3546,15 +3531,7 @@ Jx().package("T.UI.Controls", function(J){
         initElements:function(){
             this.elements={
                 tabs: $('.address-tabs li', this.container),
-                tabProvince: $('.address-tabs .tab-province', this.container),
-                tabCity: $('.address-tabs .tab-city', this.container),
-                tabArea: $('.address-tabs .tab-area', this.container),
-                contents: $('.address-content', this.container),
-                provinceItems:$('.address-province li', this.container),
-                cityItemsContainer: $('.address-city', this.container),
-                cityItems: $('.address-city li', this.mecontainernu),
-                areaItemsContainer: $('.address-area', this.container),
-                areaItems: $('.address-area li', this.container)
+                contents: $('.address-content', this.container)
             };
         },
         bindEvents:function(){
@@ -3565,7 +3542,8 @@ Jx().package("T.UI.Controls", function(J){
 
             elements.tabs
                 .on('click',function(e){
-                    context.activeRankName=$(this).data('s-rank');
+                    var rankIndex = $(this).data('s-rank');
+                    context.activeRankIndex = parseInt(rankIndex);
                     context.activeTab();
 
                     e.preventDefault();
@@ -3574,154 +3552,68 @@ Jx().package("T.UI.Controls", function(J){
             this._bindItems();
         },
         bindEventsInterface:function () {},
-        _getRankName:function(){
-            var areaName='province';
-            if(this.areaRank.ids.length === 1){
-                areaName='city';
-            }
-            else if(this.areaRank.ids.length === 2){
-                areaName='area';
-            }
-            return areaName;
-        },
-        _getNextRankName:function(){
-            var areaName='city';
-            if(this.areaRank.ids.length === 1){
-                areaName='area';
-            }
-            return areaName;
-        },
         _bindItems:function(){
             var context=this;
             var elements=this.elements;
 
-            var rankName=this._getRankName();
+            var activeRank=this.settings.ranks[this.activeRankIndex];
 
-            var itemsSelector='.address-'+rankName+' li';
+            var itemsSelector='.address-'+activeRank.name+' li';
             var jqItems=$(itemsSelector,this.container);
 
             //items.on('click', context.renderChild);
             jqItems.on('click',function(e){
-                var id=$(this).data('s-id');
-                var childs;
+
+                var id = $(this).data('s-id');
+
+
+                var name = $(this).text();
+                var jqActiveTab=$('.address-tabs .tab-' + activeRank.name, context.container);
+                jqActiveTab.html('<a href="#">'+ name +'<span class="caret"></span>');
+
+                // 将选中的item显示在tab上
+                for(var i=context.activeRankIndex+1; i < context.treePath.length; i++){
+                    var popTabRank=context.settings.ranks[i];
+                    var jqPopTab=$('.address-tabs .tab-' + popTabRank.name, context.container);
+                    jqPopTab.html('<a href="#">'+ popTabRank.text +'<span class="caret"></span>');
+                }
+                var lastestNodeIndex=context.treePath.length === context.settings.ranks.length? context.treePath.length : context.treePath.length + 1;
+                // 清空下两级的content
+                for(var i=context.activeRankIndex+2; i < lastestNodeIndex; i++){
+                    var popContentRank=context.settings.ranks[i];
+
+                    var itemsContainerSelector='.address-'+popContentRank.name;
+                    var itemsContainer= $(itemsContainerSelector, this.container);
+
+                    itemsContainer.empty();
+                }
+
+
+                // 选了低级别再选高级别，树路径回滚
+                while(context.treePath.length>context.activeRankIndex){
+                    context.treePath.pop();
+                }
+                // 选中当前ID
+                context.treePath.push(id);
+
+
                 
-                if(rankName === 'area'){
+                
+                if(context.settings.ranks.length === context.activeRankIndex + 1){
                     // 已是最后一级
                 }
                 else{
-                    // 选中当前ID
-                    context.areaRank.ids[id];
-
+                    context.activeRankIndex++;
                     // 不是最后一级
                     context._buildItems();
-
                     // 重新绑定 下级 点击事件
                     context._bindItems();
-
                     // 显示下一级tab
-                    context.activeTab(context._getNextRankName());
+                    context.activeTab();
                 }
             })
         },
-        //renderChild:,
-        /*_bindProvinceItems:function(){
-            var context=this;
-
-            var elements=this.elements;
-
-            elements.provinceItems
-                .on('click',function(e){
-                    var provinceId=$(this).data('s-id');
-                    var province=areaTree[provinceId];
-                    var cities=areaTree[provinceId].cities;
-
-                    var htmlCities='<ul class="address-item">';
-                    for(var p in cities){
-                        var id=p;
-                        var name=cities[p].name;
-                        htmlCities += '<li data-s-id="'+id+'">'+name+'</li>'; 
-                    }
-                    htmlCities+='</ul>';
-
-                    htmlCities=$(htmlCities);
-                    context.elements.cityItemsContainer.empty().append(htmlCities);
-                    context.elements.cityItems = $('li', htmlCities);                    
-
-                    // 重新绑定 市 点击事件
-                    context._bindCityItems(province);
-
-                    // 显示 省 名称
-                    //<a href="#">省<span class="caret"></span>
-                    context.elements.tabProvince.html('<a href="#">'+ province.name +'<span class="caret"></span>');
-
-                    // 清除 市 名称
-                    context.elements.tabCity.html('<a href="#">市<span class="caret"></span>');
-                    // 清除 区/县 名称
-                    context.elements.tabArea.html('<a href="#">区/县<span class="caret"></span>');
-
-                    // 激活 市
-                    //context.activeCity(province);
-                    context.activeTab('city');
-                    
-                });
-
-        },
-        _bindCityItems:function(province){
-            var context=this;
-
-            var elements=this.elements;
-
-            elements.cityItems
-                .on('click',function(e){
-                    var cityId=$(this).data('s-id');
-                    var city=province.cities[cityId];
-                    var areas=city.areas;      
-
-                    var htmlAreas='<ul class="address-item">';
-                    for(var p in areas){
-                        var id=p;
-                        var name=areas[p];
-                        htmlAreas += '<li data-s-id="'+id+'">'+name+'</li>'; 
-                    }
-                    htmlAreas+='</ul>';
-
-                    htmlAreas=$(htmlAreas);
-                    context.elements.areaItemsContainer.empty().append(htmlAreas);
-                    context.elements.areaItems = $('li', htmlAreas);
-
-                    // 重新绑定 区/县 点击事件
-                    context._bindAreaItems(city);
-
-                    // 显示 市 名称
-                    //<a href="#">市<span class="caret"></span>
-                    context.elements.tabCity.html('<a href="#">'+ city.name +'<span class="caret"></span>');
-
-                    // 清除 区/县 名称
-                    context.elements.tabArea.html('<a href="#">区/县<span class="caret"></span>');
-
-                    // 激活 区/县
-                    //context.activeArea();                    
-                    context.activeTab('area');
-                });
-        },
-        _bindAreaItems:function(city){
-            var context=this;
-
-            var elements=this.elements;
-
-            elements.areaItems
-                .on('click',function(e){
-                    var areaId=$(this).data('s-id');
-
-                    var areaName=city.areas[areaId];//.name;
-
-                    // 显示 区/县 名称
-                    context.elements.tabArea.html('<a href="#">'+ areaName +'<span class="caret"></span>');
-
-                    // 关闭 弹出菜单
-                    context.hide();
-                });
-        },*/
+        
         show: function () {
             var pos = $.extend({}, this.element.position(), {
                 height: this.element[0].offsetHeight
@@ -3737,9 +3629,11 @@ Jx().package("T.UI.Controls", function(J){
         hide: function(){
             //this.container.hide();
         },
-        activeTab:function(){   // province / city / area
-            var tabSelector='.tab-'+this.activeRankName;
-            var contentSelector='.address-'+this.activeRankName;
+        activeTab:function(){
+            var activeRank=this.settings.ranks[this.activeRankIndex];
+
+            var tabSelector='.tab-'+activeRank.name;
+            var contentSelector='.address-'+activeRank.name;
 
             this.elements.tabs.removeClass('active');
             this.elements.contents.hide();
