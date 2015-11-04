@@ -136,6 +136,8 @@ Jx().package("T.UI.Controls", function(J){
 
             elements.tabs
                 .on('click',function(e){
+                    // $.peoxy 不能取 $(this).data('s-foo'); 
+                    // 只有elements.foo是单个控件的情况下，能在这里被引用时才能使用。
                     var levelIndex = $(this).data('s-level');
                     levelIndex = parseInt(levelIndex);
                     context._activeTab(levelIndex);
@@ -149,9 +151,6 @@ Jx().package("T.UI.Controls", function(J){
             }
         },
         bindEventsInterface:function () {},
-        // clickNode:function(){
-        //     ;    // $.peoxy 如何取 $(this).data('s-level'); ？
-        // },
         _bindNodes:function(levelIndex){
             var context=this;
 
