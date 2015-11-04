@@ -52,13 +52,22 @@ Jx().package("T.UI.Controls", function(J){
         buildHtml:function(){
             this._buildTab();
 
-            var treePath=this.inputElements.orginal.val().split(',');
-            // 设置初始值时大于二级的话，二级及二级以上的 content 没有内容需要添加内容
-            var node=this.data;
-            for(var i=0; i<treePath.length; i++){
-                this._buildNodes(node, i);
-                node=node.childs[treePath[i]];
-            }            
+            var treePath = this.getPath();
+            if(treePath.length === 0){
+                // treepath可能为空
+                this.activeRankIndex = 0;
+
+                this._buildNodes(this.data, 0);
+            }
+            else{
+                this.activeRankIndex = treePath.length == this.ranks.length ? this.ranks.length -1 : treePath.length;
+
+                var node=this.data;
+                for(var i=0; i<=treePath.length; i++){
+                    this._buildNodes(node, i);
+                    node= node.childs[treePath[i]];
+                }
+            }
         },
         _buildTab:function(){
             var htmlTabs='';
@@ -112,13 +121,13 @@ Jx().package("T.UI.Controls", function(J){
             elements.tabs
                 .on('click',function(e){
                     var rankIndex = $(this).data('s-rank');
-                    context.activeRankIndex = parseInt(rankIndex);
-                    context._activeTab();
+                    rankIndex = parseInt(rankIndex);
+                    context._activeTab(rankIndex);
 
                     e.preventDefault();
                 });
 
-            var treePath=this.inputElements.orginal.val().split(',');
+            var treePath = this.getPath();
             for(var i=0; i <= treePath.length; i++){
                 this._bindNodes(i);
             }
@@ -135,13 +144,55 @@ Jx().package("T.UI.Controls", function(J){
                 var id = $(this).data('s-id');
 
                 // 更新值
-                context.change(id);
+                context.change(id, context.activeRankIndex);
+                
+
+                var treePath = context.getPath();
+                var parentNode=context.data;
+                for(var i=0; i<context.activeRankIndex; i++){
+                    var nodeId=treePath[i];
+                    parentNode=parentNode.childs[nodeId];
+                }
+                var node = parentNode.childs[id];
+
+                if(treePath.length < context.ranks.length){
+                    // 显示 下一级 tab
+                    context.activeRankIndex++;
+                    
+                    // 显示 下一级 节点
+                    context._buildNodes(node, treePath.length);
+                    // 重新绑定 下一级 点击事件
+                    context._bindNodes(context.activeRankIndex);
+
+                    // 清空下一级后的 tab
+                    for(var i=treePath.length; i < context.ranks.length; i++){
+                        context._reflashTab(i, context.ranks[i]);
+                    }
+                    // 清空下两级后的 content
+                    for(var i=treePath.length+1; i < context.ranks.length; i++){
+                        context._clearContent(i);
+                    }
+                }
+
+                if(!node.childs){
+                    // 选完最后一级隐藏 树型菜单
+                    context.hide();
+                }
+
                 // 刷新视图
                 context.reflash();
             })
         },
         reflash:function(){
-            var treePath=this.inputElements.orginal.val().split(',');
+            this._activeTab(this.activeRankIndex);
+
+            var treePath = this.getPath();
+
+            // 初始化时 value 可能为空
+            if(treePath.length === 0){
+                return;
+            }
+
             var id=treePath[treePath.length-1];
 
             // 查找节点
@@ -158,44 +209,17 @@ Jx().package("T.UI.Controls", function(J){
             // 修改视图中的文字
             nodeNamePath += node.name;
             this.inputElements.view.val(nodeNamePath);
-            this._reflashTab(treePath.length-1, node.name);
-
-            if(treePath.length < this.ranks.length){
-                // 不是最后一级
-                
-                // 显示 下一级 tab
-                this.activeRankIndex++;    
-                // 显示 下一级 节点
-                this._buildNodes(node, treePath.length);
-                // 重新绑定 下一级 点击事件
-                this._bindNodes(this.activeRankIndex);
-
-                // 清空下一级后的 tab
-                //for(var i=this.activeRankIndex; i < this.ranks.length; i++){
-                for(var i=treePath.length; i < this.ranks.length; i++){
-                    this._reflashTab(i, this.ranks[i]);
-                }
-                // 清空下两级后的 content
-                //for(var i=this.activeRankIndex+1; i < this.ranks.length; i++){
-                for(var i=treePath.length+1; i < this.ranks.length; i++){
-                    this._clearContent(i);
-                }
-            }
-            
-            if(!node.childs){
-                // 选完最后一级隐藏 树型菜单
-                this.hide();
-            }
-
-            this._activeTab();
+            this._reflashTab(treePath.length-1, node.name);             
         },
         _reflashTab:function(index, text){
             var jqActiveTab=$('.level-tabs .tab-level-' + index, this.container);
             jqActiveTab.html('<a href="#">'+ text +'<span class="caret"></span>');
         },
-        _activeTab:function(){
-            var tabSelector = '.tab-level-' + this.activeRankIndex;
-            var contentSelector = '.level-' + this.activeRankIndex;
+        _activeTab:function(rankIndex){
+            this.activeRankIndex=rankIndex;
+
+            var tabSelector = '.tab-level-' + rankIndex;
+            var contentSelector = '.level-' + rankIndex;
 
             this.elements.tabs.removeClass('active');
             this.elements.contents.hide();
@@ -207,11 +231,16 @@ Jx().package("T.UI.Controls", function(J){
             var nodesContainer= $(nodesContainerSelector, this.container);
             nodesContainer.empty();
         },
-        change:function(id){
-            var treePath=this.inputElements.orginal.val().split(',');
+        getPath:function(){
+            var initValue = this.inputElements.orginal.val();
+            var treePath = initValue === '' ? [] : initValue.split(',');
+            return treePath;
+        },
+        change:function(id, rankIndex){
+            var treePath = this.getPath();
 
             // 选了低级别再选高级别，树路径回滚
-            while(treePath.length>this.activeRankIndex){
+            while(treePath.length > rankIndex){
                 treePath.pop();
             }
             // 选中当前ID
@@ -233,6 +262,7 @@ Jx().package("T.UI.Controls", function(J){
         },
         hide: function(){
             this.container.hide();
+            alert(this.inputElements.orginal.val());
         }
         
     });
