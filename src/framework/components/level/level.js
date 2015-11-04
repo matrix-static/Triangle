@@ -23,19 +23,18 @@ Jx().package("T.UI.Controls", function(J){
             //this.initSettings(options);
             // 直接使用地址类实例的设置
             this.settings=options;
-            this.ranks=this.settings.levelNames.split(',');
+            this.levels=this.settings.levelNames.split(',');
 
             // 初始化数据
             //this.getData();
             this.data=data;
 
             // 保存当前行政级别
-            this.activeRankIndex=0;
+            this.activeLevelIndex=0;
 
             // 构建html DOM
             this.buildHtml();
-            // 初始化 html DOM 元素
-            this.initElements();
+            
             //this.transferAttributes();
 
             // 绑定事件
@@ -50,31 +49,21 @@ Jx().package("T.UI.Controls", function(J){
             //this.data.areaTree=areaTree;
         },*/
         buildHtml:function(){
-            this._buildTab();
+            // 构建容器DOM
+            this.buildContainer();
 
-            var treePath = this.getPath();
-            if(treePath.length === 0){
-                // treepath可能为空
-                this.activeRankIndex = 0;
+            // 初始化 html DOM 元素
+            this.initElements();
 
-                this._buildNodes(this.data, 0);
-            }
-            else{
-                this.activeRankIndex = treePath.length == this.ranks.length ? this.ranks.length -1 : treePath.length;
-
-                var node=this.data;
-                for(var i=0; i<=treePath.length; i++){
-                    this._buildNodes(node, i);
-                    node= node.childs[treePath[i]];
-                }
-            }
+            // 构建内容DOM
+            this.buildContent();
         },
-        _buildTab:function(){
+        buildContainer:function(){
             var htmlTabs='';
             var htmlContents='';
-            for(var i=0; i<this.ranks.length; i++){
-                var levelName=this.ranks[i];
-                htmlTabs += '<li data-s-rank="'+ i +'" class="tab-level-' + i + '"><a href="#">' + levelName + '<span class="caret"></span></a></li>';
+            for(var i=0; i<this.levels.length; i++){
+                var levelName=this.levels[i];
+                htmlTabs += '<li data-s-level="'+ i +'" class="tab-level-' + i + '"><a href="#">' + levelName + '<span class="caret"></span></a></li>';
                 htmlContents += '<div class="level-' + i + ' level-content"></div>';
             }
 
@@ -91,7 +80,43 @@ Jx().package("T.UI.Controls", function(J){
             this.container=$(htmlTemplate);
             this.container.insertAfter(this.inputElements.view);
         },
-        _buildNodes:function(node, rankIndex){
+        initElements:function(){
+            this.elements={
+                tabs: $('.level-tabs li', this.container),
+                contents: $('.level-content', this.container),
+                getTab: function(levelIndex){
+                    var tabSelector = '.tab-level-' + levelIndex;
+                    return $(tabSelector, this.container);
+                },
+                getContent: function(levelIndex){
+                    var contentSelector = '.level-' + levelIndex;
+                    return $(contentSelector,this.container);
+                },
+                getNodes: function(levelIndex){
+                    var nodesSelector='.level-'+ levelIndex +' li';
+                    return $(nodesSelector,this.container);
+                }
+            };
+        },
+        buildContent:function(){
+            var treePath = this.getPath();
+            if(treePath.length === 0){
+                // treepath可能为空
+                this.activeLevelIndex = 0;
+
+                this._buildNodes(this.data, 0);
+            }
+            else{
+                this.activeLevelIndex = treePath.length == this.levels.length ? this.levels.length -1 : treePath.length;
+
+                var node=this.data;
+                for(var i=0; i<=treePath.length; i++){
+                    this._buildNodes(node, i);
+                    node= node.childs[treePath[i]];
+                }
+            }
+        },
+        _buildNodes:function(node, levelIndex){
             var childs=node.childs;
             var htmlTemplate='<ul class="level-node">';
             for(var p in childs){
@@ -101,17 +126,8 @@ Jx().package("T.UI.Controls", function(J){
             }
             htmlTemplate+='</ul>';
 
-            var nodesContainerSelector='.level-'+rankIndex;
-            var nodesContainer= $(nodesContainerSelector, this.container);
-
-            nodesContainer.empty().append(htmlTemplate);
-        },
-        initElements:function(){
-            this.elements={
-                tabs: $('.level-tabs li', this.container),
-                contents: $('.level-content', this.container)
-            };
-        },
+            this.elements.getContent(levelIndex).empty().append(htmlTemplate);
+        },        
         bindEvents:function(){
             var context=this;
 
@@ -120,9 +136,9 @@ Jx().package("T.UI.Controls", function(J){
 
             elements.tabs
                 .on('click',function(e){
-                    var rankIndex = $(this).data('s-rank');
-                    rankIndex = parseInt(rankIndex);
-                    context._activeTab(rankIndex);
+                    var levelIndex = $(this).data('s-level');
+                    levelIndex = parseInt(levelIndex);
+                    context._activeTab(levelIndex);
 
                     e.preventDefault();
                 });
@@ -133,44 +149,44 @@ Jx().package("T.UI.Controls", function(J){
             }
         },
         bindEventsInterface:function () {},
-        _bindNodes:function(rankIndex){
+        // clickNode:function(){
+        //     ;    // $.peoxy 如何取 $(this).data('s-level'); ？
+        // },
+        _bindNodes:function(levelIndex){
             var context=this;
 
-            var nodesSelector='.level-'+ rankIndex +' li';
-            var jqNodes=$(nodesSelector,this.container);
-
-            //nodes.on('click', context.renderChild);
+            var jqNodes=this.elements.getNodes(levelIndex);
             jqNodes.on('click',function(e){
                 var id = $(this).data('s-id');
 
                 // 更新值
-                context.change(id, context.activeRankIndex);
+                context.change(id, context.activeLevelIndex);
                 
 
                 var treePath = context.getPath();
                 var parentNode=context.data;
-                for(var i=0; i<context.activeRankIndex; i++){
+                for(var i=0; i<context.activeLevelIndex; i++){
                     var nodeId=treePath[i];
                     parentNode=parentNode.childs[nodeId];
                 }
                 var node = parentNode.childs[id];
 
-                if(treePath.length < context.ranks.length){
+                if(treePath.length < context.levels.length){
                     // 显示 下一级 tab
-                    context.activeRankIndex++;
+                    context.activeLevelIndex++;
                     
                     // 显示 下一级 节点
                     context._buildNodes(node, treePath.length);
                     // 重新绑定 下一级 点击事件
-                    context._bindNodes(context.activeRankIndex);
+                    context._bindNodes(context.activeLevelIndex);
 
                     // 清空下一级后的 tab
-                    for(var i=treePath.length; i < context.ranks.length; i++){
-                        context._reflashTab(i, context.ranks[i]);
+                    for(var i=treePath.length; i < context.levels.length; i++){
+                        context._setTab(i, context.levels[i]);
                     }
                     // 清空下两级后的 content
-                    for(var i=treePath.length+1; i < context.ranks.length; i++){
-                        context._clearContent(i);
+                    for(var i=treePath.length+1; i < context.levels.length; i++){
+                        context.elements.getContent(i).empty();
                     }
                 }
 
@@ -184,7 +200,7 @@ Jx().package("T.UI.Controls", function(J){
             })
         },
         reflash:function(){
-            this._activeTab(this.activeRankIndex);
+            this._activeTab(this.activeLevelIndex);
 
             var treePath = this.getPath();
 
@@ -202,45 +218,38 @@ Jx().package("T.UI.Controls", function(J){
                 var nodeId=treePath[i];
                 parentNode=parentNode.childs[nodeId];
                 nodeNamePath += parentNode.name + '/';
-                this._reflashTab(i, parentNode.name);
+                this._setTab(i, parentNode.name);
             }
             var node = parentNode.childs[id];
 
             // 修改视图中的文字
             nodeNamePath += node.name;
             this.inputElements.view.val(nodeNamePath);
-            this._reflashTab(treePath.length-1, node.name);             
+            this._setTab(treePath.length-1, node.name);             
         },
-        _reflashTab:function(index, text){
-            var jqActiveTab=$('.level-tabs .tab-level-' + index, this.container);
+        _setTab:function(index, text){
+            var jqActiveTab= this.elements.getTab(index);
             jqActiveTab.html('<a href="#">'+ text +'<span class="caret"></span>');
         },
-        _activeTab:function(rankIndex){
-            this.activeRankIndex=rankIndex;
-
-            var tabSelector = '.tab-level-' + rankIndex;
-            var contentSelector = '.level-' + rankIndex;
+        _activeTab:function(levelIndex){
+            this.activeLevelIndex=levelIndex;
 
             this.elements.tabs.removeClass('active');
-            this.elements.contents.hide();
-            $(tabSelector,this.container).addClass('active');
-            $(contentSelector,this.container).show();
-        },
-        _clearContent:function(index){
-            var nodesContainerSelector='.level-'+index;
-            var nodesContainer= $(nodesContainerSelector, this.container);
-            nodesContainer.empty();
+            this.elements.getTab(levelIndex).addClass('active');
+            
+            this.elements.contents.hide();            
+            this.elements.getContent(levelIndex).show();
         },
         getPath:function(){
             var initValue = this.inputElements.orginal.val();
             var treePath = initValue === '' ? [] : initValue.split(',');
             return treePath;
         },
-        change:function(id, rankIndex){
+        change:function(id, levelIndex){
             var treePath = this.getPath();
 
             // 选了低级别再选高级别，树路径回滚
-            while(treePath.length > rankIndex){
+            while(treePath.length > levelIndex){
                 treePath.pop();
             }
             // 选中当前ID
@@ -276,7 +285,6 @@ Jx().package("T.UI.Controls", function(J){
         init:function(element, options){
             this.element = $(element);
             //this.settings,
-            //this.element_data = this.element.data(),
 
             this.container,
             this.elements,
@@ -315,7 +323,6 @@ Jx().package("T.UI.Controls", function(J){
             this.bindEventsInterface();
         },
         buildHtml:function () {
-
             var htmlTemplate = ''+ 
                 '<div class="level-container">'+ 
                 //'    <input type="hidden" />'+
@@ -361,22 +368,22 @@ Jx().package("T.UI.Controls", function(J){
             var element=this.element;
             var elements=this.elements;
 
-            element.on('keydown', function(e) {
-                ;
-            });
+            // element.on('keydown', function(e) {
+            //     ;
+            // });
 
             elements.view
-                .on('focus',    $.proxy(this._showMenu, this))
+                .on('focus',    $.proxy(this._showMenu, this))      // $proxy 用 当前 this 替代 控件 this
                 .on('blur',     $.proxy(this._hideMenu, this));
         },        
         bindEventsInterface:function () {
             var context=this;
             var element=this.element;
 
-            element.on('level.foo', function() {
-                context.foo();
-                foo();
-            });
+            // element.on('level.foo', function() {
+            //     context.foo();
+            //     foo();
+            // });
         },
         transferAttributes: function(){
             //this.options.placeholder = this.$source.attr('data-placeholder') || this.options.placeholder
