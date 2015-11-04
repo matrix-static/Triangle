@@ -1,0 +1,449 @@
+/*
+
+{
+    "name":"",
+    "childs":{
+        "id-1":{
+            "name":
+            "childs":{
+                ...
+            }
+        },
+        "id-2":{
+            "name":
+            "childs":{
+                ...
+            }
+        }
+    }
+}
+
+*/
+
+
+{
+    "name": "行政区划树",
+    "childs": {
+        "110000": {
+            "name": "北京",
+            "childs": {
+                "110100": {
+                    "name": "北京",
+                    "childs": {
+                        "110101": {
+                            "name": "东城",
+                            "childs": false
+                        },
+                        "110102": {
+                            "name": "西城",
+                            "childs": false
+                        },
+                        "110105": {
+                            "name": "朝阳",
+                            "childs": false
+                        },
+                        "110106": {
+                            "name": "丰台",
+                            "childs": false
+                        },
+                        "110107": {
+                            "name": "石景山",
+                            "childs": false
+                        },
+                        "110108": {
+                            "name": "海淀",
+                            "childs": false
+                        },
+                        "110109": {
+                            "name": "门头沟",
+                            "childs": false
+                        },
+                        "110111": {
+                            "name": "房山",
+                            "childs": false
+                        },
+                        "110112": {
+                            "name": "通州",
+                            "childs": false
+                        },
+                        "110113": {
+                            "name": "顺义",
+                            "childs": false
+                        },
+                        "110114": {
+                            "name": "昌平",
+                            "childs": false
+                        },
+                        "110115": {
+                            "name": "大兴",
+                            "childs": false
+                        },
+                        "110116": {
+                            "name": "怀柔",
+                            "childs": false
+                        },
+                        "110117": {
+                            "name": "平谷",
+                            "childs": false
+                        }
+                    }
+                }
+            }
+        },
+        "120000": {
+            "name": "天津",
+            "childs": {
+                "120100": {
+                    "name": "天津",
+                    "childs": {
+                        "120101": {
+                            "name": "和平",
+                            "childs": false
+                        },
+                        "120102": {
+                            "name": "河东",
+                            "childs": false
+                        },
+                        "120103": {
+                            "name": "河西",
+                            "childs": false
+                        },
+                        "120104": {
+                            "name": "南开",
+                            "childs": false
+                        },
+                        "120105": {
+                            "name": "河北",
+                            "childs": false
+                        },
+                        "120106": {
+                            "name": "红桥",
+                            "childs": false
+                        },
+                        "120110": {
+                            "name": "东丽",
+                            "childs": false
+                        },
+                        "120111": {
+                            "name": "西青",
+                            "childs": false
+                        },
+                        "120112": {
+                            "name": "津南",
+                            "childs": false
+                        },
+                        "120113": {
+                            "name": "北辰",
+                            "childs": false
+                        },
+                        "120114": {
+                            "name": "武清",
+                            "childs": false
+                        },
+                        "120115": {
+                            "name": "宝坻",
+                            "childs": false
+                        },
+                        "120116": {
+                            "name": "大港区 已合并到 滨海新区",
+                            "childs": false
+                        }
+                    }
+                }
+            }
+        },
+        "130000": {
+            "name": "河北",
+            "childs": {
+                "130100": {
+                    "name": "石家庄",
+                    "childs": {
+                        "130102": {
+                            "name": "长安",
+                            "childs": false
+                        },
+                        "130108": {
+                            "name": "高新区 属于 裕华区",
+                            "childs": false
+                        },
+                        "130185": {
+                            "name": "鹿泉",
+                            "childs": false
+                        }
+                    }
+                },
+                "130900": {
+                    "name": "沧州",
+                    "childs": {
+                        "130983": {
+                            "name": "黄骅",
+                            "childs": false
+                        },
+                        "130984": {
+                            "name": "河间",
+                            "childs": false
+                        }
+                    }
+                },
+                "131000": {
+                    "name": "廊坊",
+                    "childs": {
+                        "131081": {
+                            "name": "霸州",
+                            "childs": false
+                        },
+                        "131082": {
+                            "name": "三河",
+                            "childs": false
+                        }
+                    }
+                },
+                "131100": {
+                    "name": "衡水",
+                    "childs": {                        
+                        "131181": {
+                            "name": "冀州",
+                            "childs": false
+                        },
+                        "131182": {
+                            "name": "深州",
+                            "childs": false
+                        }
+                    }
+                }
+            }
+        },
+        "140000": {
+            "name": "山西",
+            "childs": {
+                "140100": {
+                    "name": "太原",
+                    "childs": {
+                        "140105": {
+                            "name": "小店",
+                            "childs": false
+                        },
+                        "140106": {
+                            "name": "迎泽",
+                            "childs": false
+                        },
+                        "140107": {
+                            "name": "杏花岭",
+                            "childs": false
+                        },
+                        "140108": {
+                            "name": "尖草坪",
+                            "childs": false
+                        },
+                        "140109": {
+                            "name": "万柏林",
+                            "childs": false
+                        },
+                        "140110": {
+                            "name": "晋源",
+                            "childs": false
+                        },
+                        "140121": {
+                            "name": "清徐",
+                            "childs": false
+                        },
+                        "140122": {
+                            "name": "阳曲",
+                            "childs": false
+                        },
+                        "140123": {
+                            "name": "娄烦",
+                            "childs": false
+                        },
+                        "140181": {
+                            "name": "古交",
+                            "childs": false
+                        }
+                    }
+                }
+            }
+        },
+        "150000": {
+            "name": "内蒙古",
+            "childs": {
+                "150100": {
+                    "name": "呼和浩特",
+                    "childs": {                        
+                        "150121": {
+                            "name": "土默特左",
+                            "childs": false
+                        },
+                        "150122": {
+                            "name": "托克托",
+                            "childs": false
+                        },
+                        "150123": {
+                            "name": "和林格尔",
+                            "childs": false
+                        },
+                        "150124": {
+                            "name": "清水河",
+                            "childs": false
+                        },
+                        "150125": {
+                            "name": "武川",
+                            "childs": false
+                        }
+                    }
+                },
+                "150200": {
+                    "name": "包头",
+                    "childs": {
+                        "150222": {
+                            "name": "固阳",
+                            "childs": false
+                        },
+                        "150223": {
+                            "name": "达尔罕茂明安联合",
+                            "childs": false
+                        }
+                    }
+                },
+                "152200": {
+                    "name": "兴安",
+                    "childs": {
+                        "152201": {
+                            "name": "乌兰浩特",
+                            "childs": false
+                        },
+                        "152202": {
+                            "name": "阿尔山",
+                            "childs": false
+                        },
+                        "152221": {
+                            "name": "科尔沁右翼前",
+                            "childs": false
+                        },
+                        "152222": {
+                            "name": "科尔沁右翼中",
+                            "childs": false
+                        },
+                        "152223": {
+                            "name": "扎赉特",
+                            "childs": false
+                        },
+                        "152224": {
+                            "name": "突泉",
+                            "childs": false
+                        }
+                    }
+                },
+                "152500": {
+                    "name": "锡林郭勒",
+                    "childs": {
+                        "152501": {
+                            "name": "二连浩特",
+                            "childs": false
+                        },
+                        "152502": {
+                            "name": "锡林浩特",
+                            "childs": false
+                        },
+                        "152525": {
+                            "name": "东乌珠穆沁",
+                            "childs": false
+                        },
+                        "152526": {
+                            "name": "西乌珠穆沁",
+                            "childs": false
+                        }
+                    }
+                },
+                "152900": {
+                    "name": "阿拉善",
+                    "childs": {
+                        "152921": {
+                            "name": "阿拉善左",
+                            "childs": false
+                        },
+                        "152922": {
+                            "name": "阿拉善右",
+                            "childs": false
+                        },
+                        "152923": {
+                            "name": "额济纳",
+                            "childs": false
+                        }
+                    }
+                }
+            }
+        },
+        "650000": {
+            "name": "新疆",
+            "childs": {
+                "650100": {
+                    "name": "乌鲁木齐",
+                    "childs": {
+                        "650102": {
+                            "name": "天山",
+                            "childs": false
+                        },
+                        "650103": {
+                            "name": "沙依巴克",
+                            "childs": false
+                        },
+                        "650121": {
+                            "name": "乌鲁木齐",
+                            "childs": false
+                        }
+                    }
+                },
+                "650200": {
+                    "name": "克拉玛依",
+                    "childs": {
+                        "650202": {
+                            "name": "独山子",
+                            "childs": false
+                        },
+                        "650203": {
+                            "name": "克拉玛依",
+                            "childs": false
+                        },
+                        "650204": {
+                            "name": "白碱滩",
+                            "childs": false
+                        },
+                        "650205": {
+                            "name": "乌尔禾",
+                            "childs": false
+                        }
+                    }
+                },
+                "652100": {
+                    "name": "吐鲁番",
+                    "childs": {
+                        "652101": {
+                            "name": "吐鲁番市 (高昌区)",
+                            "childs": false
+                        },
+                        "652122": {
+                            "name": "鄯善",
+                            "childs": false
+                        },
+                        "652123": {
+                            "name": "托克逊",
+                            "childs": false
+                        }
+                    }
+                },
+                "659001": {
+                    "name": "石河子",
+                    "childs": {}
+                },
+                "659002": {
+                    "name": "阿拉尔",
+                    "childs": {}
+                },
+                "659003": {
+                    "name": "图木舒克",
+                    "childs": {}
+                }
+            }
+        }
+    }
+}

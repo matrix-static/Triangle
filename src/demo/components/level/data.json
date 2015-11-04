@@ -6583,8 +6583,7 @@
                 },
                 "410881": {
                     "name": "济源",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "410900": {
                     "name": "濮阳",
@@ -7407,23 +7406,19 @@
                 },
                 "429004": {
                     "name": "仙桃",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "429005": {
                     "name": "潜江",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "429006": {
                     "name": "天门",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "429021": {
                     "name": "神农架",
-                    "childs": {
-                        }
+                    "childs": false
                 }
             }
         },
@@ -8503,13 +8498,11 @@
                 },
                 "441900": {
                     "name": "东莞",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "442000": {
                     "name": "中山",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "445100": {
                     "name": "潮州",
@@ -9125,8 +9118,7 @@
                 },
                 "460200": {
                     "name": "三亚",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "460300": {
                     "name": "三沙",
@@ -9147,83 +9139,67 @@
                 },
                 "469001": {
                     "name": "五指山",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469002": {
                     "name": "琼海",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469003": {
                     "name": "儋州",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469005": {
                     "name": "文昌",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469006": {
                     "name": "万宁",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469007": {
                     "name": "东方",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469025": {
                     "name": "定安",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469026": {
                     "name": "屯昌",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469027": {
                     "name": "澄迈",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469028": {
                     "name": "临高",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469030": {
                     "name": "白沙",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469031": {
                     "name": "昌江",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469033": {
                     "name": "乐东",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469034": {
                     "name": "陵水",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469035": {
                     "name": "保亭",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "469036": {
                     "name": "琼中",
-                    "childs": {
-                        }
+                    "childs": false
                 }
             }
         },
@@ -12007,8 +11983,7 @@
                 },
                 "620200": {
                     "name": "嘉峪关",
-                    "childs": {
-                        }
+                    "childs": false
                 },
                 "620300": {
                     "name": "金昌",
@@ -13174,19 +13149,19 @@
                 },
                 "659001": {
                     "name": "石河子",
-                    "childs": {}
+                    "childs": false
                 },
                 "659002": {
                     "name": "阿拉尔",
-                    "childs": {}
+                    "childs": false
                 },
                 "659003": {
                     "name": "图木舒克",
-                    "childs": {}
+                    "childs": false
                 },
                 "659004": {
                     "name": "五家渠",
-                    "childs": {}
+                    "childs": false
                 }
             }
         }

@@ -136,6 +136,10 @@ gulp.task('default', ['demo'])
         /* 发布ie fix文件 */
         gulp.src( ['src/iefix/**/*'] )
         .pipe( gulp.dest('build/iefix') )
+
+        /* 发布 framework media 文件 */
+        gulp.src( ['src/framework/media/**/*'] )
+            .pipe( gulp.dest('build/framework/media') );
 	})
 	// 构建 演示
 	.task('build-demo', ['build-libs', 'build-fram'], function(){
@@ -183,7 +187,10 @@ gulp.task('default', ['demo'])
 		// 非框架部分
 		// ===================================================================
 		// 复制组件示例文件
-		gulp.src( ['src/demo/components/*/example.html'] )
+		gulp.src( [
+                'src/demo/components/*/example.html',
+                'src/demo/components/*/data.json'
+            ] )
 			/*.pipe( rename(function (path) {	// 'index.html'
 				//path.dirname += "/dir";
 				//path.basename += "-goodbye";
@@ -215,6 +222,9 @@ gulp.task('default', ['demo'])
 		// // 复制布局临时引用文件
 		// gulp.src( ['src/framework/layouts/*/*/*.*'] )
 		// 	.pipe( gulp.dest('build/demo/layouts') );
+        /* 发布 demo media 文件 */
+        gulp.src( ['src/demo/media/**/*'] )
+            .pipe( gulp.dest('build/demo/media') );
 	})
 	// 构建 示例
 	.task('build-exam', ['build-libs', 'build-fram', 'build-demo'], function(){

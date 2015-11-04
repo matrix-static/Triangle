@@ -1,11 +1,11 @@
-/* address javascript AngularJS */
+/* level javascript AngularJS */
 
 //angular.module('triangle.controls', [])
 T.UI.ngControls
-    .directive('address', ['$rootScope', '$compile', function($rootScope, $compile){
+    .directive('level', ['$rootScope', '$compile', function($rootScope, $compile){
 
         function link($scope, $element, $attrs, undefined, link){
-            $element.address({});
+            $element.level({});
         }
 
         return {
