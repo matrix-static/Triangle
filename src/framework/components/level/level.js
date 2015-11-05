@@ -81,20 +81,22 @@ Jx().package("T.UI.Components", function(J){
             this.container.insertAfter(this.inputElements.view);
         },
         initElements:function(){
+            var context=this;
+
             this.elements={
                 tabs: $('.t-level-tabs li', this.container),
                 contents: $('.t-level-content', this.container),
                 getTab: function(levelIndex){
                     var tabSelector = '.t-level-tab-' + levelIndex;
-                    return $(tabSelector, this.container);
+                    return $(tabSelector, context.container);
                 },
                 getContent: function(levelIndex){
                     var contentSelector = '.t-level-' + levelIndex;
-                    return $(contentSelector,this.container);
+                    return $(contentSelector,context.container);
                 },
                 getNodes: function(levelIndex){
                     var nodesSelector='.t-level-'+ levelIndex +' li';
-                    return $(nodesSelector,this.container);
+                    return $(nodesSelector,context.container);
                 }
             };
         },
@@ -134,7 +136,8 @@ Jx().package("T.UI.Components", function(J){
             var elements=this.elements;
 
             this.inputElements.view
-                .on('blur', $.proxy(this.blur, this));
+                .on('click',       $.proxy(this.show, this))
+                .on('blur',       $.proxy(this.blur, this));
             this.container
                 .on('mouseenter', $.proxy(this.mouseenter, this))
                 .on('mouseleave', $.proxy(this.mouseleave, this));
@@ -144,8 +147,8 @@ Jx().package("T.UI.Components", function(J){
                     // $.peoxy 不能取 $(this).data('s-foo'); 
                     // 只有elements.foo是单个控件的情况下，能在这里被引用时才能使用。
                     var levelIndex = $(this).data('s-level');
-                    levelIndex = parseInt(levelIndex);
-                    context._activeTab(levelIndex);
+                    context.activeLevelIndex = parseInt(levelIndex);
+                    context._activeTab();
 
                     e.preventDefault();
                 });
@@ -204,7 +207,7 @@ Jx().package("T.UI.Components", function(J){
             })
         },
         reflash:function(){
-            this._activeTab(this.activeLevelIndex);
+            this._activeTab();
 
             var treePath = this.getPath();
 
@@ -235,14 +238,12 @@ Jx().package("T.UI.Components", function(J){
             var jqActiveTab= this.elements.getTab(index);
             jqActiveTab.html('<a href="#">'+ text +'<span class="caret"></span>');
         },
-        _activeTab:function(levelIndex){
-            this.activeLevelIndex=levelIndex;
-
+        _activeTab:function(){
             this.elements.tabs.removeClass('active');
-            this.elements.getTab(levelIndex).addClass('active');
+            this.elements.getTab(this.activeLevelIndex).addClass('active');
             
             this.elements.contents.hide();            
-            this.elements.getContent(levelIndex).show();
+            this.elements.getContent(this.activeLevelIndex).show();
         },
         getPath:function(){
             var initValue = this.inputElements.orginal.val();
@@ -397,9 +398,9 @@ Jx().package("T.UI.Components", function(J){
             //     ;
             // });
 
-            elements.view
-                .on('focus',    $.proxy(this._showMenu, this))      // $proxy 用 当前 this 替代 控件 this
-                .on('blur',     $.proxy(this._hideMenu, this));
+            // elements.view
+            //     .on('focus',    $.proxy(this._showMenu, this))      // $proxy 用 当前 this 替代 控件 this
+            //     .on('blur',     $.proxy(this._hideMenu, this));
         },        
         bindEventsInterface:function () {
             var context=this;
@@ -422,14 +423,19 @@ Jx().package("T.UI.Components", function(J){
             this.elements.view.attr('class', this.element.attr('class'))
             this.elements.view.attr('tabindex', this.element.attr('tabindex'))
             this.elements.orginal.removeAttr('tabindex')
-            //if (this.element.attr('disabled')!==undefined)
-            //    this.disable();
+            if (this.element.attr('disabled')!==undefined){
+               this.disable();
+            }
         },
-        _showMenu:function(){
-            this.menu.show();
+        enable: function(){
+            this.element.prop('disabled', false);
+            this.elements.view.prop('disabled', false);
+            this.disabled=false;
         },
-        _hideMenu:function(){
-            //this.menu.hide();
+        disable: function(){
+            this.element.prop('disabled', true);
+            this.elements.view.prop('disabled', true);
+            this.disabled=true;
         }
     });
 
