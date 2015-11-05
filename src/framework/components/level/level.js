@@ -1,4 +1,4 @@
-Jx().package("T.UI.Controls", function(J){
+Jx().package("T.UI.Components", function(J){
 
     // 严格模式
     'use strict';
@@ -63,14 +63,14 @@ Jx().package("T.UI.Controls", function(J){
             var htmlContents='';
             for(var i=0; i<this.levels.length; i++){
                 var levelName=this.levels[i];
-                htmlTabs += '<li data-s-level="'+ i +'" class="tab-level-' + i + '"><a href="#">' + levelName + '<span class="caret"></span></a></li>';
-                htmlContents += '<div class="level-' + i + ' level-content"></div>';
+                htmlTabs += '<li data-s-level="'+ i +'" class="t-level-tab-' + i + '"><a href="#">' + levelName + '<span class="caret"></span></a></li>';
+                htmlContents += '<div class="t-level-' + i + ' t-level-content"></div>';
             }
 
             var htmlTemplate = ''+
-                '<div class="level-pop dropdown-menu">'+
-                '    <div class="level-path">'+
-                '        <ul class="level-tabs">'+
+                '<div class="t-level-menu dropdown-menu">'+
+                '    <div class="t-level-path">'+
+                '        <ul class="t-level-tabs">'+
                 htmlTabs +
                 '        </ul>'+
                 '    </div>'+
@@ -82,18 +82,18 @@ Jx().package("T.UI.Controls", function(J){
         },
         initElements:function(){
             this.elements={
-                tabs: $('.level-tabs li', this.container),
-                contents: $('.level-content', this.container),
+                tabs: $('.t-level-tabs li', this.container),
+                contents: $('.t-level-content', this.container),
                 getTab: function(levelIndex){
-                    var tabSelector = '.tab-level-' + levelIndex;
+                    var tabSelector = '.t-level-tab-' + levelIndex;
                     return $(tabSelector, this.container);
                 },
                 getContent: function(levelIndex){
-                    var contentSelector = '.level-' + levelIndex;
+                    var contentSelector = '.t-level-' + levelIndex;
                     return $(contentSelector,this.container);
                 },
                 getNodes: function(levelIndex){
-                    var nodesSelector='.level-'+ levelIndex +' li';
+                    var nodesSelector='.t-level-'+ levelIndex +' li';
                     return $(nodesSelector,this.container);
                 }
             };
@@ -118,7 +118,7 @@ Jx().package("T.UI.Controls", function(J){
         },
         _buildNodes:function(node, levelIndex){
             var childs=node.childs;
-            var htmlTemplate='<ul class="level-node">';
+            var htmlTemplate='<ul class="t-level-nodes">';
             for(var p in childs){
                 var childId=p;
                 var childName=childs[p].name;
@@ -131,8 +131,13 @@ Jx().package("T.UI.Controls", function(J){
         bindEvents:function(){
             var context=this;
 
-            var element=this.element;
             var elements=this.elements;
+
+            this.inputElements.view
+                .on('blur', $.proxy(this.blur, this));
+            this.container
+                .on('mouseenter', $.proxy(this.mouseenter, this))
+                .on('mouseleave', $.proxy(this.mouseleave, this));
 
             elements.tabs
                 .on('click',function(e){
@@ -189,13 +194,13 @@ Jx().package("T.UI.Controls", function(J){
                     }
                 }
 
+                // 刷新视图
+                context.reflash();
+
                 if(!node.childs){
                     // 选完最后一级隐藏 树型菜单
                     context.hide();
                 }
-
-                // 刷新视图
-                context.reflash();
             })
         },
         reflash:function(){
@@ -216,7 +221,7 @@ Jx().package("T.UI.Controls", function(J){
             for(var i=0; i<treePath.length-1; i++){
                 var nodeId=treePath[i];
                 parentNode=parentNode.childs[nodeId];
-                nodeNamePath += parentNode.name + '/';
+                nodeNamePath += parentNode.name + ' / ';
                 this._setTab(i, parentNode.name);
             }
             var node = parentNode.childs[id];
@@ -256,6 +261,27 @@ Jx().package("T.UI.Controls", function(J){
 
             this.inputElements.orginal.val(treePath.join(','));
         },
+        blur: function (e) {
+            var context = this;
+            if (!this.mousedover) {
+                setTimeout(function () { 
+                    context.hide(); 
+                }, 200);
+            }
+        },
+        mouseenter: function (e) {
+            this.mousedover = true;
+        },
+        mouseleave: function (e) {
+            var context = this;
+            if (!this.mousedover) {
+                setTimeout(function () { 
+                    context.hide(); 
+                }, 200);
+            }
+
+            this.mousedover = false;
+        },
         show: function () {
             var pos = $.extend({}, this.inputElements.view.position(), {
                 height: this.inputElements.view[0].offsetHeight
@@ -270,7 +296,7 @@ Jx().package("T.UI.Controls", function(J){
         },
         hide: function(){
             this.container.hide();
-            alert(this.inputElements.orginal.val());
+            //alert(this.inputElements.orginal.val());
         }
         
     });
@@ -323,7 +349,7 @@ Jx().package("T.UI.Controls", function(J){
         },
         buildHtml:function () {
             var htmlTemplate = ''+ 
-                '<div class="level-container">'+ 
+                '<div class="t-level-container">'+ 
                 //'    <input type="hidden" />'+
                 '    <input type="text" autocomplete="off" />'+
                 '</div>';
@@ -429,7 +455,7 @@ Jx().package("T.UI.Controls", function(J){
             if (jElement.data(pluginName)) {
                 jElement.data(pluginName).remove();
             }
-            jElement.data(pluginName, new T.UI.Controls.Level(this, options));
+            jElement.data(pluginName, new T.UI.Components.Level(this, options));
         });
 
         return this;

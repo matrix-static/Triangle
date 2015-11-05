@@ -54,6 +54,7 @@ angular.module('pnApp.directives', [])
 var pnApp = angular.module('pnApp', [
 		'ngRoute',
 		'T.UI.ngControls',
+        'T.UI.ngComponents',
 		'pnApp.filters', 
 		'pnApp.services', 
 		'pnApp.directives', 
