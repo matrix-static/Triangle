@@ -305,7 +305,7 @@ Jx().package("T.UI.Components", function(J){
     this.Level = new J.Class({extend : T.UI.BaseControl}, {
         defaults : defaults,
         attributeMap : attributeMap,
-        data:{},
+        //data:{},
 
         // 构造函数
         init:function(element, options){
@@ -457,11 +457,11 @@ Jx().package("T.UI.Components", function(J){
     $.fn[pluginName] = function(options) {
 
         this.each(function () {
-            var jElement = $(this);
-            if (jElement.data(pluginName)) {
-                jElement.data(pluginName).remove();
+            var jqElement = $(this);
+            if (jqElement.data(pluginName)) {
+                jqElement.data(pluginName).remove();
             }
-            jElement.data(pluginName, new T.UI.Components.Level(this, options));
+            jqElement.data(pluginName, new T.UI.Components.Level(this, options));
         });
 
         return this;

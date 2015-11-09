@@ -1,12 +1,12 @@
 TODO:
 
 2015-09-30 <jhliu> 自动化ci脚本
-2015-09-30 <jhliu> IE8兼容性方案
-
-2015-10-12 <jhliu> gulp watch方案
+2015-11-09 <jhliu> jQuery attr prop 清单
 
 
 DONE:
 
 2015-09-30_2015-10-08 <jhliu> demo站点
 2015-09-30_2015-10-11 <jhliu> javascript实时运行方案
+2015-09-30_2015-11-09 <jhliu> IE8兼容性方案
+2015-10-12_2015-11-09 <jhliu> gulp watch方案

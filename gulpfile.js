@@ -112,6 +112,7 @@ gulp.task('default', ['demo'])
 				'src/framework/controls/**/*.js', 
 				'src/framework/components/**/*.js', 
 				//'!src/framework/layouts/**/*.js', 		// layouts是完整示例，不需要整合进Triangle.js
+                '!src/framework/**/*-jq.js',
 				'!src/framework/**/*-ng.js'
 			] )
 			// .pipe( jshint('.jshintrc') )
@@ -189,7 +190,8 @@ gulp.task('default', ['demo'])
 		// 复制组件示例文件
 		gulp.src( [
                 'src/demo/components/*/example.html',
-                'src/demo/components/*/data.json'
+                'src/demo/components/*/data.json',
+                'src/demo/components/*/remote.html'
             ] )
 			/*.pipe( rename(function (path) {	// 'index.html'
 				//path.dirname += "/dir";
