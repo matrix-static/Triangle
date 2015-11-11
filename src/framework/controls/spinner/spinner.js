@@ -697,7 +697,7 @@ Jx().package("T.UI.Controls", function(J){
             if (jqElement.data(pluginName)) {
                 jqElement.data(pluginName).remove();
             }
-            jqElement.data(pluginName, new T.UI.Controls.Spinner(this, options));
+            jqElement.data(pluginName, new T.UI.Controls.Spinner(this, $.extend(true, {}, options)));
         });
 
         return this;

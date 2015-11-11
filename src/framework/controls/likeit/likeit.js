@@ -118,7 +118,7 @@ Jx().package("T.UI.Controls", function(J){
             if (jqElement.data(pluginName)) {
                 jqElement.data(pluginName).remove();
             }
-            jqElement.data(pluginName, new T.UI.Controls.LikeIt(this, options));
+            jqElement.data(pluginName, new T.UI.Controls.LikeIt(this, $.extend(true, {}, options)));
         });
 
         return this;

@@ -24,7 +24,15 @@ angular.module('pnApp.services', []).value('version', '0.1')	// 'ngResource'
 angular.module('pnApp.controllers', [])
 	.controller('fooController', ['$scope', '$rootScope', function ($scope, $rootScope){
 		console.log('app controller');
-	}]);
+	}])
+    .controller('treeController', ['$scope', '$rootScope', function ($scope, $rootScope){
+        console.log('app controller');
+
+        $scope.ctrlFn = function(e, node) {
+            alert(node.text);
+            console.log(node);
+        }
+    }]);
 
 
 

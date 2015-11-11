@@ -202,7 +202,7 @@
             if (jqElement.data(pluginName)) {
                 jqElement.data(pluginName).remove();
             }
-            jqElement.data(pluginName, new Carousel(this, options));
+            jqElement.data(pluginName, new Carousel(this, $.extend(true, {}, options)));
         });
 
         return this;

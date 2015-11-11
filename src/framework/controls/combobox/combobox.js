@@ -482,7 +482,7 @@
             if (jqElement.data(pluginName)) {
                 jqElement.data(pluginName).remove();
             }
-            jqElement.data(pluginName, new Plugin(this, options));
+            jqElement.data(pluginName, new Plugin(this, $.extend(true, {}, options)));
         });
 
         return this;

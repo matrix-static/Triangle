@@ -1,10 +1,37 @@
-	<div class="bs-docs-section">
-		<h1 id="tree" class="page-header">tree</h1>
-		<p class="lead">tree</p>
-		<h2 id="tree-overview">概述</h2>
-		<p>概述概述</p>
-		<h2 id="tree-examples">示例</h2>
-		<p>示例示例</p>
-		<h2 id="tree-api">API</h2>
-		<p>APIAPI</p>
-	</div> 
+    <div class="bs-docs-section">
+        <h1 id="tree" class="page-header">tree</h1>
+        <p class="lead">tree</p>
+        <h2 id="tree-overview">概述</h2>
+        <p>概述概述</p>
+        <h2 id="tree-examples">示例</h2>
+        <p>示例示例</p>
+
+        <p><a href="/demo/components/tree/example.html" target="_black">示例</a>
+
+        <div class="row">
+            <div class="col-md-5" ng-controller="treeController">
+                <label for="tree">树型控件</label>
+                <!--
+                    data-fn-onNodeSelected="ctrlFn(e, node)"
+                    callback-fn="ctrlFn(e, node)"
+                -->
+                <div 
+                    id="tree"
+                    tree
+                    class="t-tree" 
+                    data-s-show-tags="true"
+                    data-s-levels="5"
+                    data-s-data-url="/demo/components/tree/data.json"
+                    callback-fn="ctrlFn(e, node)"></div>
+            </div>
+            <div class="col-md-7">
+                <pre class="prettyprint">
+                &lt; &quot; &quot; &gt;
+                </pre>
+            </div>
+        </div>
+
+        <h2 id="tree-api">API</h2>
+        <p>APIAPI</p>
+
+    </div> 

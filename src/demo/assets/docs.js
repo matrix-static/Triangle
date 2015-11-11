@@ -286,19 +286,19 @@ var anchors = new AnchorJS();
                 a && 0 !== a.indexOf("data") ? (bx.attr("href", ""), cx.text("Preview theme"), localStorage.removeItem("previewTheme")) : dx()
             });
 
-        a(".tooltip-demo").tooltip({
-            selector: '[data-toggle="tooltip"]',
-            container: "body"
-        });
+        // a(".tooltip-demo").tooltip({
+        //     selector: '[data-toggle="tooltip"]',
+        //     container: "body"
+        // });
 
-        a(".popover-demo").popover({
-            selector: '[data-toggle="popover"]',
-            container: "body"
-        });
+        // a(".popover-demo").popover({
+        //     selector: '[data-toggle="popover"]',
+        //     container: "body"
+        // });
 
-        a(".tooltip-test").tooltip();
-        a(".popover-test").popover();
-        a(".bs-docs-popover").popover();
+        // a(".tooltip-test").tooltip();
+        // a(".popover-test").popover();
+        // a(".bs-docs-popover").popover();
 
         a("#loading-example-btn").on("click", function() {
             var b = a(this);

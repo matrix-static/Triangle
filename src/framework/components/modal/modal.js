@@ -408,7 +408,7 @@ Jx().package("T.UI.Components", function(J){
             if (jqElement.data(pluginName)) {
                 jqElement.data(pluginName).remove();
             }
-            jqElement.data(pluginName, new T.UI.Components.Modal(this, options));
+            jqElement.data(pluginName, new T.UI.Components.Modal(this, $.extend(true, {}, options)));
         });
 
         return this;

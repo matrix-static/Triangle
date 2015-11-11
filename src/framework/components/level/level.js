@@ -305,7 +305,6 @@ Jx().package("T.UI.Components", function(J){
     this.Level = new J.Class({extend : T.UI.BaseControl}, {
         defaults : defaults,
         attributeMap : attributeMap,
-        //data:{},
 
         // 构造函数
         init:function(element, options){
@@ -461,7 +460,7 @@ Jx().package("T.UI.Components", function(J){
             if (jqElement.data(pluginName)) {
                 jqElement.data(pluginName).remove();
             }
-            jqElement.data(pluginName, new T.UI.Components.Level(this, options));
+            jqElement.data(pluginName, new T.UI.Components.Level(this, $.extend(true, {}, options)));
         });
 
         return this;

@@ -129,7 +129,7 @@
             if (jElement.data(pluginName)) {
                 jElement.data(pluginName).remove();
             }
-            jElement.data(pluginName, new Plugin(this, options));
+            jElement.data(pluginName, new Plugin(this, $.extend(true, {}, options)));
         });
 
         return this;
