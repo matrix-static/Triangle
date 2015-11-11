@@ -379,7 +379,7 @@
                     //.attr('style', this.buildStyleOverride(node));
 
                 // Add indent/spacer to mimic tree structure
-                for (var i = 0; i < (level - 1); i++) {
+                for (var j = 0; j < (level - 1); j++) {
                     treeItem.append(this.template.indent);
                 }
 
@@ -456,21 +456,14 @@
 
                 // Add tags as badges
                 if (this.settings.showTags && node.tags) {
-                    for(var i=0; i<node.tags.length; i++){
-                        var tag=node.tags[i];
+                    for(var k=0; k<node.tags.length; k++){
+                        var tag=node.tags[k];
 
                         treeItem
                             .append($(this.template.badge)
                                 .append(tag)
                             );
                     }
-
-                    // $.each(node.tags, function addTag(id, tag) {
-                    //     treeItem
-                    //         .append($(this.template.badge)
-                    //             .append(tag)
-                    //         );
-                    // });
                 }
 
                 // Add item to the tree
@@ -478,13 +471,10 @@
 
                 // Recursively add child ndoes
                 if (node.nodes && node.state.expanded && !node.state.disabled) {
-                    return this.buildTree(node.nodes, level);
+                    //return this.buildTree(node.nodes, level);
+                    this.buildTree(node.nodes, level);
                 }
             }
-
-            // $.each(nodes, function addNodes(id, node) {
-                
-            // });
         },
 
         render: function () {
@@ -1193,6 +1183,50 @@
 
 /* tree javascript jQuery */
 
+// (function($) {
+//     // 严格模式
+//     'use strict';
+
+//     // 控件类名
+//     var pluginName = "tree";
+
+//     // Prevent against multiple instantiations,
+//     // handle updates and method calls
+//     $.fn[pluginName] = function (options, args) {
+
+//         var result;
+
+//         this.each(function () {
+//             var _this = $.data(this, pluginName);
+//             if (typeof options === 'string') {
+//                 if (!_this) {
+//                     logError('Not initialized, can not call method : ' + options);
+//                 }
+//                 else if (!$.isFunction(_this[options]) || options.charAt(0) === '_') {
+//                     logError('No such method : ' + options);
+//                 }
+//                 else {
+//                     if (!(args instanceof Array)) {
+//                         args = [ args ];
+//                     }
+//                     result = _this[options].apply(_this, args);
+//                 }
+//             }
+//             else if (typeof options === 'boolean') {
+//                 result = _this;
+//             }
+//             else {
+//                 $.data(this, pluginName, new T.UI.Components.Tree(this, $.extend(true, {}, options)));
+//             }
+//         });
+
+//         return result || this;
+//     };
+
+
+// })(jQuery);
+
+
 (function($) {
     // 严格模式
     'use strict';
@@ -1200,63 +1234,19 @@
     // 控件类名
     var pluginName = "tree";
 
-    // Prevent against multiple instantiations,
-    // handle updates and method calls
-    $.fn[pluginName] = function (options, args) {
-
-        var result;
+        // 胶水代码
+    $.fn[pluginName] = function(options) {
 
         this.each(function () {
-            var _this = $.data(this, pluginName);
-            if (typeof options === 'string') {
-                if (!_this) {
-                    logError('Not initialized, can not call method : ' + options);
-                }
-                else if (!$.isFunction(_this[options]) || options.charAt(0) === '_') {
-                    logError('No such method : ' + options);
-                }
-                else {
-                    if (!(args instanceof Array)) {
-                        args = [ args ];
-                    }
-                    result = _this[options].apply(_this, args);
-                }
+            var jqElement = $(this);
+            if (jqElement.data(pluginName)) {
+                jqElement.data(pluginName).remove();
             }
-            else if (typeof options === 'boolean') {
-                result = _this;
-            }
-            else {
-                $.data(this, pluginName, new T.UI.Components.Tree(this, $.extend(true, {}, options)));
-            }
+            jqElement.data(pluginName, new T.UI.Components.Tree(this, $.extend(true, {}, options)));
         });
 
-        return result || this;
+        return this;
+
     };
 
-
 })(jQuery);
-
-
-// (function($) {
-//     // 严格模式
-//     'use strict';
-
-//     // 控件类名
-//     var pluginName = "level";
-
-//         // 胶水代码
-//     $.fn[pluginName] = function(options) {
-
-//         this.each(function () {
-//             var jqElement = $(this);
-//             if (jqElement.data(pluginName)) {
-//                 jqElement.data(pluginName).remove();
-//             }
-//             jqElement.data(pluginName, new T.UI.Components.Tree(Tree, $.extend(true, {}, options));
-//         });
-
-//         return this;
-
-//     };
-
-// })(jQuery);

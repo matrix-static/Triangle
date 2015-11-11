@@ -561,7 +561,8 @@
             exactMatch: $('#chk-exact-match').is(':checked'),
             revealResults: $('#chk-reveal-results').is(':checked')
           };
-          var results = $searchableTree.tree('search', [ pattern, options ]);
+          //var results = $searchableTree.tree('search', [ pattern, options ]);
+          var results = $searchableTree.search(pattern, options);
 
           var output = '<p>' + results.length + ' matches found</p>';
           $.each(results, function (index, result) {
@@ -574,7 +575,8 @@
         $('#input-search').on('keyup', search);
 
         $('#btn-clear-search').on('click', function (e) {
-          $searchableTree.tree('clearSearch');
+          //$searchableTree.tree('clearSearch');
+          $searchableTree.clearSearch();
           $('#input-search').val('');
           $('#search-output').html('');
         });

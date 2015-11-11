@@ -29,7 +29,7 @@ angular.module('pnApp.controllers', [])
         console.log('app controller');
 
         $scope.ctrlFn = function(e, node) {
-            alert(node.text);
+            // alert(node.text);
             console.log(node);
         }
     }]);
