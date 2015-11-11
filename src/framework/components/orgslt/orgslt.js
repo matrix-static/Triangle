@@ -24,7 +24,7 @@ Jx().package("T.UI.Components", function(J){
             //this.initSettings(options);
             // 直接使用地址类实例的设置
             this.settings=options;
-            this.levels=this.settings.levelNames.split(',');
+            //this.levels=this.settings.levelNames.split(',');
 
             // 初始化数据
             //this.getData();

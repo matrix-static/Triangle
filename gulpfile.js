@@ -187,6 +187,19 @@ gulp.task('default', ['demo'])
 		// ===================================================================
 		// 非框架部分
 		// ===================================================================
+        // 复制控件示例文件
+        gulp.src( [
+                'src/demo/controls/*/example.html',
+                'src/demo/controls/*/data.json',
+                'src/demo/controls/*/remote.html'
+            ] )
+            /*.pipe( rename(function (path) {   // 'index.html'
+                //path.dirname += "/dir";
+                //path.basename += "-goodbye";
+                path.basename = 'example';
+                //path.extname = ".html"
+            }) )*/
+            .pipe( gulp.dest('build/demo/controls') );
 		// 复制组件示例文件
 		gulp.src( [
                 'src/demo/components/*/example.html',

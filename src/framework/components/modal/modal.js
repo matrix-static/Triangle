@@ -20,26 +20,26 @@ Jx().package("T.UI.Components", function(J){
 
 
     var defaults = {
+        show: true,
         backdrop: true,
-        keyboard: true,
-        show: true
+        keyboard: true
     };
     var attributeMap = {
+        modalId:'modal-id',
+        show: 'show',
         backdrop: 'backdrop',
-        keyboard: 'keyboard',
-        show: 'show'
+        keyboard: 'keyboard'
     };
 
-    this.Modal = new J.Class({extend : T.UI.BaseControl}, {
-        defaults : defaults,
-        attributeMap : attributeMap,
-        //data:{},
-
+    var ModalPop = new J.Class({
         // 构造函数
-        init:function(element, options){
+        init:function(elements, options){
+            this.inputElements = elements;
+
             this.options             = options
             this.$body               = $(document.body)
-            this.$element            = $(element)
+            //this.$element            = $(element)
+            this.$element            = this.inputElements.pop;
             this.$dialog             = this.$element.find('.modal-dialog')
             this.$backdrop           = null
             this.isShown             = null
@@ -47,13 +47,7 @@ Jx().package("T.UI.Components", function(J){
             this.scrollbarWidth      = 0
             this.ignoreBackdropClick = false
 
-            if (this.options.remote) {
-                this.$element
-                    .find('.modal-content')
-                    .load(this.options.remote, $.proxy(function () {
-                        this.$element.trigger('loaded.bs.modal')
-                    }, this))
-            }
+            
             // this.element = $(element);
             // //this.settings,
 
@@ -76,8 +70,8 @@ Jx().package("T.UI.Components", function(J){
             // // 初始化选项
             // this.initSettings(options);
 
-            // // 初始化数据
-            // this.getData();
+            // 初始化数据
+            this.getData();
 
             // // 构建html DOM
             // this.buildHtml();
@@ -88,12 +82,31 @@ Jx().package("T.UI.Components", function(J){
             // // 创建 树型 菜单对象
             // //this.menu=new LevelMenu(this.elements, this.settings);
 
-            // // 绑定事件
-            // this.bindEvents();
+            // 绑定事件
+            this.bindEvents();
             // // 绑定事件接口
             // this.bindEventsInterface();
         },
+        getData: function(){
+            if (this.options.remote) {
+                this.$element
+                    .find('.modal-content')
+                    .load(this.options.remote, $.proxy(function () {
+                        this.$element.trigger('loaded.bs.modal')
+                    }, this))
+            }
+        },
+        bindEvents: function(){
+            var context = this;
 
+            this.inputElements.original.on('click', function(e){
+                if($(this).is('a')){
+                    e.preventDefault();
+                }
+
+                context.show(context.inputElements.original);
+            });
+        },
         toggle: function (_relatedTarget) {
             return this.isShown ? this.hide() : this.show(_relatedTarget)
         },
@@ -333,6 +346,49 @@ Jx().package("T.UI.Components", function(J){
             return scrollbarWidth
         }
     });
+
+    this.Modal = new J.Class({extend : T.UI.BaseControl}, {
+        defaults: defaults,
+        attributeMap: attributeMap,
+
+        init: function(element, options){
+            this.element= $(element);
+            
+            //this.container;
+            //this.elements;
+
+            // this.value = this.element.val();
+
+            
+            // 防止多次初始化
+            if (this.element.data('initialized')) { return; }
+            this.element.data('initialized', true);
+            // 区分一个页面中存在多个控件实例
+            _currentPluginId += 1;
+            this.element.data('plugin-id', _currentPluginId);
+
+            // 初始化选项
+            this.initSettings(options);
+            var href= this.element.attr('href');
+            this.settings.remote= !/#/.test(href) && href;
+
+            // // 初始化数据
+            // this.getData();
+
+            // 初始化 html DOM 元素
+            this.initElements();
+
+            // 创建 树型 菜单对象
+            this.pop=new ModalPop(this.elements, this.settings);
+
+        },
+        initElements: function(){
+            this.elements={
+                original: this.element,
+                pop: $('#' + this.settings.modalId)
+            }
+        }
+    });
 });
 
 /* modal javascript jQuery */
@@ -348,42 +404,11 @@ Jx().package("T.UI.Components", function(J){
     $.fn[pluginName] = function(options) {
 
         this.each(function () {
-            // var $this   = $(this)
-            // var data    = $this.data('bs.modal')
-            // var options = $.extend({}, Modal.DEFAULTS, $this.data(), typeof option == 'object' && option)
-
-            // if (!data) $this.data('bs.modal', (data = new Modal(this, options)))
-            // if (typeof option == 'string') data[option](_relatedTarget)
-            // else if (options.show) data.show(_relatedTarget)
-
             var jqElement = $(this);
             if (jqElement.data(pluginName)) {
                 jqElement.data(pluginName).remove();
             }
-
-            //jqElement.data(pluginName, new T.UI.Components.Modal(this, options));
-            var modalId = jqElement.data('s-modal-id');
-            var modalSelector = '#' + modalId;
-            var jqModal=$(modalSelector);
-
-            //$.extend({ remote: !/#/.test(href) && href }, $target.data(), $this.data()});
-            var href    = jqElement.attr('href');
-            options.remote = !/#/.test(href) && href;
-            options.show=jqElement.data('s-show');
-
-            var oModal=  new T.UI.Components.Modal(jqModal[0], options)
-            jqElement.data(pluginName,oModal);
-
-            var context = this;
-            jqElement.on('click',function(e){
-                // var href    = $element.attr('href')
-                //var $target = $($element.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) // strip for ie7
-                if ($(this).is('a')) {
-                    e.preventDefault();
-                }
-
-                oModal.show(context);                
-            });
+            jqElement.data(pluginName, new T.UI.Components.Modal(this, options));
         });
 
         return this;

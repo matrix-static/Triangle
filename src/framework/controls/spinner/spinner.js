@@ -693,11 +693,11 @@ Jx().package("T.UI.Controls", function(J){
     $.fn[pluginName] = function(options) {
 
         this.each(function () {
-            var jElement = $(this);
-            if (jElement.data(pluginName)) {
-                jElement.data(pluginName).remove();
+            var jqElement = $(this);
+            if (jqElement.data(pluginName)) {
+                jqElement.data(pluginName).remove();
             }
-            jElement.data(pluginName, new T.UI.Controls.Spinner(this, options));
+            jqElement.data(pluginName, new T.UI.Controls.Spinner(this, options));
         });
 
         return this;

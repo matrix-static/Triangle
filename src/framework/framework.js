@@ -4,17 +4,18 @@ Jx().package("T.UI", function(J){
 
 	this.BaseControl = new J.Class({
 
+        /*
 		defaults: {},
 		attributeMap: {},
-
-        /*
+        
         element: {},
         elements: {},
         init: function{},
         */
 
 		initSettings: function(options){
-			this.settings = $.extend({}, this.defaults, this.element_data, this.parseAttributes(), options);
+            var attributes = this.parseAttributes();
+			this.settings = $.extend({}, this.defaults, attributes, options);
 		},
 		parseAttributes : function () {
 			var context=this;
@@ -61,7 +62,9 @@ Jx().package("T.UI", function(J){
                 foo();
             });
         },
-
+        reflash: function(){
+            ;
+        },
         actionOne: function(){
             this.element.trigger('controlname.on.eventname');
         }
