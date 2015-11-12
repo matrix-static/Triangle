@@ -34,6 +34,7 @@
         // injectStyle: true,
 
         levels: 2,
+        dataUrl: '',
 
         // expandIcon: 'glyphicon glyphicon-plus',
         // collapseIcon: 'glyphicon glyphicon-minus',
@@ -65,7 +66,8 @@
     };
     var attributeMap = {
         showTags: 'show-tags',
-        levels: 'levels'
+        levels: 'levels',
+        dataUrl: 'data-url'
     };
 
     var nodeOptions = {
@@ -114,16 +116,26 @@
             this.tree = [];
             this.nodes = [];
 
+            var context= this;
             // 初始化数据
-            this.getData();   
+            $.when(this.getData())
+             .done(function(){
+                
+                context.setInitialStates({ nodes: context.tree }, 0);
+                context.reflash();
+
+                context.bindEvents();
+                context.initialized();
+            });
 
             // this.destroy();
 
             // 构建html DOM
             // this.buildHtml();
 
-            this.bindEvents();
-            this.setInitialStates({ nodes: this.tree }, 0);
+            // this.bindEvents();
+            // this.setInitialStates({ nodes: this.tree }, 0);
+            
             
 
             
@@ -139,16 +151,54 @@
             // // 绑定事件接口
             // this.bindEventsInterface();
 
-            this.initialized();
+            // this.initialized();
 
-            this.reflash();
+            // this.reflash();
         },
 
         getData: function(){
+            var d = $.Deferred();
+
             if (this.settings.data) {
                 this.tree = $.extend(true, [], this.settings.data);
                 delete this.settings.data;
+
+                d.resolve();
+
+                return d.promise();
+
+                // this.setInitialStates({ nodes: this.tree }, 0);
+                // this.reflash();
+
+                // this.bindEvents();
+
+                
             }
+
+            var context = this;
+            $.ajax({
+                dataType: 'json',
+                url: this.settings.dataUrl,
+                data: {},
+                success: function(data){
+                    //context.createMenu(data);
+                    context.tree= $.extend(true, [], data);
+
+                    // context.setInitialStates({ nodes: context.tree }, 0);
+                    // context.reflash();
+
+                    // context.bindEvents();
+
+                    d.resolve();
+                },
+                error: function(){
+                    alert('控件id：' + context.element.attr('id')+'，ajax获取数据失败!');
+
+                     d.resolve();
+                }
+            });
+
+            return d.promise();
         },
 
         remove: function () {
