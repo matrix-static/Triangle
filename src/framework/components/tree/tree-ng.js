@@ -82,18 +82,14 @@ T.UI.ngComponents
                 }
             ];
 
-            var options = {
-                data: data,
-                //onNodeSelected: $scope.someCtrlFn
-                onNodeSelected: function(e, args){
-                    //alert(args.text);
-                    //$scope.someCtrlFn(e, node);
-                    $scope.someCtrlFn({e:e, node:args});
-                }
-            };
+            // var options = {
+            //     data: data,
+            //     onNodeSelected: $scope.treeApi.onNodeSelected,
+            //     onNodeCollapsed: $scope.treeApi.onNodeCollapsed
+            // };
+            var options = $.extend(true, {data:data}, $scope.treeApi);
+
             $element.tree(options);
-
-
 
             //$element.tree({});
         }
@@ -104,9 +100,7 @@ T.UI.ngComponents
                 templateUrl: '@',
                 unload: '&',
 
-                // callback-fn
-                someCtrlFn: '&callbackFn'
-                // someCtrlFn: '&dataFnOnNodeSelected'
+                treeApi: '=treeApi'
             },
             restric: 'A',
             transclude: false,

@@ -95,105 +95,38 @@
         // 构造函数
         init: function(element, options){
             this.element = $(element);
-            //this.settings,
 
+            // 防止多次初始化
+            if (this.isInitialized()) { 
+                return this.getRef(); 
+            }
+            this.initialize(element);
+
+            //this.settings,
             // this.container,
             // this.elements,
 
-            // this.value = this.element.val();
-
-            /*
-                initialized 和 plugin-id 属于控件的内部属性， 保存在 element.data 中，不能在 defalut 中暴露给外界。
-                也不在 parseAttributes 中解析，同理不加 data-s 前缀
-            */
-            // 防止多次初始化
-            if (this.element.data('initialized')) { return; }
-            this.element.data('initialized', true);
-            // 区分一个页面中存在多个控件实例
-            _currentPluginId += 1;
-            this.element.data('plugin-id', _currentPluginId);
+            // this.value = this.element.val();            
 
             // 初始化选项
             this.initSettings(options);
 
-            // 初始化数据
-            this.getData();
-
-
             this.tree = [];
             this.nodes = [];
 
-            if (options.data) {
-                if (typeof options.data === 'string') {
-                    this.settings.data = $.parseJSON(options.data);
-                }
-                this.tree = $.extend(true, [], this.settings.data);
-                delete options.data;
-            }
+            // 初始化数据
+            this.getData();   
 
-            this.destroy();
-            this.subscribeEvents();
+            // this.destroy();
+
+            // 构建html DOM
+            // this.buildHtml();
+
+            this.bindEvents();
             this.setInitialStates({ nodes: this.tree }, 0);
-            this.render();
-
-            return {
-
-                // Options (public access)
-                options: this.settings,
-
-                // Initialize / destroy methods
-                init: $.proxy(this.init, this),
-                remove: $.proxy(this.remove, this),
-
-                // Get methods
-                getNode: $.proxy(this.getNode, this),
-                getParent: $.proxy(this.getParent, this),
-                getSiblings: $.proxy(this.getSiblings, this),
-                getSelected: $.proxy(this.getSelected, this),
-                getUnselected: $.proxy(this.getUnselected, this),
-                getExpanded: $.proxy(this.getExpanded, this),
-                getCollapsed: $.proxy(this.getCollapsed, this),
-                getChecked: $.proxy(this.getChecked, this),
-                getUnchecked: $.proxy(this.getUnchecked, this),
-                getDisabled: $.proxy(this.getDisabled, this),
-                getEnabled: $.proxy(this.getEnabled, this),
-
-                // Select methods
-                selectNode: $.proxy(this.selectNode, this),
-                unselectNode: $.proxy(this.unselectNode, this),
-                toggleNodeSelected: $.proxy(this.toggleNodeSelected, this),
-
-                // Expand / collapse methods
-                collapseAll: $.proxy(this.collapseAll, this),
-                collapseNode: $.proxy(this.collapseNode, this),
-                expandAll: $.proxy(this.expandAll, this),
-                expandNode: $.proxy(this.expandNode, this),
-                toggleNodeExpanded: $.proxy(this.toggleNodeExpanded, this),
-                revealNode: $.proxy(this.revealNode, this),
-
-                // Expand / collapse methods
-                checkAll: $.proxy(this.checkAll, this),
-                checkNode: $.proxy(this.checkNode, this),
-                uncheckAll: $.proxy(this.uncheckAll, this),
-                uncheckNode: $.proxy(this.uncheckNode, this),
-                toggleNodeChecked: $.proxy(this.toggleNodeChecked, this),
-
-                // Disable / enable methods
-                disableAll: $.proxy(this.disableAll, this),
-                disableNode: $.proxy(this.disableNode, this),
-                enableAll: $.proxy(this.enableAll, this),
-                enableNode: $.proxy(this.enableNode, this),
-                toggleNodeDisabled: $.proxy(this.toggleNodeDisabled, this),
-
-                // Search methods
-                search: $.proxy(this.search, this),
-                clearSearch: $.proxy(this.clearSearch, this)
-            };            
-
             
 
-            // // 构建html DOM
-            // this.buildHtml();
+            
             // // 初始化 html DOM 元素
             // this.initElements();
             // this.transferAttributes();
@@ -205,10 +138,17 @@
             // this.bindEvents();
             // // 绑定事件接口
             // this.bindEventsInterface();
+
+            this.initialized();
+
+            this.reflash();
         },
 
         getData: function(){
-            ;
+            if (this.settings.data) {
+                this.tree = $.extend(true, [], this.settings.data);
+                delete this.settings.data;
+            }
         },
 
         remove: function () {
@@ -230,7 +170,7 @@
             this.initialized = false;
         },
         // 取消事件监听
-        unsubscribeEvents: function () {
+        unbindEvents: function () {
             this.element.off('click');
             this.element.off('nodeChecked');
             this.element.off('nodeCollapsed');
@@ -244,9 +184,9 @@
             this.element.off('searchCleared');
         },
         // 监听事件
-        subscribeEvents: function () {
+        bindEvents: function () {
 
-            this.unsubscribeEvents();
+            this.unbindEvents();
 
             this.element.on('click', $.proxy(this.clickHandler, this));
             // 节点勾选
@@ -477,22 +417,11 @@
             }
         },
 
-        render: function () {
-
-            if (!this.initialized) {
-
-                // Setup first time only components
-                //this.element.addClass(pluginName);
-                this.element.addClass('t-tree');
-                this.container = $(this.template.list);
-
-                //this.injectStyle();
-
-                this.initialized = true;
-            }
-
+        reflash: function () {
+            this.element.addClass('t-tree');
+            this.container = $(this.template.list);
             this.element.empty().append(this.container.empty());
-
+            this.nodeCount= 0;
             // Build tree
             this.buildTree(this.tree, 0);
         },
@@ -513,14 +442,14 @@
             var classList = target.attr('class') ? target.attr('class').split(' ') : [];
             if ((classList.indexOf('expand-icon') !== -1)) {
                 this.toggleExpandedState(node, nodeOptions);
-                this.render();
+                this.reflash();
 
                 return;
             }
 
             if ((classList.indexOf('check-icon') !== -1)) {                
                 this.toggleCheckedState(node, nodeOptions);
-                this.render();
+                this.reflash();
 
                 return;
             }
@@ -531,7 +460,7 @@
                 this.toggleExpandedState(node, nodeOptions);
             }
 
-            this.render();
+            this.reflash();
         },
 
         // Looks up the DOM for the closest parent list item to retrieve the
@@ -778,7 +707,7 @@
                 this.setSelectedState(node, true, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -791,7 +720,7 @@
                 this.setSelectedState(node, false, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -804,7 +733,7 @@
                 this.toggleSelectedState(node, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
 
@@ -818,7 +747,7 @@
                 this.setExpandedState(node, false, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -831,7 +760,7 @@
                 this.setExpandedState(node, false, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -851,7 +780,7 @@
                 }, this));
             }
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -867,7 +796,7 @@
                 }
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         expandLevels: function (nodes, level, options) {
@@ -895,7 +824,7 @@
                 };
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -908,7 +837,7 @@
                 this.toggleExpandedState(node, options);
             }, this));
             
-            this.render();
+            this.reflash();
         },
 
 
@@ -922,7 +851,7 @@
                 this.setCheckedState(node, true, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -935,7 +864,7 @@
                 this.setCheckedState(node, true, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -948,7 +877,7 @@
                 this.setCheckedState(node, false, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -961,7 +890,7 @@
                 this.setCheckedState(node, false, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -974,7 +903,7 @@
                 this.toggleCheckedState(node, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
 
@@ -988,7 +917,7 @@
                 this.setDisabledState(node, true, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -1001,7 +930,7 @@
                 this.setDisabledState(node, true, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -1014,7 +943,7 @@
                 this.setDisabledState(node, false, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -1027,7 +956,7 @@
                 this.setDisabledState(node, false, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
         /**
@@ -1040,7 +969,7 @@
                 this.setDisabledState(node, !node.state.disabled, options);
             }, this));
 
-            this.render();
+            this.reflash();
         },
 
 
@@ -1108,7 +1037,7 @@
                 this.revealNode(results);
             }
             else {
-                this.render();
+                this.reflash();
             }
 
             this.element.trigger('searchComplete', $.extend(true, {}, results));
@@ -1128,7 +1057,7 @@
             });
 
             if (options.render) {
-                this.render();  
+                this.reflash();  
             }
             
             this.element.trigger('searchCleared', $.extend(true, {}, results));
@@ -1181,50 +1110,6 @@
     });
 });
 
-/* tree javascript jQuery */
-
-// (function($) {
-//     // 严格模式
-//     'use strict';
-
-//     // 控件类名
-//     var pluginName = "tree";
-
-//     // Prevent against multiple instantiations,
-//     // handle updates and method calls
-//     $.fn[pluginName] = function (options, args) {
-
-//         var result;
-
-//         this.each(function () {
-//             var _this = $.data(this, pluginName);
-//             if (typeof options === 'string') {
-//                 if (!_this) {
-//                     logError('Not initialized, can not call method : ' + options);
-//                 }
-//                 else if (!$.isFunction(_this[options]) || options.charAt(0) === '_') {
-//                     logError('No such method : ' + options);
-//                 }
-//                 else {
-//                     if (!(args instanceof Array)) {
-//                         args = [ args ];
-//                     }
-//                     result = _this[options].apply(_this, args);
-//                 }
-//             }
-//             else if (typeof options === 'boolean') {
-//                 result = _this;
-//             }
-//             else {
-//                 $.data(this, pluginName, new T.UI.Components.Tree(this, $.extend(true, {}, options)));
-//             }
-//         });
-
-//         return result || this;
-//     };
-
-
-// })(jQuery);
 
 
 (function($) {
@@ -1232,21 +1117,16 @@
     'use strict';
 
     // 控件类名
-    var pluginName = "tree";
+    var pluginName = 'tree';
 
-        // 胶水代码
+    // 胶水代码
+    var pluginRef = 'plugin-ref'
     $.fn[pluginName] = function(options) {
-
         this.each(function () {
-            var jqElement = $(this);
-            if (jqElement.data(pluginName)) {
-                jqElement.data(pluginName).remove();
-            }
-            jqElement.data(pluginName, new T.UI.Components.Tree(this, $.extend(true, {}, options)));
+            var plugin=new T.UI.Components.Tree(this, $.extend(true, {}, options));
         });
 
         return this;
-
     };
 
 })(jQuery);

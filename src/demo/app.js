@@ -28,12 +28,22 @@ angular.module('pnApp.controllers', [])
     .controller('treeController', ['$scope', '$rootScope', function ($scope, $rootScope){
         console.log('app controller');
 
-        $scope.ctrlFn = function(e, node) {
-            // alert(node.text);
-            console.log(node);
-        }
+        var treeOptions={
+            // onNodeChecked: function(e, node){ alert( node.text + ': onNodeChecked') },
+            // onNodeCollapsed: function(e, node){ alert( node.text + ': onNodeCollapsed') },
+            // onNodeDisabled: function(e, node){ alert( node.text + ': onNodeDisabled') },
+            // onNodeEnabled: function(e, node){ alert( node.text + ': onNodeEnabled') },
+            // onNodeExpanded: function(e, node){ alert( node.text + ': onNodeExpanded') },
+            // onNodeSelected: function(e, node){ alert( node.text + ': onNodeSelected') },
+            // onNodeUnchecked: function(e, node){ alert( node.text + ': onNodeUnchecked') },
+            // onNodeUnselected: function(e, node){ alert( node.text + ': onNodeUnselected') },
+            // onSearchComplete: function(e, node){ alert( node.text + ': onSearchComplete') },
+            // onSearchCleared: function(e, node){ alert( node.text + ': onSearchCleared') }
+        };
+        $scope.treeApi = treeOptions;
     }]);
 
+        
 
 
 angular.module('pnApp.directives', [])

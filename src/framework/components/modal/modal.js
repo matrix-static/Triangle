@@ -12,8 +12,6 @@ Jx().package("T.UI.Components", function(J){
     'use strict';
 
     // 全局变量、函数、对象
-    var _currentPluginId = 0;
-
     var VERSION  = '3.3.5';
     var TRANSITION_DURATION = 300;
     var BACKDROP_TRANSITION_DURATION = 150;
@@ -55,17 +53,6 @@ Jx().package("T.UI.Components", function(J){
             // this.elements,
 
             // this.value = this.element.val();
-
-            // /*
-            //     initialized 和 plugin-id 属于控件的内部属性， 保存在 element.data 中，不能在 defalut 中暴露给外界。
-            //     也不在 parseAttributes 中解析，同理不加 data-s 前缀
-            // */
-            // // 防止多次初始化
-            // if (this.element.data('initialized')) { return; }
-            // this.element.data('initialized', true);
-            // // 区分一个页面中存在多个控件实例
-            // _currentPluginId += 1;
-            // this.element.data('plugin-id', _currentPluginId);
 
             // // 初始化选项
             // this.initSettings(options);
@@ -352,20 +339,18 @@ Jx().package("T.UI.Components", function(J){
         attributeMap: attributeMap,
 
         init: function(element, options){
-            this.element= $(element);
+            this.element = $(element);
+
+            // 防止多次初始化
+            if (this.isInitialized()) { 
+                return this.getRef(); 
+            }
+            this.initialize(element);
             
             //this.container;
             //this.elements;
 
             // this.value = this.element.val();
-
-            
-            // 防止多次初始化
-            if (this.element.data('initialized')) { return; }
-            this.element.data('initialized', true);
-            // 区分一个页面中存在多个控件实例
-            _currentPluginId += 1;
-            this.element.data('plugin-id', _currentPluginId);
 
             // 初始化选项
             this.initSettings(options);
@@ -381,6 +366,7 @@ Jx().package("T.UI.Components", function(J){
             // 创建 树型 菜单对象
             this.pop=new ModalPop(this.elements, this.settings);
 
+            this.initialized();
         },
         initElements: function(){
             this.elements={
@@ -404,11 +390,7 @@ Jx().package("T.UI.Components", function(J){
     $.fn[pluginName] = function(options) {
 
         this.each(function () {
-            var jqElement = $(this);
-            if (jqElement.data(pluginName)) {
-                jqElement.data(pluginName).remove();
-            }
-            jqElement.data(pluginName, new T.UI.Components.Modal(this, $.extend(true, {}, options)));
+            var plugin=new T.UI.Components.Modal(this, $.extend(true, {}, options));
         });
 
         return this;

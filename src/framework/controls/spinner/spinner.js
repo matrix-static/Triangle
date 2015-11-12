@@ -5,10 +5,8 @@ Jx().package("T.UI.Controls", function(J){
 
 
     // 全局变量、函数、对象
-    var _currentPluginId = 0;
-
     function _scopedEventName(name, id) {
-        return name + '.touchspin_' + id;
+        return name + '.spinner' + id;
     }
 
     function _scopeEventNames(names, id) {
@@ -70,25 +68,13 @@ Jx().package("T.UI.Controls", function(J){
         attributeMap : attributeMap,
         // 构造函数
         init:function(element, options){
-            if (options === 'destroy') {
-                this.each(function() {
-                    var element = $(this),
-                    element_data = element.data();
-                    $(document).off(_scopeEventNames([
-                    'mouseup',
-                    'touchend',
-                    'touchcancel',
-                    'mousemove',
-                    'touchmove',
-                    'scroll',
-                    'scrollstart'], element_data.pluginId).join(' '));
-                });
-                return;
-            }
-
             this.element = $(element);
-            //this.settings,
-            this.element_data = this.element.data();
+
+            // 防止多次初始化
+            if (this.isInitialized()) { 
+                return this.getRef(); 
+            }
+            this.initialize(element);
 
             this.container;
             this.elements;
@@ -107,13 +93,6 @@ Jx().package("T.UI.Controls", function(J){
                 return;
             }
 
-            if (this.element.data('alreadyinitialized')) {
-                return;
-            }
-            this.element.data('alreadyinitialized', true);
-            _currentPluginId += 1;
-            this.element.data('pluginId', _currentPluginId);      
-
             // 初始化选项
             this.initSettings(options);
             // 设置初始值
@@ -125,15 +104,17 @@ Jx().package("T.UI.Controls", function(J){
             // 构建html DOM
             this.buildHtml();
             // 初始化 html DOM 元素
-            this._initElements();
+            this.initElements();
             // 隐藏空的前后缀
             this._hideEmptyPrefixPostfix();
             // 绑定事件
-            this._bindEvents();
+            this.bindEvents();
             // 绑定事件接口
-            this._bindEventsInterface();
+            this.bindEventsInterface();
             // ...
             this.elements.input.css('display', 'block');
+
+            this.initialized();
         },
 
         changeSettings:function(newsettings) {
@@ -228,7 +209,7 @@ Jx().package("T.UI.Controls", function(J){
             }
         },
 
-        _initElements:function () {
+        initElements:function () {
             this.elements = {
                 down: $('.bootstrap-spinner-down', this.container),
                 up: $('.bootstrap-spinner-up', this.container),
@@ -248,7 +229,7 @@ Jx().package("T.UI.Controls", function(J){
             }
         },
 
-        _bindEvents:function () {
+        bindEvents:function () {
             var context=this;
 
             var element=this.element;
@@ -420,7 +401,7 @@ Jx().package("T.UI.Controls", function(J){
                 ev.preventDefault();
             });
 
-            $(document).on(_scopeEventNames(['mouseup', 'touchend', 'touchcancel'], _currentPluginId).join(' '), function(ev) {
+            $(document).on(_scopeEventNames(['mouseup', 'touchend', 'touchcancel'], this.element.data('plugin-id')).join(' '), function(ev) {
                 if (!context.spinning) {
                     return;
                 }
@@ -429,7 +410,7 @@ Jx().package("T.UI.Controls", function(J){
                 context.stopSpin();
             });
 
-            $(document).on(_scopeEventNames(['mousemove', 'touchmove', 'scroll', 'scrollstart'], _currentPluginId).join(' '), function(ev) {
+            $(document).on(_scopeEventNames(['mousemove', 'touchmove', 'scroll', 'scrollstart'], this.element.data('plugin-id')).join(' '), function(ev) {
                 if (!context.spinning) {
                     return;
                 }
@@ -457,7 +438,7 @@ Jx().package("T.UI.Controls", function(J){
             });
         },
 
-        _bindEventsInterface:function () {
+        bindEventsInterface:function () {
             var context=this;
             var element=this.element;
 
@@ -487,7 +468,16 @@ Jx().package("T.UI.Controls", function(J){
                 context.changeSettings(newsettings);
             });
         },
-
+        unbindEvents: function(){
+            $(document).off(_scopeEventNames([
+            'mouseup',
+            'touchend',
+            'touchcancel',
+            'mousemove',
+            'touchmove',
+            'scroll',
+            'scrollstart'], this.element.data('pluginId')).join(' '));
+        },
         _forcestepdivisibility: function (value) {
             var settings=this.settings;
             switch (settings.forcestepdivisibility) {
@@ -693,11 +683,7 @@ Jx().package("T.UI.Controls", function(J){
     $.fn[pluginName] = function(options) {
 
         this.each(function () {
-            var jqElement = $(this);
-            if (jqElement.data(pluginName)) {
-                jqElement.data(pluginName).remove();
-            }
-            jqElement.data(pluginName, new T.UI.Controls.Spinner(this, $.extend(true, {}, options)));
+            var plugin=new T.UI.Controls.Spinner(this, $.extend(true, {}, options));
         });
 
         return this;
