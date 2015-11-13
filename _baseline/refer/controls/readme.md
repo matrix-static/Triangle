@@ -13,5 +13,6 @@ rightselect
     https://github.com/crlcu/multiselect
     http://stackoverflow.com/questions/9234830/how-to-hide-a-option-in-a-select-menu-with-css
 
-下拉多选控件
+multiselect
+    下拉多选控件
     https://github.com/davidstutz/bootstrap-multiselect
