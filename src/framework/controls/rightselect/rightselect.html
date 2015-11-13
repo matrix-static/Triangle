@@ -1,0 +1,39 @@
+<div class="col-xs-5" style="padding-left:3px; padding-right:3px;">
+    <select 
+        id="multiselect2" 
+        multiple="multiple"
+        size="10" 
+        class="form-control" 
+        name="from[]" 
+        
+        
+        data-right="#multiselect_to" 
+        data-right-all="#right_All" 
+        data-right-selected="#right_Selected" 
+        data-left-all="#left_All" 
+        data-left-selected="#left_Selected">
+        <option value="1">Item 01</option>
+        <option value="2">Item 02</option>
+        <option value="3">Item 03</option>
+        <option value="4">Item 04</option>
+        <option value="5">Item 05</option>
+        <option value="6">Item 06</option>
+        <option value="7">Item 07</option>
+        <option value="8">Item 08</option>
+        <option value="9">Item 09</option>
+        <option value="10">Item 10</option>
+        <option value="11">Item 11</option>
+    </select>
+</div>
+
+<div class="col-xs-2" style="padding-left:3px; padding-right:3px;">
+    <br />
+    <button type="button" id="multiselect_rightAll" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-forward"></i></button>
+    <button type="button" id="multiselect_rightSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-right"></i></button>
+    <button type="button" id="multiselect_leftSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-left"></i></button>
+    <button type="button" id="multiselect_leftAll" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-backward"></i></button>
+</div>
+
+<div class="col-xs-5" style="padding-left:3px; padding-right:3px;">
+    <select name="to[]" id="multiselect_to" class="form-control" size="10" multiple="multiple"></select>
+</div>

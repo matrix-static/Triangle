@@ -29,7 +29,6 @@
     'use strict';
 
     // 全局变量、函数、对象
-    var _currentPluginId = 0;
     var defaults = {
         // injectStyle: true,
 

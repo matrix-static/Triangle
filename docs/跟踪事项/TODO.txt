@@ -2,6 +2,7 @@ TODO:
 
 2015-09-30 <jhliu> 自动化ci脚本
 2015-11-09 <jhliu> jQuery attr prop 清单
+2015-11-13 <jhliu>google-code-prettify
 
 
 DONE:
