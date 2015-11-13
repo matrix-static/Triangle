@@ -250,12 +250,12 @@
                         <td>
                             When you want to have search fields for <code>left</code> and <code>right</code> elements you can do this by providing following value:<br/>
                             <pre class="prettyprint linenums">
-search_left: &#39;&lt;input type=&quot;text&quot; name=&quot;q&quot; class=&quot;form-control&quot; placeholder=&quot;Search...&quot; /&gt;&#39;,
-search_right: &#39;&lt;input type=&quot;text&quot; name=&quot;q&quot; class=&quot;form-control&quot; placeholder=&quot;Search...&quot; /&gt;&#39;,
+search_left: &#39;true&#39;,
+search_right: &#39;true&#39;,
 </pre>
                             When you want to have search field only for <code>left</code> element you can do this by providing following value:<br/>
                             <pre class="prettyprint linenums">
-search_left: &#39;&lt;input type=&quot;text&quot; name=&quot;q&quot; class=&quot;form-control&quot; placeholder=&quot;Search...&quot; /&gt;&#39;
+search_left: &#39;true&#39;
 </pre>
                         </td>
                     </tr>
@@ -540,8 +540,8 @@ jQuery(document).ready(function($) {
 &lt;script type=&quot;text/javascript&quot;&gt;
 jQuery(document).ready(function($) {
     $(&#39;#search&#39;).rightselect({
-        search_left: &#39;&lt;input type=&quot;text&quot; name=&quot;q&quot; class=&quot;form-control&quot; placeholder=&quot;Search...&quot; /&gt;&#39;,
-        search_right: &#39;&lt;input type=&quot;text&quot; name=&quot;q&quot; class=&quot;form-control&quot; placeholder=&quot;Search...&quot; /&gt;&#39;,
+        search_left: &#39;true&#39;,
+        search_right: &#39;true&#39;,
     });
 });
 &lt;/script&gt;

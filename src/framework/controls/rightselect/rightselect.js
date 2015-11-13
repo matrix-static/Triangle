@@ -168,6 +168,12 @@
 
             // 绑定事件
             this.bindEvents();
+            // // 绑定事件接口
+            // this.bindEventsInterface();
+
+            // this.initialized();
+
+            // this.reflash();
 
             if (this.settings.keepRenderingSort) {
 
@@ -183,8 +189,6 @@
                     $(option).data('position', index);
                 });
             }
-
-            
             
             // // 初始化数据
             // $.when(this.getData())
@@ -197,31 +201,7 @@
             //     context.initialized();
             // });
 
-            // this.destroy();
-
-            
-
-            // this.bindEvents();
-            // this.setInitialStates({ nodes: this.tree }, 0);
-            
-            
-
-            
-            // // 初始化 html DOM 元素
-            // this.initElements();
-            // this.transferAttributes();
-
-            // // 创建 树型 菜单对象
-            // //this.menu=new LevelMenu(this.elements, this.settings);
-
-            // // 绑定事件
-            // this.bindEvents();
-            // // 绑定事件接口
-            // this.bindEventsInterface();
-
-            // this.initialized();
-
-            // this.reflash();
+            // this.transferAttributes();            
         },
         buildHtml: function(){
             var searchTemplate = '<input type="text" name="q" class="form-control" placeholder="Search..." />';
@@ -251,12 +231,10 @@
 
             if (this.settings.search_left) {
                 this.elements.search_left = this.elements.original.prev();    // $(this.settings.search_left);
-                // this.elements.original.before(this.elements.search_left);
             }
 
             if (this.settings.search_right) {
                 this.elements.search_right = this.elements.right.prev();     // $(this.settings.search_right);
-                // this.elements.right.before(this.elements.search_right);
             }
 
             // 将右边select有的option，在左边移除
