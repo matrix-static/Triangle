@@ -200,7 +200,7 @@
         this.each(function () {
             var jqElement = $(this);
             if (jqElement.data(pluginName)) {
-                jqElement.data(pluginName).remove();
+                jqElement.data(pluginName).destroy();
             }
             jqElement.data(pluginName, new Carousel(this, $.extend(true, {}, options)));
         });

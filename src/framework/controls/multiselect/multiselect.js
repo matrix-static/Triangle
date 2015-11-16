@@ -335,6 +335,8 @@ Jx().package("T.UI.Components", function(J){
             }
 
             this.$container.prepend(this.$button);
+
+            this.$button.dropdown();
         },
 
         /**
