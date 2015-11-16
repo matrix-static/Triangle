@@ -8,94 +8,63 @@
 
         <div class="row">
             <div class="col-md-5">
-                <div class="col-xs-5" style="padding-left:3px; padding-right:3px;">
-                    <select 
-                        id="rightselect" 
-                        multiple="multiple"
-                        size="10"
-
-                        rightselect
-
-                        class="form-control" 
-                        name="from[]"                         
-                        
-                        data-s-right="#rightselect_to"
-                        data-s-right-selected="#rightselect_rightSelected"  
-                        data-s-right-all="#rightselect_rightAll" 
-                        data-s-left-selected="#rightselect_leftSelected"
-                        data-s-left-all="#rightselect_leftAll" >
-                        <option value="1">Item 01</option>
-                        <option value="2">Item 02</option>
-                        <option value="3">Item 03</option>
-                        <option value="4">Item 04</option>
-                        <option value="5">Item 05</option>
-                        <option value="6">Item 06</option>
-                        <option value="7">Item 07</option>
-                        <option value="8">Item 08</option>
-                        <option value="9">Item 09</option>
-                        <option value="10">Item 10</option>
-                        <option value="11">Item 11</option>
-                    </select>
-                </div>
-                
-                <div class="col-xs-2" style="padding-left:3px; padding-right:3px;">
-                    <br />
-                    <button type="button" id="rightselect_rightAll" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-forward"></i></button>
-                    <button type="button" id="rightselect_rightSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-right"></i></button>
-                    <button type="button" id="rightselect_leftSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-left"></i></button>
-                    <button type="button" id="rightselect_leftAll" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-backward"></i></button>
-                </div>
-                
-                <div class="col-xs-5" style="padding-left:3px; padding-right:3px;">
-                    <select name="to[]" id="rightselect_to" class="form-control" size="10" multiple="multiple"></select>
-                </div>
-
                 <label for="ctrlid">rightselect</label>
-                <!-- <select 
-                    id="ctrlid"
-                    type="type"
-                    class="t-rightselect form-control"
-                    name="rightselect"
-                    value=""
+
+                <div
+                    id="rightselect_demo"
                     rightselect
-                    data-s-rightselect=""
-                    data-s-data-url="/demo/controls/rightselect/data.json">
+                    data-s-left="#rightselect_leftSelect"
+                    data-s-left-selected="#rightselect_leftSelected"
+                    data-s-left-all="#rightselect_leftAll"
+                    data-s-right="#rightselect_rightSelect"
+                    data-s-right-selected="#rightselect_rightSelected"  
+                    data-s-right-all="#rightselect_rightAll">
+                
+                    <div class="col-xs-5" style="padding-left:3px; padding-right:3px;">
+                        <select 
+                            id="rightselect_leftSelect" 
+                            multiple="multiple"
+                            size="10"
+                            class="form-control" 
+                            name="from[]">
+                            <option value="1">Item 01</option>
+                            <option value="2">Item 02</option>
+                            <option value="3">Item 03</option>
+                            <option value="4">Item 04</option>
+                            <option value="5">Item 05</option>
+                            <option value="6">Item 06</option>
+                            <option value="7">Item 07</option>
+                            <option value="8">Item 08</option>
+                            <option value="9">Item 09</option>
+                            <option value="10">Item 10</option>
+                            <option value="11">Item 11</option>
+                        </select>
+                    </div>                
+                    <div class="col-xs-2" style="padding-left:3px; padding-right:3px;">
+                        <br />
+                        <button type="button" id="rightselect_rightAll" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-forward"></i></button>
+                        <button type="button" id="rightselect_rightSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-right"></i></button>
+                        <button type="button" id="rightselect_leftSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-left"></i></button>
+                        <button type="button" id="rightselect_leftAll" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-backward"></i></button>
+                    </div>                
+                    <div class="col-xs-5" style="padding-left:3px; padding-right:3px;">
+                        <select 
+                            id="rightselect_rightSelect" 
+                            multiple="multiple"
+                            size="10"
+                            class="form-control" 
+                            name="to[]">
+                        </select>
+                    </div>
 
-                </select> -->
-
+                </div>
 
 
             </div>
             <div class="col-md-7">
                 <pre class="prettyprint">
                 &lt; &quot; &quot; &gt;
-&lt;select 
-    id=&quot;rightselect&quot;
-    multiple=&quot;multiple&quot;
-    size=&quot;10&quot;
 
-    rightselect
-    
-    class=&quot;form-control&quot;
-    name=&quot;from[]&quot;             
-    
-    data-s-right=&quot;#rightselect_to&quot;
-    data-s-right-selected=&quot;#rightselect_right_Selected&quot;
-    data-s-right-all=&quot;#rightselect_right_All&quot;
-    data-s-left-selected=&quot;#rightselect_left_Selected&quot;
-    data-s-left-all=&quot;#rightselect_left_All&quot; >
-    &lt;option value=&quot;1&quot;&gt;Item 01&lt;/option&gt;
-    &lt;option value=&quot;2&quot;&gt;Item 02&lt;/option&gt;
-    &lt;option value=&quot;3&quot;&gt;Item 03&lt;/option&gt;
-    &lt;option value=&quot;4&quot;&gt;Item 04&lt;/option&gt;
-    &lt;option value=&quot;5&quot;&gt;Item 05&lt;/option&gt;
-    &lt;option value=&quot;6&quot;&gt;Item 06&lt;/option&gt;
-    &lt;option value=&quot;7&quot;&gt;Item 07&lt;/option&gt;
-    &lt;option value=&quot;8&quot;&gt;Item 08&lt;/option&gt;
-    &lt;option value=&quot;9&quot;&gt;Item 09&lt;/option&gt;
-    &lt;option value=&quot;10&quot;&gt;Item 10&lt;/option&gt;
-    &lt;option value=&quot;11&quot;&gt;Item 11&lt;/option&gt;
-&lt;/select&gt;
                 </pre>
             </div>
         </div>

@@ -16,12 +16,12 @@
     'use strict';
 
     var defaults = {
-        right: '',
-
-        rightAll: '',
-        rightSelected: '',
+        left: '',
         leftAll: '',
         leftSelected: '',
+        right: '',
+        rightAll: '',
+        rightSelected: '',
         undo: '',
         redo: '',
 
@@ -112,11 +112,12 @@
     };
 
     var attributeMap = {
+        left: 'left',
+        leftAll: 'left-all',
+        leftSelected: 'left-selected',
         right: 'right',
         rightSelected: 'right-selected',
         rightAll: 'right-all',
-        leftAll: 'left-all',
-        leftSelected: 'left-selected'
         // dataUrl: 'data-url'
     };
 
@@ -147,11 +148,12 @@
             this.initSettings(options);
             // 初始化默认相关控件id
             var id = this.element.prop('id');
-            this.settings.right= this.settings.right.length ? this.settings.right : '#' + id + '_to';
-            this.settings.rightSelected= this.settings.rightSelected.length ? this.settings.rightSelected : '#' + id + '_rightSelected';
-            this.settings.rightAll= this.settings.rightAll.length ? this.settings.rightAll : '#' + id + '_rightAll';
+            this.settings.left= this.settings.left.length ? this.settings.left : '#' + id + '_leftSelect';
             this.settings.leftSelected= this.settings.leftSelected.length ? this.settings.leftSelected : '#' + id + '_leftSelected';
             this.settings.leftAll= this.settings.leftAll.length ? this.settings.leftAll : '#' + id + '_leftAll';
+            this.settings.right= this.settings.right.length ? this.settings.right : '#' + id + '_rightSelect';
+            this.settings.rightSelected= this.settings.rightSelected.length ? this.settings.rightSelected : '#' + id + '_rightSelected';
+            this.settings.rightAll= this.settings.rightAll.length ? this.settings.rightAll : '#' + id + '_rightAll';
             this.settings.undo= this.settings.undo.length ? this.settings.undo : '#' + id + '_undo';
             this.settings.redo= this.settings.redo.length ? this.settings.redo : '#' + id + '_redo';
 
@@ -181,7 +183,7 @@
                     return $(a).data('position') > $(b).data('position') ? 1 : -1;
                 };
 
-                this.elements.original.find('option').each(function(index, option) {
+                this.elements.left.find('option').each(function(index, option) {
                     $(option).data('position', index);
                 });
 
@@ -208,7 +210,8 @@
             // search_right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
 
             if (this.settings.search_left) {
-                this.element.before($(searchTemplate));
+                // this.element.before($(searchTemplate));
+                $( this.settings.left ).before($(searchTemplate));
             }
 
             if (this.settings.search_right) {
@@ -219,18 +222,19 @@
             this.elements= {
                 original: this.element, // left
 
+                left           : $( this.settings.left ),
+                leftSelected    : $( this.settings.leftSelected ),
+                rightSelected   : $( this.settings.rightSelected ),
                 right           : $( this.settings.right ),
                 leftAll         : $( this.settings.leftAll ),
                 rightAll        : $( this.settings.rightAll ),
-                leftSelected    : $( this.settings.leftSelected ),
-                rightSelected   : $( this.settings.rightSelected ),
 
                 undo            : $( this.settings.undo ),
                 redo            : $( this.settings.redo )
             };
 
             if (this.settings.search_left) {
-                this.elements.search_left = this.elements.original.prev();    // $(this.settings.search_left);
+                this.elements.search_left = this.elements.left.prev();    // $(this.settings.search_left);
             }
 
             if (this.settings.search_right) {
@@ -239,14 +243,14 @@
 
             // 将右边select有的option，在左边移除
             if ( typeof this.settings.startUp == 'function' ) {
-                this.settings.startUp( this.elements.original, this.elements.right );
+                this.settings.startUp( this.elements.left, this.elements.right );
             }
             
             // 排序
             if ( this.settings.keepRenderingSort && typeof this.settings.sort == 'function' ) {
-                this.elements.original.find('option')
+                this.elements.left.find('option')
                     .sort(this.settings.sort)
-                    .appendTo(this.elements.original);
+                    .appendTo(this.elements.left);
                 
                 this.elements.right
                     .each(function(i, select) {
@@ -263,7 +267,7 @@
         bindEvents: function() {
             var context = this;
             
-            this.elements.original.on('dblclick', 'option', function(e) {
+            this.elements.left.on('dblclick', 'option', function(e) {
                 e.preventDefault();
                 context.moveToRight(this, e);
             });
@@ -275,7 +279,7 @@
 
             // append left filter
             if (this.elements.search_left) {
-                this.elements.search_left.on('keyup', $.proxy(this._filteOptions, this, this.elements.original));
+                this.elements.search_left.on('keyup', $.proxy(this._filteOptions, this, this.elements.left));
             }
 
             // append right filter
@@ -286,7 +290,7 @@
             // select all the options from left and right side
             // when submiting the parent form
             this.elements.right.closest('form').on('submit', function(e) {
-                this.elements.original.children().prop('selected', this.settings.submitAllLeft);
+                this.elements.left.children().prop('selected', this.settings.submitAllLeft);
                 context.right.children().prop('selected', this.settings.submitAllRight);
             });
             
@@ -294,7 +298,7 @@
             if (navigator.userAgent.match(/MSIE/i)  || 
                 navigator.userAgent.indexOf('Trident/') > 0 || 
                 navigator.userAgent.indexOf('Edge/') > 0) {
-                this.elements.original.dblclick(function(e) {
+                this.elements.left.dblclick(function(e) {
                     context.elements.rightSelected.trigger('click');
                 });
                 
@@ -305,7 +309,7 @@
             
             this.elements.rightSelected.on('click', function(e) {
                 e.preventDefault();
-                var options = context.elements.original.find('option:selected');
+                var options = context.elements.left.find('option:selected');
                 
                 if ( options ) {
                     context.moveToRight(options, e);
@@ -327,7 +331,7 @@
             
             this.elements.rightAll.on('click', function(e) {
                 e.preventDefault();
-                var options = context.elements.original.find('option');
+                var options = context.elements.left.find('option');
                 
                 if ( options ) {
                     context.moveToRight(options, e);
@@ -408,7 +412,7 @@
                 this.settings.moveToRight( this, options, event, silent, skipStack );
             } else {
                 if ( typeof this.settings.beforeMoveToRight == 'function' && !silent ) {
-                    if ( !this.settings.beforeMoveToRight( this.elements.original, this.elements.right, options ) ) {
+                    if ( !this.settings.beforeMoveToRight( this.elements.left, this.elements.right, options ) ) {
                         return false;
                     }
                 }
@@ -425,7 +429,7 @@
                 }
                 
                 if ( typeof this.settings.afterMoveToRight == 'function' && !silent ){
-                    this.settings.afterMoveToRight( this.elements.original, this.elements.right, options );
+                    this.settings.afterMoveToRight( this.elements.left, this.elements.right, options );
                 }
             }
         },
@@ -435,12 +439,12 @@
                 this.settings.moveToLeft( this, options, event, silent, skipStack );
             } else {
                 if ( typeof this.settings.beforeMoveToLeft == 'function' && !silent ) {
-                    if ( !this.settings.beforeMoveToLeft( this.elements.original, this.elements.right, options ) ) {
+                    if ( !this.settings.beforeMoveToLeft( this.elements.left, this.elements.right, options ) ) {
                         return false;
                     }
                 }
                     
-                this.elements.original.append(options);
+                this.elements.left.append(options);
                 
                 if ( !skipStack ) {
                     this.undoStack.push(['left', options ]);
@@ -448,11 +452,11 @@
                 }
                 
                 if ( typeof this.settings.sort == 'function' && !silent ) {
-                    this.elements.original.find('option').sort(this.settings.sort).appendTo(this.elements.original);     
+                    this.elements.left.find('option').sort(this.settings.sort).appendTo(this.elements.left);     
                 }
                 
                 if ( typeof this.settings.afterMoveToLeft == 'function' && !silent ) {
-                    this.settings.afterMoveToLeft( this.elements.original, this.elements.right, options );
+                    this.settings.afterMoveToLeft( this.elements.left, this.elements.right, options );
                 }
             }
         },
