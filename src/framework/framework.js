@@ -10,8 +10,10 @@ Jx().package("T.UI", function(J){
         /*
 		defaults: {},
 		attributeMap: {},
+        templates:{},
         
         element: {},
+        container: {},
         elements: {},
         init: function{},
         */
@@ -60,6 +62,10 @@ Jx().package("T.UI", function(J){
         getRef: function(){
             return this.element.data('plugin-ref'); 
         },
+
+        enable: function(){},
+        disable: function(){},
+
         destroy: function () {
             if(!this.isInitialized()){
                 return;

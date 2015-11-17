@@ -170,8 +170,6 @@
                 // this.reflash();
 
                 // this.bindEvents();
-
-                
             }
 
             var context = this;

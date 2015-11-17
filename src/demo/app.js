@@ -34,7 +34,7 @@ angular.module('pnApp.controllers', [])
             // onNodeDisabled: function(e, node){ alert( node.text + ': onNodeDisabled') },
             // onNodeEnabled: function(e, node){ alert( node.text + ': onNodeEnabled') },
             // onNodeExpanded: function(e, node){ alert( node.text + ': onNodeExpanded') },
-            // onNodeSelected: function(e, node){ alert( node.text + ': onNodeSelected') },
+            onNodeSelected: function(e, node){ alert( node.text + ': onNodeSelected') }//,
             // onNodeUnchecked: function(e, node){ alert( node.text + ': onNodeUnchecked') },
             // onNodeUnselected: function(e, node){ alert( node.text + ': onNodeUnselected') },
             // onSearchComplete: function(e, node){ alert( node.text + ': onSearchComplete') },

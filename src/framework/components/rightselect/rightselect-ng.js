@@ -1,7 +1,7 @@
 /* rightselect javascript AngularJS */
 
 //angular.module('triangle.controls', [])
-T.UI.ngControls
+T.UI.ngComponents
     .directive('rightselect', ['$rootScope', '$compile', function($rootScope, $compile){
 
         function link($scope, $element, $attrs, undefined, link){

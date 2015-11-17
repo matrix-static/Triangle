@@ -10,7 +10,7 @@
 
 
 
- Jx().package("T.UI.Controls", function(J){
+ Jx().package("T.UI.Components", function(J){
 
     // 严格模式
     'use strict';
@@ -509,7 +509,7 @@
     var pluginRef = 'plugin-ref'
     $.fn[pluginName] = function(options) {
         this.each(function () {
-            var plugin=new T.UI.Controls.RightSelect(this, $.extend(true, {}, options));
+            var plugin=new T.UI.Components.RightSelect(this, $.extend(true, {}, options));
         });
 
         return this;
