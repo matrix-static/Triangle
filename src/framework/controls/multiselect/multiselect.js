@@ -368,6 +368,7 @@ Jx().package("T.UI.Components", function(J){
                 this.container.on('selectall.bs.dropdown', this.settings.onSelectAll);
             }
         },
+
         onGroupClick: function(event) {
             event.stopPropagation();
 
@@ -567,12 +568,7 @@ Jx().package("T.UI.Components", function(J){
                 event.preventDefault();
             }
         },
-        
-        /**
-         * Create an option using the given select option.
-         *
-         * @param {jQuery} element
-         */
+
         createOptionValue: function(element) {
 
             var $element = $(element);
@@ -647,9 +643,6 @@ Jx().package("T.UI.Components", function(J){
             return htmlTemplate;
         },
 
-        /**
-         * Builds the filter.
-         */
         buildFilter: function() {
 
             // Build filter if filtering OR case insensitive filtering is enabled and the number of settings exceeds (or equals) enableFilterLength.
@@ -756,18 +749,12 @@ Jx().package("T.UI.Components", function(J){
             }, this));
         },
 
-        /**
-         * Unbinds the whole plugin.
-         */
         destroy: function() {
             this.container.remove();
             this.element.show();
             this.element.data('multiselect', null);
         },
 
-        /**
-         * Refreshs the multiselect based on the selected settings of the select.
-         */
         refresh: function() {
             $('option', this.element).each($.proxy(function(index, element) {
                 var $input = $('li input', this.elements.menu).filter(function() {
@@ -807,16 +794,6 @@ Jx().package("T.UI.Components", function(J){
             this.updateButtonText();
             this.updateSelectAll();
         },
-
-        /**
-         * Select all settings of the given values.
-         * 
-         * If triggerOnChange is set to true, the on change event is triggered if
-         * and only if one value is passed.
-         * 
-         * @param {Array} selectValues
-         * @param {Boolean} triggerOnChange
-         */
         select: function(selectValues, triggerOnChange) {
             if(!$.isArray(selectValues)) {
                 selectValues = [selectValues];
@@ -857,25 +834,11 @@ Jx().package("T.UI.Components", function(J){
             this.updateButtonText();
             this.updateSelectAll();
         },
-
-        /**
-         * Clears all selected items.
-         */
         clearSelection: function () {
             this.deselectAll(false);
             this.updateButtonText();
             this.updateSelectAll();
         },
-
-        /**
-         * Deselects all settings of the given values.
-         * 
-         * If triggerOnChange is set to true, the on change event is triggered, if
-         * and only if one value is passed.
-         * 
-         * @param {Array} deselectValues
-         * @param {Boolean} triggerOnChange
-         */
         deselect: function(deselectValues, triggerOnChange) {
             if(!$.isArray(deselectValues)) {
                 deselectValues = [deselectValues];
@@ -912,15 +875,6 @@ Jx().package("T.UI.Components", function(J){
             this.updateButtonText();
             this.updateSelectAll();
         },
-        
-        /**
-         * Selects all enabled & visible settings.
-         *
-         * If justVisible is true or not specified, only visible settings are selected.
-         *
-         * @param {Boolean} justVisible
-         * @param {Boolean} triggerOnSelectAll
-         */
         selectAll: function (justVisible, triggerOnSelectAll) {
             var justVisible = typeof justVisible === 'undefined' ? true : justVisible;
             var allCheckboxes = $("li input[type='checkbox']:enabled", this.elements.menu);
@@ -955,14 +909,6 @@ Jx().package("T.UI.Components", function(J){
                 this.container.trigger('selectall');
             }
         },
-
-        /**
-         * Deselects all settings.
-         * 
-         * If justVisible is true or not specified, only visible settings are deselected.
-         * 
-         * @param {Boolean} justVisible
-         */
         deselectAll: function (justVisible) {
             var justVisible = typeof justVisible === 'undefined' ? true : justVisible;
             
@@ -992,11 +938,6 @@ Jx().package("T.UI.Components", function(J){
             }
         },
 
-        /**
-         * Rebuild the plugin.
-         * 
-         * Rebuilds the dropdown, the filter and the select all option.
-         */
         rebuild: function() {
             this.elements.menu.html('');
 
@@ -1068,38 +1009,20 @@ Jx().package("T.UI.Components", function(J){
             
             this.rebuild();
         },
-
-        /**
-         * Enable the multiselect.
-         */
         enable: function() {
             this.element.prop('disabled', false);
             this.elements.view.prop('disabled', false)
                 .removeClass('disabled');
         },
-
-        /**
-         * Disable the multiselect.
-         */
         disable: function() {
             this.element.prop('disabled', true);
             this.elements.view.prop('disabled', true)
                 .addClass('disabled');
         },
-
-        /**
-         * Checks whether a select all checkbox is present.
-         *
-         * @returns {Boolean}
-         */
         hasSelectAll: function() {
             // return $('li.multiselect-all', this.elements.menu).length > 0;
             return this.elements.getItemSelectAll();
         },
-
-        /**
-         * Updates the select all checkbox based on the currently displayed and selected checkboxes.
-         */
         updateSelectAll: function() {
             if (!this.hasSelectAll()) {
                 return;
@@ -1122,10 +1045,6 @@ Jx().package("T.UI.Components", function(J){
                 selectAllLi.removeClass(this.settings.selectedClass);
             }
         },
-
-        /**
-         * Update the button text and its title based on the currently selected settings.
-         */
         updateButtonText: function() {
             var settings = this.getSelected();
             
@@ -1141,22 +1060,9 @@ Jx().package("T.UI.Components", function(J){
             // Now update the title attribute of the button.
             $('.multiselect', this.container).attr('title', this.settings.buttonTitle(settings, this.element));
         },
-
-        /**
-         * Get all selected settings.
-         *
-         * @returns {jQUery}
-         */
         getSelected: function() {
             return $('option', this.element).filter(":selected");
         },
-
-        /**
-         * Gets a select option by its value.
-         *
-         * @param {String} value
-         * @returns {jQuery}
-         */
         getOptionByValue: function (value) {
 
             var options = $('option', this.element);
@@ -1169,13 +1075,6 @@ Jx().package("T.UI.Components", function(J){
                 }
             }
         },
-
-        /**
-         * Get the input (radio/checkbox) by its value.
-         *
-         * @param {String} value
-         * @returns {jQuery}
-         */
         getInputByValue: function (value) {
 
             var checkboxes = $('li input', this.elements.menu);

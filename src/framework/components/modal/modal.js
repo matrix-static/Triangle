@@ -36,9 +36,9 @@ Jx().package("T.UI.Components", function(J){
 
             this.options             = options
             this.$body               = $(document.body)
-            //this.$element            = $(element)
-            this.$element            = this.inputElements.pop;
-            this.$dialog             = this.$element.find('.modal-dialog')
+            //this.element            = $(element)
+            this.element             = this.inputElements.pop;
+            this.dialog              = this.element.find('.modal-dialog')
             this.$backdrop           = null
             this.isShown             = null
             this.originalBodyPad     = null
@@ -76,10 +76,10 @@ Jx().package("T.UI.Components", function(J){
         },
         getData: function(){
             if (this.options.remote) {
-                this.$element
+                this.element
                     .find('.modal-content')
                     .load(this.options.remote, $.proxy(function () {
-                        this.$element.trigger('loaded.bs.modal')
+                        this.element.trigger('loaded.bs.modal')
                     }, this))
             }
         },
@@ -99,10 +99,10 @@ Jx().package("T.UI.Components", function(J){
         },
 
         show: function (_relatedTarget) {
-            var that = this
+            var context = this
             var e    = $.Event('show.bs.modal', { relatedTarget: _relatedTarget })
 
-            this.$element.trigger(e)
+            this.element.trigger(e)
 
             if (this.isShown || e.isDefaultPrevented()) return
 
@@ -115,44 +115,44 @@ Jx().package("T.UI.Components", function(J){
             this.escape()
             this.resize()
 
-            this.$element.on('click.dismiss.bs.modal', '[data-dismiss="modal"]', $.proxy(this.hide, this))
+            this.element.on('click.dismiss.bs.modal', '[data-dismiss="modal"]', $.proxy(this.hide, this))
 
-            this.$dialog.on('mousedown.dismiss.bs.modal', function () {
-                that.$element.one('mouseup.dismiss.bs.modal', function (e) {
-                    if ($(e.target).is(that.$element)) that.ignoreBackdropClick = true
+            this.dialog.on('mousedown.dismiss.bs.modal', function () {
+                context.element.one('mouseup.dismiss.bs.modal', function (e) {
+                    if ($(e.target).is(context.element)) context.ignoreBackdropClick = true
                 })
             })
 
             this.backdrop(function () {
-                var transition = $.support.transition && that.$element.hasClass('fade')
+                var transition = $.support.transition && context.element.hasClass('fade')
 
-                if (!that.$element.parent().length) {
-                    that.$element.appendTo(that.$body) // don't move modals dom position
+                if (!context.element.parent().length) {
+                    context.element.appendTo(context.$body) // don't move modals dom position
                 }
 
-                that.$element
+                context.element
                     .show()
                     .scrollTop(0)
 
-                that.adjustDialog()
+                context.adjustDialog()
 
                 if (transition) {
-                    that.$element[0].offsetWidth // force reflow
+                    context.element[0].offsetWidth // force reflow
                 }
 
-                that.$element.addClass('in')
+                context.element.addClass('in')
 
-                that.enforceFocus()
+                context.enforceFocus()
 
                 var e = $.Event('shown.bs.modal', { relatedTarget: _relatedTarget })
 
                 transition ?
-                    that.$dialog // wait for modal to slide in
+                    context.$dialog // wait for modal to slide in
                         .one('bsTransitionEnd', function () {
-                            that.$element.trigger('focus').trigger(e)
+                            context.element.trigger('focus').trigger(e)
                         })
                         .emulateTransitionEnd(TRANSITION_DURATION) :
-                    that.$element.trigger('focus').trigger(e)
+                    context.element.trigger('focus').trigger(e)
             })
         },
 
@@ -161,7 +161,7 @@ Jx().package("T.UI.Components", function(J){
 
             e = $.Event('hide.bs.modal')
 
-            this.$element.trigger(e)
+            this.element.trigger(e)
 
             if (!this.isShown || e.isDefaultPrevented()) return
 
@@ -172,15 +172,15 @@ Jx().package("T.UI.Components", function(J){
 
             $(document).off('focusin.bs.modal')
 
-            this.$element
+            this.element
                 .removeClass('in')
                 .off('click.dismiss.bs.modal')
                 .off('mouseup.dismiss.bs.modal')
 
-            this.$dialog.off('mousedown.dismiss.bs.modal')
+            this.dialog.off('mousedown.dismiss.bs.modal')
 
-            $.support.transition && this.$element.hasClass('fade') ?
-                this.$element
+            $.support.transition && this.element.hasClass('fade') ?
+                this.element
                     .one('bsTransitionEnd', $.proxy(this.hideModal, this))
                     .emulateTransitionEnd(TRANSITION_DURATION) :
                 this.hideModal()
@@ -190,19 +190,19 @@ Jx().package("T.UI.Components", function(J){
             $(document)
                 .off('focusin.bs.modal') // guard against infinite focus loop
                 .on('focusin.bs.modal', $.proxy(function (e) {
-                    if (this.$element[0] !== e.target && !this.$element.has(e.target).length) {
-                        this.$element.trigger('focus')
+                    if (this.element[0] !== e.target && !this.element.has(e.target).length) {
+                        this.element.trigger('focus')
                     }
                 }, this))
         },
 
         escape: function () {
             if (this.isShown && this.options.keyboard) {
-                this.$element.on('keydown.dismiss.bs.modal', $.proxy(function (e) {
+                this.element.on('keydown.dismiss.bs.modal', $.proxy(function (e) {
                     e.which == 27 && this.hide()
                 }, this))
             } else if (!this.isShown) {
-                this.$element.off('keydown.dismiss.bs.modal')
+                this.element.off('keydown.dismiss.bs.modal')
             }
         },
 
@@ -215,13 +215,13 @@ Jx().package("T.UI.Components", function(J){
         },
 
         hideModal: function () {
-            var that = this
-            this.$element.hide()
+            var context = this
+            this.element.hide()
             this.backdrop(function () {
-                that.$body.removeClass('modal-open')
-                that.resetAdjustments()
-                that.resetScrollbar()
-                that.$element.trigger('hidden.bs.modal')
+                context.$body.removeClass('modal-open')
+                context.resetAdjustments()
+                context.resetScrollbar()
+                context.element.trigger('hidden.bs.modal')
             })
         },
 
@@ -231,8 +231,8 @@ Jx().package("T.UI.Components", function(J){
         },
 
         backdrop: function (callback) {
-            var that = this
-            var animate = this.$element.hasClass('fade') ? 'fade' : ''
+            var context = this
+            var animate = this.element.hasClass('fade') ? 'fade' : ''
 
             if (this.isShown && this.options.backdrop) {
                 var doAnimate = $.support.transition && animate
@@ -241,14 +241,14 @@ Jx().package("T.UI.Components", function(J){
                     .addClass('modal-backdrop ' + animate)
                     .appendTo(this.$body)
 
-                this.$element.on('click.dismiss.bs.modal', $.proxy(function (e) {
+                this.element.on('click.dismiss.bs.modal', $.proxy(function (e) {
                     if (this.ignoreBackdropClick) {
                         this.ignoreBackdropClick = false
                         return
                     }
                     if (e.target !== e.currentTarget) return
                     this.options.backdrop == 'static'
-                        ? this.$element[0].focus()
+                        ? this.element[0].focus()
                         : this.hide()
                 }, this))
 
@@ -268,10 +268,10 @@ Jx().package("T.UI.Components", function(J){
                 this.$backdrop.removeClass('in')
 
                 var callbackRemove = function () {
-                    that.removeBackdrop()
+                    context.removeBackdrop()
                     callback && callback()
                 }
-                $.support.transition && this.$element.hasClass('fade') ?
+                $.support.transition && this.element.hasClass('fade') ?
                     this.$backdrop
                         .one('bsTransitionEnd', callbackRemove)
                         .emulateTransitionEnd(BACKDROP_TRANSITION_DURATION) :
@@ -289,16 +289,16 @@ Jx().package("T.UI.Components", function(J){
         },
 
         adjustDialog: function () {
-            var modalIsOverflowing = this.$element[0].scrollHeight > document.documentElement.clientHeight
+            var modalIsOverflowing = this.element[0].scrollHeight > document.documentElement.clientHeight
 
-            this.$element.css({
+            this.element.css({
                 paddingLeft:  !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : '',
                 paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : ''
             })
         },
 
         resetAdjustments: function () {
-            this.$element.css({
+            this.element.css({
                 paddingLeft: '',
                 paddingRight: ''
             })

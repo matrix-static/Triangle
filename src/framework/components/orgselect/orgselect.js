@@ -15,7 +15,7 @@ Jx().package("T.UI.Components", function(J){
     };
 
 
-    var OrgsltModal=new J.Class({
+    var OrgselectModal=new J.Class({
         data:{},
         init:function(elements, options, data){
             this.inputElements = elements;
@@ -60,38 +60,121 @@ Jx().package("T.UI.Components", function(J){
             this.buildContent();
         },
         buildContainer:function(){
-            // var htmlTabs='';
-            // var htmlContents='';
-            // for(var i=0; i<this.levels.length; i++){
-            //     var levelName=this.levels[i];
-            //     htmlTabs += '<li data-s-level="'+ i +'" class="t-level-tab-' + i + '"><a href="#">' + levelName + '<span class="caret"></span></a></li>';
-            //     htmlContents += '<div class="t-level-' + i + ' t-level-content"></div>';
-            // }
-
-            // var htmlTemplate = ''+
-            //     '<div class="t-level-menu dropdown-menu">'+
-            //     '    <div class="t-level-path">'+
-            //     '        <ul class="t-level-tabs">'+
-            //     htmlTabs +
-            //     '        </ul>'+
-            //     '    </div>'+
-            //     htmlContents +
-            //     '</div>';
+            var htmlOrgTree=''+
+                '           <div class="col-xs-4" style="padding-left:3px; padding-right:3px; border:1px solid #ccc; height:400px;">'+
+                '               <div class="col-header">'+
+                '               <input type="text" class="form-control" />'+
+                '               </div>'+
+                '               <div class="t-tree">'+
+                '                   <ul class="list-group">'+
+                '                        <li class="list-group-item" data-nodeid="0">'+
+                '                            <span class="icon expand-icon glyphicon glyphicon-chevron-down"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 1 '+
+                '                            <span class="badge">4</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item node-selected" data-nodeid="1">'+
+                '                            <span class="indent"></span>'+
+                '                            <span class="icon expand-icon glyphicon glyphicon-chevron-right"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Child 1 '+
+                '                            <span class="badge">2</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="4">'+
+                '                            <span class="indent"></span>'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Child 2 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="5">'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 2 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="6">'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 4 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="12">'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 5 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
+                '                    </ul>'+
+                '                </div>'+
+                '            </div>';
+            var htmlRighselect=''+
+                '            <div class="col-xs-8" style="padding-left:3px; padding-right:3px;">'+
+                '                <div class="col-xs-5" style="padding-left:6px; padding-right:6px;">'+
+                '                <div class="col-header">'+
+                '                    待选( <span>8<span> )<br />'+
+                '                    <select><option></option><option>高级经理以上</option><option>2</option><option>3</option></select>'+
+                '                    <input type="checkbox" />所内'+
+                '                    <input type="checkbox" />所外'+
+                '                </div>'+
+                '                    <select '+
+                '                        multiple="multiple" '+
+                '                        size="10" '+
+                '                        class="form-control" '+
+                '                        name="from[]">'+
+                '                        <option value="1">Item 01</option>'+
+                '                        <option value="2">Item 02</option>'+
+                '                        <option value="3">Item 03</option>'+
+                '                        <option value="4">Item 04</option>'+
+                '                        <option value="5">Item 05</option>'+
+                '                        <option value="6">Item 06</option>'+
+                '                        <option value="7">Item 07</option>'+
+                '                        <option value="8">Item 08</option>'+
+                '                        <option value="9">Item 09</option>'+
+                '                        <option value="10">Item 10</option>'+
+                '                        <option value="11">Item 11</option>'+
+                '                    </select>'+
+                '                </div>'+       
+                '                <div class="col-xs-2">'+   //  style="padding-left:3px; padding-right:3px;"
+                '                    <br />'+
+                '                    <button type="button" id="rightselect_rightAll" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-forward"></i></button>'+
+                '                    <button type="button" id="rightselect_rightSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-right"></i></button>'+
+                '                    <button type="button" id="rightselect_leftSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-left"></i></button>'+
+                '                    <button type="button" id="rightselect_leftAll" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-backward"></i></button>'+
+                '                </div>'+
+                '                <div class="col-xs-5" style="padding-left:6px; padding-right:6px;">'+
+                '                    <div class="col-header">'+
+                '                    已选( <span>11<span> )'+
+                '                    </div>'+
+                '                    <select '+
+                '                        id="rightselect_rightSelect" '+
+                '                        multiple="multiple" '+
+                '                        size="10" '+
+                '                        class="form-control" '+
+                '                        name="to[]">'+
+                '                    </select>'+
+                '                </div>'+
+                '            </div>';
 
             var htmlTemplate = '' +            
-                '<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">' + 
+                '<div class="t-orgselect-dialog modal" tabindex="-1" role="dialog">' +     //  fade
                 '    <div class="modal-dialog" role="document">' + 
                 '        <div class="modal-content">' + 
                 '            <div class="modal-header">' + 
-                '                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + 
-                '                <h4 class="modal-title" id="myModalLabel">选择员工</h4>' + 
+                '                <button type="button" class="close"><span aria-hidden="true">&times;</span></button>' + 
+                '                <h4 class="modal-title">选择员工</h4>' + 
                 '            </div>' + 
                 '            <div class="modal-body">' + 
-                '                .a.b. ' + 
+                '               <div class="row">' + 
+                htmlOrgTree + 
+                htmlRighselect + 
+                //'                .a.b. ' + 
+
+                '               </div>' + 
                 '            </div>' + 
                 '            <div class="modal-footer">' + 
-                '                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>' + 
-                '                <button type="button" class="btn btn-primary">确定</button>' + 
+                '                <button type="button" class="btn btn-default cancel">取消</button>' + 
+                '                <button type="button" class="btn btn-primary confirm">确定</button>' + 
                 '            </div>' + 
                 '        </div>' + 
                 '    </div>' + 
@@ -104,6 +187,9 @@ Jx().package("T.UI.Components", function(J){
             var context=this;
 
             this.elements={
+                close: $('.modal-header button', this.container),
+                cancel: $('.modal-footer button.cancel', this.container),
+                confirm: $('.modal-footer button.confirm', this.container)
                 // tabs: $('.t-level-tabs li', this.container),
                 // contents: $('.t-level-content', this.container),
                 // getTab: function(levelIndex){
@@ -120,25 +206,9 @@ Jx().package("T.UI.Components", function(J){
                 // }
             };
         },
-        buildContent:function(){
-            // var treePath = this.getPath();
-            // if(treePath.length === 0){
-            //     // treepath可能为空
-            //     this.activeLevelIndex = 0;
-
-            //     this._buildNodes(this.data, 0);
-            // }
-            // else{
-            //     this.activeLevelIndex = treePath.length == this.levels.length ? this.levels.length -1 : treePath.length;
-
-            //     var node=this.data;
-            //     for(var i=0; i<=treePath.length; i++){
-            //         this._buildNodes(node, i);
-            //         node= node.childs[treePath[i]];
-            //     }
-            // }
+        buildContent: function(){
         },
-        _buildNodes:function(node, levelIndex){
+        _buildNodes: function(node, levelIndex){
             // var childs=node.childs;
             // var htmlTemplate='<ul class="t-level-nodes">';
             // for(var p in childs){
@@ -150,27 +220,31 @@ Jx().package("T.UI.Components", function(J){
 
             // this.elements.getContent(levelIndex).empty().append(htmlTemplate);
         },        
-        bindEvents:function(){
+        bindEvents: function(){
             var context=this;
 
             var elements=this.elements;
 
             this.inputElements.button
                 .on('click',       $.proxy(this.show, this));
+
+            this.elements.close.on('click', $.proxy(this.hide, this));
+            this.elements.cancel.on('click', $.proxy(this.hide, this));
         },
-        bindEventsInterface:function () {},
-        _bindNodes:function(levelIndex){
+        bindEventsInterface: function () {},
+        onConfirm: function(){},
+        _bindNodes: function(levelIndex){
             ;
         },
-        reflash:function(){
+        reflash: function(){
                       
         },
-        getPath:function(){
+        getPath: function(){
             // var initValue = this.inputElements.orginal.val();
             // var treePath = initValue === '' ? [] : initValue.split(',');
             // return treePath;
         },
-        change:function(id, levelIndex){
+        change: function(id, levelIndex){
             // var treePath = this.getPath();
 
             // // 选了低级别再选高级别，树路径回滚
@@ -183,28 +257,16 @@ Jx().package("T.UI.Components", function(J){
             // this.inputElements.orginal.val(treePath.join(','));
         },
         show: function () {
-            alert('show');
-            // var pos = $.extend({}, this.inputElements.view.position(), {
-            //     height: this.inputElements.view[0].offsetHeight
-            // });
-
-            // this.container
-            //     .css({
-            //         top: pos.top + pos.height, 
-            //         left: pos.left
-            //     })
-            //     .show();
             this.container.show();
         },
         hide: function(){
             this.container.hide();
             //alert(this.inputElements.orginal.val());
         }
-        
     });
 
 
-    this.Orgslt = new J.Class({extend : T.UI.BaseControl}, {
+    this.Orgselect = new J.Class({extend : T.UI.BaseControl}, {
         defaults : defaults,
         attributeMap : attributeMap,
         // data:{},
@@ -255,7 +317,7 @@ Jx().package("T.UI.Components", function(J){
                 '<div class="t-orgslt-container input-group">' + 
                 '    <input type="text" class="form-control" aria-label="...">' + 
                 '    <div class="input-group-btn">' + 
-                '        <button type="button" class="btn btn-default" aria-label="Help"' +     //  data-toggle="modal" data-target="#myModal">
+                '        <button type="button" class="btn btn-default">' +     //  data-toggle="modal" data-target="#myModal">
                 '            <span class="glyphicon glyphicon-user"></span>' + 
                 '        </button>' + 
                 '    </div>' + 
@@ -279,7 +341,7 @@ Jx().package("T.UI.Components", function(J){
             });
         },
         createModal:function(data){
-            this.modal=new OrgsltModal(this.elements, this.settings, data);
+            this.modal=new OrgselectModal(this.elements, this.settings, data);
         },
         initElements:function () {
             this.elements = {
@@ -339,6 +401,9 @@ Jx().package("T.UI.Components", function(J){
             this.element.attr('disabled', true);
             this.elements.view.attr('disabled', true);
             this.disabled=true;
+        },
+        destory: function(){
+            ;
         }
     });
 
@@ -364,7 +429,7 @@ Jx().package("T.UI.Components", function(J){
             if (jqElement.data(pluginName)) {
                 jqElement.data(pluginName).remove();
             }
-            jqElement.data(pluginName, new T.UI.Components.Orgslt(this, $.extend(true, {}, options)));
+            jqElement.data(pluginName, new T.UI.Components.Orgselect(this, $.extend(true, {}, options)));
         });
 
         return this;

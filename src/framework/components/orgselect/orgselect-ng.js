@@ -1,8 +1,8 @@
-/* orgslt javascript AngularJS */
+/* orgselect javascript AngularJS */
 
 //angular.module('triangle.controls', [])
 T.UI.ngComponents
-    .directive('orgslt', ['$rootScope', '$compile', function($rootScope, $compile){
+    .directive('orgselect', ['$rootScope', '$compile', function($rootScope, $compile){
 
         function link($scope, $element, $attrs, undefined, link){
             $element.orgslt({});
