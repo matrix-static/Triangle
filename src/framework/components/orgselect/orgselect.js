@@ -6,11 +6,11 @@ Jx().package("T.UI.Components", function(J){
     // 全局变量、函数、对象
     var _currentPluginId = 0;
     var defaults = {
-        //orgsltNames: '一级名称,二级名称,三级名称',
+        //orgselectNames: '一级名称,二级名称,三级名称',
         dataUrl: ''
     };
     var attributeMap = {
-        //orgsltNames: 'orgslt-names',
+        //orgselectNames: 'orgslt-names',
         dataUrl: 'data-url'
     };
 
@@ -61,10 +61,11 @@ Jx().package("T.UI.Components", function(J){
         },
         buildContainer:function(){
             var htmlOrgTree=''+
-                '           <div class="col-xs-4" style="padding-left:3px; padding-right:3px; border:1px solid #ccc; height:400px;">'+
-                '               <div class="col-header">'+
+                '           <div class="col-xs-4" style="padding-left:3px;">'+    //  padding-right:3px; border:1px solid #ccc;
+                '               <div class="col-header" style="padding:6px;">'+
                 '               <input type="text" class="form-control" />'+
                 '               </div>'+
+                '               <div class="t-tree-wraper">'+
                 '               <div class="t-tree">'+
                 '                   <ul class="list-group">'+
                 '                        <li class="list-group-item" data-nodeid="0">'+
@@ -105,21 +106,86 @@ Jx().package("T.UI.Components", function(J){
                 '                            Parent 5 '+
                 '                            <span class="badge">0</span>'+
                 '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="0">'+
+                '                            <span class="icon expand-icon glyphicon glyphicon-chevron-down"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 1 '+
+                '                            <span class="badge">4</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item node-selected" data-nodeid="1">'+
+                '                            <span class="indent"></span>'+
+                '                            <span class="icon expand-icon glyphicon glyphicon-chevron-right"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Child 1 '+
+                '                            <span class="badge">2</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="4">'+
+                '                            <span class="indent"></span>'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Child 2 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="5">'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 2 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="6">'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 4 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="12">'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 5 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="0">'+
+                '                            <span class="icon expand-icon glyphicon glyphicon-chevron-down"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 1 '+
+                '                            <span class="badge">4</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item node-selected" data-nodeid="1">'+
+                '                            <span class="indent"></span>'+
+                '                            <span class="icon expand-icon glyphicon glyphicon-chevron-right"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Child 1 '+
+                '                            <span class="badge">2</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="4">'+
+                '                            <span class="indent"></span>'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Child 2 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
+                '                        <li class="list-group-item" data-nodeid="5">'+
+                '                            <span class="icon glyphicon"></span>'+
+                '                            <span class="icon node-icon"></span>'+
+                '                            Parent 2 '+
+                '                            <span class="badge">0</span>'+
+                '                        </li>'+
                 '                    </ul>'+
+                '                </div>'+
                 '                </div>'+
                 '            </div>';
             var htmlRighselect=''+
                 '            <div class="col-xs-8" style="padding-left:3px; padding-right:3px;">'+
                 '                <div class="col-xs-5" style="padding-left:6px; padding-right:6px;">'+
                 '                <div class="col-header">'+
-                '                    待选( <span>8<span> )<br />'+
+                '                    <span>待选( <b>9</b> )</span><br />'+
                 '                    <select><option></option><option>高级经理以上</option><option>2</option><option>3</option></select>'+
-                '                    <input type="checkbox" />所内'+
-                '                    <input type="checkbox" />所外'+
+                '                    <input type="checkbox" /><label>所内</label>'+
+                '                    <input type="checkbox" /><label>所外</label>'+
                 '                </div>'+
                 '                    <select '+
                 '                        multiple="multiple" '+
-                '                        size="10" '+
+                '                        size="20" '+
                 '                        class="form-control" '+
                 '                        name="from[]">'+
                 '                        <option value="1">Item 01</option>'+
@@ -136,7 +202,7 @@ Jx().package("T.UI.Components", function(J){
                 '                    </select>'+
                 '                </div>'+       
                 '                <div class="col-xs-2">'+   //  style="padding-left:3px; padding-right:3px;"
-                '                    <br />'+
+                '                    <br /><br /><br /><br /><br /><br />'+
                 '                    <button type="button" id="rightselect_rightAll" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-forward"></i></button>'+
                 '                    <button type="button" id="rightselect_rightSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-right"></i></button>'+
                 '                    <button type="button" id="rightselect_leftSelected" class="btn btn-block btn-sm"><i class="glyphicon glyphicon-chevron-left"></i></button>'+
@@ -144,12 +210,12 @@ Jx().package("T.UI.Components", function(J){
                 '                </div>'+
                 '                <div class="col-xs-5" style="padding-left:6px; padding-right:6px;">'+
                 '                    <div class="col-header">'+
-                '                    已选( <span>11<span> )'+
+                '                    <span>已选( <b>11</b> )</span><br />'+
                 '                    </div>'+
                 '                    <select '+
                 '                        id="rightselect_rightSelect" '+
                 '                        multiple="multiple" '+
-                '                        size="10" '+
+                '                        size="20" '+
                 '                        class="form-control" '+
                 '                        name="to[]">'+
                 '                    </select>'+
@@ -315,7 +381,7 @@ Jx().package("T.UI.Components", function(J){
         buildHtml:function () {
             var htmlTemplate = ''+ 
                 '<div class="t-orgslt-container input-group">' + 
-                '    <input type="text" class="form-control" aria-label="...">' + 
+                '    <input type="text" class="form-control">' + 
                 '    <div class="input-group-btn">' + 
                 '        <button type="button" class="btn btn-default">' +     //  data-toggle="modal" data-target="#myModal">
                 '            <span class="glyphicon glyphicon-user"></span>' + 
@@ -347,7 +413,7 @@ Jx().package("T.UI.Components", function(J){
             this.elements = {
                 orginal: this.element,
                 view: $('input[type=text]', this.container),
-                button: $('button', this.container),
+                button: $('button', this.container)
             };
 
             this.elements.orginal.hide();

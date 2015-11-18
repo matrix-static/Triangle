@@ -26,7 +26,7 @@ angular.module('pnApp.controllers', [])
 		console.log('app controller');
 	}])
     .controller('treeController', ['$scope', '$rootScope', function ($scope, $rootScope){
-        console.log('app controller');
+        // console.log('app controller');
 
         var treeOptions={
             // onNodeChecked: function(e, node){ alert( node.text + ': onNodeChecked') },
@@ -110,7 +110,7 @@ pnApp.config([
 		}
 	])
 	.run(function($rootScope){
-		console.log('app run');
+		// console.log('app run');
 	});
 
 angular.bootstrap(document, ['pnApp']);

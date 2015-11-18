@@ -117,7 +117,7 @@
         leftSelected: 'left-selected',
         right: 'right',
         rightSelected: 'right-selected',
-        rightAll: 'right-all',
+        rightAll: 'right-all' //,
         // dataUrl: 'data-url'
     };
 
