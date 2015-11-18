@@ -111,6 +111,8 @@ gulp.task('default', ['demo'])
 				'src/framework/framework.js', 
 				'src/framework/controls/**/*.js', 
 				'src/framework/components/**/*.js', 
+				'!src/framework/controls/_template/*.js', 
+				'!src/framework/components/_template/*.js', 
 				//'!src/framework/layouts/**/*.js', 		// layouts是完整示例，不需要整合进Triangle.js
                 '!src/framework/**/*-jq.js',
 				'!src/framework/**/*-ng.js'
@@ -190,7 +192,7 @@ gulp.task('default', ['demo'])
         // 复制控件示例文件
         gulp.src( [
                 'src/demo/controls/*/example.html',
-                'src/demo/controls/*/data.json',
+                'src/demo/controls/*/*.json',
                 'src/demo/controls/*/remote.html'
             ] )
             /*.pipe( rename(function (path) {   // 'index.html'
@@ -203,7 +205,7 @@ gulp.task('default', ['demo'])
 		// 复制组件示例文件
 		gulp.src( [
                 'src/demo/components/*/example.html',
-                'src/demo/components/*/data.json',
+                'src/demo/components/*/*.json',
                 'src/demo/components/*/remote.html'
             ] )
 			/*.pipe( rename(function (path) {	// 'index.html'
