@@ -62,7 +62,7 @@ Jx().package("T.UI.Components", function(J){
             var htmlContents='';
             for(var i=0; i<this.levels.length; i++){
                 var levelName=this.levels[i];
-                htmlTabs += '<li data-s-level="'+ i +'" class="t-level-tab-' + i + '"><a href="#">' + levelName + '<span class="caret"></span></a></li>';
+                htmlTabs += '<li data-t-level="'+ i +'" class="t-level-tab-' + i + '"><a href="#">' + levelName + '<span class="caret"></span></a></li>';
                 htmlContents += '<div class="t-level-' + i + ' t-level-content"></div>';
             }
 
@@ -123,7 +123,7 @@ Jx().package("T.UI.Components", function(J){
             for(var p in childs){
                 var childId=p;
                 var childName=childs[p].name;
-                htmlTemplate += '<li data-s-id="'+childId+'">'+childName+'</li>'; 
+                htmlTemplate += '<li data-t-id="'+childId+'">'+childName+'</li>'; 
             }
             htmlTemplate+='</ul>';
 
@@ -309,12 +309,6 @@ Jx().package("T.UI.Components", function(J){
         init:function(element, options){
             this.element = $(element);
 
-            // 防止多次初始化
-            if (this.isInitialized()) { 
-                return this.getRef(); 
-            }
-            this.initialize(element);
-
             //this.settings,
 
             this.container,
@@ -341,8 +335,6 @@ Jx().package("T.UI.Components", function(J){
             this.bindEvents();
             // 绑定事件接口
             this.bindEventsInterface();
-
-            this.initialized();
         },
         buildHtml:function () {
             var htmlTemplate = ''+ 

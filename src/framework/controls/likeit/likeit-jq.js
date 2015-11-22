@@ -1,11 +1,10 @@
-/* multiselect javascript jQuery */
 (function($) {
     // 严格模式
     'use strict';
 
     // 控件类名
-    var pluginName = 'multiselect';
-    var PluginClass=T.UI.Controls.Multiselect;
+    var pluginName = 'likeit';
+    var PluginClass=T.UI.Controls.LikeIt;
 
     var pluginRef = 't-plugin-ref';
     // 胶水代码

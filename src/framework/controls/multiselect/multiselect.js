@@ -41,7 +41,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-Jx().package("T.UI.Components", function(J){
+Jx().package("T.UI.Controls", function(J){
     // 严格模式
     'use strict';
 
@@ -151,12 +151,6 @@ Jx().package("T.UI.Components", function(J){
         init: function(element, options){
             this.element = $(element);
 
-            // 防止多次初始化
-            if (this.isInitialized()) { 
-                return this.getRef(); 
-            }
-            this.initialize(element);
-            
             //this.container;
             //this.elements;
 
@@ -1101,25 +1095,3 @@ Jx().package("T.UI.Components", function(J){
         }
     });
 });
-
-/* multiselect javascript jQuery */
-
-(function($) {
-    // 严格模式
-    'use strict';
-
-    // 控件类名
-    var pluginName = "multiselect";
-
-        // 胶水代码
-    $.fn[pluginName] = function(options) {
-
-        this.each(function () {
-            var plugin=new T.UI.Components.Multiselect(this, $.extend(true, {}, options));
-        });
-
-        return this;
-
-    };
-
-})(jQuery);

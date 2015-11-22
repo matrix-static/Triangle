@@ -23,13 +23,12 @@
 
     /* COMBOBOX PUBLIC CLASS DEFINITION
      * ================================ */
-     // 控件类名
-    var pluginName = "combobox",
-        defaults = {
-            bsVersion: '3',
-            menu: '<ul class="typeahead typeahead-long dropdown-menu"></ul>',
-            item: '<li><a href="#"></a></li>'
-        };
+    
+    var defaults = {
+        bsVersion: '3',
+        menu: '<ul class="typeahead typeahead-long dropdown-menu"></ul>',
+        item: '<li><a href="#"></a></li>'
+    };
 
     var Plugin = function(element, options) {
         this.options = $.extend({}, defaults, options);
@@ -473,7 +472,8 @@
     };
 
     
-
+    // 控件类名
+    var pluginName = "combobox";
     // 胶水代码
     $.fn[pluginName] = function(options) {
 

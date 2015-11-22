@@ -3,12 +3,11 @@ Jx().package("T.UI.Controls", function(J){
     // 严格模式
     'use strict';
 
-
     // 全局变量、函数、对象
+
     function _scopedEventName(name, id) {
         return name + '.spinner' + id;
     }
-
     function _scopeEventNames(names, id) {
         return $.map(names, function(name) {
             return _scopedEventName(name, id);
@@ -70,12 +69,6 @@ Jx().package("T.UI.Controls", function(J){
         init:function(element, options){
             this.element = $(element);
 
-            // 防止多次初始化
-            if (this.isInitialized()) { 
-                return this.getRef(); 
-            }
-            this.initialize(element);
-
             this.container;
             this.elements;
 
@@ -111,10 +104,6 @@ Jx().package("T.UI.Controls", function(J){
             this.bindEvents();
             // 绑定事件接口
             this.bindEventsInterface();
-            // ...
-            this.elements.input.css('display', 'block');
-
-            this.initialized();
         },
 
         changeSettings:function(newsettings) {
@@ -217,6 +206,8 @@ Jx().package("T.UI.Controls", function(J){
                 prefix: $('.bootstrap-spinner-prefix', this.container).addClass(this.settings.prefix_extraclass),
                 postfix: $('.bootstrap-spinner-postfix', this.container).addClass(this.settings.postfix_extraclass)
             };
+
+            this.elements.input.css('display', 'block');
         },
 
         _hideEmptyPrefixPostfix:function () {
@@ -661,33 +652,3 @@ Jx().package("T.UI.Controls", function(J){
         }
     });
 });
-
-/* spinner javascript jQuery */
-
-/*
- *  Bootstrap TouchSpin - v3.0.1
- *  A mobile and touch friendly input spinner component for Bootstrap 3.
- *  http://www.virtuosoft.eu/code/bootstrap-spinner/
- *
- *  Made by István Ujj-Mészáros
- *  Under Apache License v2.0 License
- */
-(function($) {
-    // 严格模式
-    'use strict';
-
-    // 控件类名
-    var pluginName = "spinner";
-
-        // 胶水代码
-    $.fn[pluginName] = function(options) {
-
-        this.each(function () {
-            var plugin=new T.UI.Controls.Spinner(this, $.extend(true, {}, options));
-        });
-
-        return this;
-
-    };
-
-})(jQuery);

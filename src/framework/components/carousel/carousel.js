@@ -37,15 +37,15 @@
 
         var context = this;
 
-        this.$element.find('a[data-s-slide]').on('click', function(e){
-                var action=$(this).attr('data-s-slide');
+        this.$element.find('a[data-t-slide]').on('click', function(e){
+                var action=$(this).attr('data-t-slide');
                 context[action]();
 
                 e.preventDefault();
         });
 
-        this.$element.find('li[data-s-slide-to]').on('click', function(e){
-                var slideIndex = $(this).attr('data-s-slide-to');
+        this.$element.find('li[data-t-slide-to]').on('click', function(e){
+                var slideIndex = $(this).attr('data-t-slide-to');
                 if(slideIndex){
                         options.interval = false;
                         context.to(slideIndex);

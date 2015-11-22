@@ -132,12 +132,6 @@
         init: function(element, options){
             this.element = $(element);
 
-            // 防止多次初始化
-            if (this.isInitialized()) { 
-                return this.getRef(); 
-            }
-            this.initialize(element);
-
             // this.settings,
             // this.container,
             // this.elements,

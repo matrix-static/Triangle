@@ -1,11 +1,12 @@
-/* multiselect javascript jQuery */
+/* spinner javascript jQuery */
+
 (function($) {
     // 严格模式
     'use strict';
 
     // 控件类名
-    var pluginName = 'multiselect';
-    var PluginClass=T.UI.Controls.Multiselect;
+    var pluginName = 'spinner';
+    var PluginClass=T.UI.Controls.Spinner;
 
     var pluginRef = 't-plugin-ref';
     // 胶水代码

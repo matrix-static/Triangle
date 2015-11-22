@@ -46,12 +46,6 @@ Jx().package("T.UI.Components", function(J){
 
         init: function(element, options){
             this.element = $(element);
-
-            // 防止多次初始化
-            if (this.isInitialized()) { 
-                return this.getRef(); 
-            }
-            this.initialize(element);
             
             //this.container;
             //this.elements;

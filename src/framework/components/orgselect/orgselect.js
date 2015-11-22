@@ -280,7 +280,7 @@ Jx().package("T.UI.Components", function(J){
             // for(var p in childs){
             //     var childId=p;
             //     var childName=childs[p].name;
-            //     htmlTemplate += '<li data-s-id="'+childId+'">'+childName+'</li>'; 
+            //     htmlTemplate += '<li data-t-id="'+childId+'">'+childName+'</li>'; 
             // }
             // htmlTemplate+='</ul>';
 

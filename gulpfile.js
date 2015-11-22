@@ -122,6 +122,16 @@ gulp.task('default', ['demo'])
 			.pipe( concat(NAME+'.js') )
 			.pipe( gulp.dest('build/framework') );
 
+		/* 合并 js -jq 文件 */
+		gulp.src( [
+				'src/framework/**/*-jq.js',
+				'!src/framework/layouts/**/*-jq.js',	// layouts是完整示例，不需要整合进Triangle-jq.js
+			] )
+			// .pipe( jshint('.jshintrc') )
+			// .pipe( jshint.reporter('default') )	// js语法检查
+			.pipe( concat(NAME+'-jq.js') )
+			.pipe( gulp.dest('build/framework') );
+
 		/* 合并 js -ng 文件 */
 		gulp.src( [
 				'src/framework/**/*-ng.js',

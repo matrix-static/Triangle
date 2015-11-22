@@ -340,12 +340,6 @@ Jx().package("T.UI.Components", function(J){
 
         init: function(element, options){
             this.element = $(element);
-
-            // 防止多次初始化
-            if (this.isInitialized()) { 
-                return this.getRef(); 
-            }
-            this.initialize(element);
             
             //this.container;
             //this.elements;
@@ -365,8 +359,6 @@ Jx().package("T.UI.Components", function(J){
 
             // 创建 树型 菜单对象
             this.pop=new ModalPop(this.elements, this.settings);
-
-            this.initialized();
         },
         initElements: function(){
             this.elements={
