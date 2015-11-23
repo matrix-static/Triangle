@@ -1,19 +1,25 @@
 {
-  "bitwise": true,
-  "immed": true,
-  "newcap": true,
-  "noarg": true,
-  "noempty": true,
-  "nonew": true,
-  "trailing": true,
-  "maxlen": 200,
-  "boss": true,
-  "eqnull": true,
-  "expr": true,
-  "globalstrict": true,
-  "laxbreak": true,
-  "loopfunc": true,
-  "sub": true,
-  "undef": true,
-  "indent": 2
+    "asi": true,            // 缺少分号
+    "bitwise": false,       // 禁用位运算符
+    "boss": true,
+    "eqnull": true,
+    "expr": true,
+    "globalstrict": true,
+    "immed": false,          // 立即函数调用(function(){}()) / (function(){})()
+    "indent": 4,
+    "lastsemic": false,     // 最后的分号
+    "laxbreak": true,       // 
+    "laxcomma": true,       // 逗号在前
+    "loopfunc": true,
+    "maxlen": 400,          // 最大长度
+    "newcap": false,         // 构造函数首字母大写
+    "noarg": true,          // 禁止使用 arguments.caller / arguments.callee
+    "noempty": true,
+    "nonew": true,
+    "onevar": false,
+    "shadow": true,
+    "strict": false,
+    "sub": true,
+    "trailing": true,
+    "undef": false           // 未定义的变量
 }

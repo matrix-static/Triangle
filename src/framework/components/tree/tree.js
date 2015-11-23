@@ -46,6 +46,7 @@
         uncheckedIcon: 'glyphicon glyphicon-unchecked',
 
         enableLinks: false,
+        enableTitle: false,
         showIcon: true,
         showCheckbox: false,
         showTags: false,
@@ -66,6 +67,7 @@
     var attributeMap = {
         showTags: 'show-tags',
         levels: 'levels',
+        enableTitle: 'enable-title',
         dataUrl: 'data-url'
     };
 
@@ -106,7 +108,7 @@
             // 初始化选项
             this.initSettings(options);
 
-            this.tree = [];
+            this.data = [];
             this.nodes = [];
 
             var context= this;
@@ -114,7 +116,7 @@
             $.when(this.getData())
              .done(function(){
                 
-                context.setInitialStates({ nodes: context.tree }, 0);
+                context.setInitialStates({ nodes: context.data }, 0);
                 context.reflash();
 
                 context.bindEvents();
@@ -126,7 +128,7 @@
             // this.buildHtml();
 
             // this.bindEvents();
-            // this.setInitialStates({ nodes: this.tree }, 0);
+            // this.setInitialStates({ nodes: this.data }, 0);
             
             
 
@@ -152,14 +154,14 @@
             var d = $.Deferred();
 
             if (this.settings.data) {
-                this.tree = $.extend(true, [], this.settings.data);
+                this.data = $.extend(true, [], this.settings.data);
                 delete this.settings.data;
 
                 d.resolve();
 
                 return d.promise();
 
-                // this.setInitialStates({ nodes: this.tree }, 0);
+                // this.setInitialStates({ nodes: this.data }, 0);
                 // this.reflash();
 
                 // this.bindEvents();
@@ -168,20 +170,20 @@
             var context = this;
             $.ajax({
                 dataType: 'json',
-                url: this.settings.dataUrl,
+                url: context.settings.dataUrl,
                 data: {},
                 success: function(data){
                     //context.createMenu(data);
-                    context.tree= $.extend(true, [], data);
+                    context.data= $.extend(true, [], data);
 
-                    // context.setInitialStates({ nodes: context.tree }, 0);
+                    // context.setInitialStates({ nodes: context.data }, 0);
                     // context.reflash();
 
                     // context.bindEvents();
 
                     d.resolve();
                 },
-                error: function(){
+                error: function(xmlHttpRequest, status, error){
                     alert('控件id：' + context.element.attr('id')+'，ajax获取数据失败!');
 
                      d.resolve();
@@ -189,6 +191,10 @@
             });
 
             return d.promise();
+        },
+
+        parseData: function(data){
+            return data;
         },
 
         remove: function () {
@@ -434,6 +440,10 @@
                         .append(node.text);
                 }
 
+                if(this.settings.enableTitle){
+                    treeItem.attr('title', node.text);
+                }
+
                 // Add tags as badges
                 if (this.settings.showTags && node.tags) {
                     for(var k=0; k<node.tags.length; k++){
@@ -463,7 +473,7 @@
             this.element.empty().append(this.container.empty());
             this.nodeCount= 0;
             // Build tree
-            this.buildTree(this.tree, 0);
+            this.buildTree(this.data, 0);
         },
 
         // 点击事件处理器
@@ -666,7 +676,7 @@
         getSiblings: function (identifier) {
             var node = this.identifyNode(identifier);
             var parent = this.getParent(node);
-            var nodes = parent ? parent.nodes : this.tree;
+            var nodes = parent ? parent.nodes : this.data;
             return nodes.filter(function (obj) {
                     return obj.nodeId !== node.nodeId;
                 });
@@ -811,7 +821,7 @@
             options = $.extend({}, nodeOptions, options);
 
             if (options && options.levels) {
-                this.expandLevels(this.tree, options.levels, options);
+                his.expandLevels(this.data, options.levels, options);
             }
             else {
                 var identifiers = this.findNodes('false', 'g', 'state.expanded');
@@ -861,7 +871,7 @@
                 while (parentNode) {
                     this.setExpandedState(parentNode, true, options);
                     parentNode = this.getParent(parentNode);
-                };
+                }
             }, this));
 
             this.reflash();

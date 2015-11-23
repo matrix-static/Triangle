@@ -143,9 +143,9 @@ Jx().package("T.UI.Components", function(J){
 
             elements.tabs
                 .on('click',function(e){
-                    // $.peoxy 不能取 $(this).data('s-foo'); 
+                    // $.peoxy 不能取 $(this).data('t-foo'); 
                     // 只有elements.foo是单个控件的情况下，能在这里被引用时才能使用。
-                    var levelIndex = $(this).data('s-level');
+                    var levelIndex = $(this).data('t-level');
                     context.activeLevelIndex = parseInt(levelIndex);
                     context._activeTab();
 
@@ -163,7 +163,7 @@ Jx().package("T.UI.Components", function(J){
 
             var jqNodes=this.elements.getNodes(levelIndex);
             jqNodes.on('click',function(e){
-                var id = $(this).data('s-id');
+                var id = $(this).data('t-id');
 
                 // 更新值
                 context.change(id, context.activeLevelIndex);

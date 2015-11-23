@@ -24,6 +24,8 @@ Jx().package("T.UI.Components", function(J){
     // 严格模式
     'use strict';
 
+    // 全局变量、函数、对象
+    var _currentPluginId = 0;
 
     var defaults = {
         source: [], 
@@ -38,7 +40,10 @@ Jx().package("T.UI.Components", function(J){
         delay: 0
     };
 
-    var attributeMap = {};
+    var attributeMap = {
+        source: 'source',
+        dataUrl: 'data-url'
+    };
 
     this.Typeahead = new J.Class({extend : T.UI.BaseControl}, {
         defaults: defaults,
@@ -46,6 +51,10 @@ Jx().package("T.UI.Components", function(J){
 
         init: function(element, options){
             this.element = $(element);
+
+            // 区分一个页面中存在多个控件实例
+            _currentPluginId += 1;
+            this.element.data('plugin-id', _currentPluginId);
             
             //this.container;
             //this.elements;
@@ -96,6 +105,24 @@ Jx().package("T.UI.Components", function(J){
             // this.pop=new ModalPop(this.elements, this.settings);
 
             // this.initialized();
+        },
+        postback: function(){
+            if(this.settings.dataUrl.length === 0){
+                return;
+            }
+
+            var context= this;
+            $.ajax({
+                dataType: 'json',
+                url: context.settings.dataUrl,
+                data:{'keyword': context.element.val()},
+                success: function(data){
+                    context.setSource(data);
+                },
+                error: function(xmlHttpRequest, status, error){
+                    alert('控件id：' + context.element.attr('id')+'，ajax获取数据失败!');
+                }
+            });
         },
         select: function () {
             var val = this.menu.find('.active').data('value');
@@ -155,6 +182,8 @@ Jx().package("T.UI.Components", function(J){
             if (this.query.length < this.settings.minLength) {
                 return this.shown ? this.hide() : this;
             }
+
+            this.postback();
 
             var worker = $.proxy(function() {
                 

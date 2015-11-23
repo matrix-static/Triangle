@@ -75,7 +75,7 @@ Jx().package("T.UI.Controls", function(J){
                 success: function(data){
                     context.reflash();
                 },
-                error: function(){
+                error: function(xmlHttpRequest, status, error){
                     alert('控件id: ' + context.element.attr('id') + ' , ajax发送数据失败！');
                 }
             });

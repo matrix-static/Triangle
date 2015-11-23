@@ -28,8 +28,8 @@
 ;(function(tn){
     var version = "1.0.0",
         mark = "JxMark",
-        topNamespace = tn,
-        undefined,
+        topNamespace = tn//,
+        // undefined,
         
         // 将顶级命名空间中可能存在的 Jx 对象引入
         Jx = topNamespace.Jx,
@@ -141,9 +141,8 @@
                         // handle name as ""
                         if(typeof name === "string"){
                             ns = this.namespace(name);
-                            if( Jx.PACKAGES[name] ){
-                                //throw new Error("Package name [" + name + "] is exist!");
-                            }else{
+                            // if( Jx.PACKAGES[name] ){}   //throw new Error("Package name [" + name + "] is exist!");
+                            if( !Jx.PACKAGES[name] ){
                                 Jx.PACKAGES[name] = {
                                     isLoaded: true,
                                     returnValue: returnValue    // undefined as default

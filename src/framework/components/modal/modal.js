@@ -12,15 +12,20 @@ Jx().package("T.UI.Components", function(J){
     'use strict';
 
     // 全局变量、函数、对象
-    var VERSION  = '3.3.5';
+    var _currentPluginId = 0;
+
     var TRANSITION_DURATION = 300;
     var BACKDROP_TRANSITION_DURATION = 150;
 
 
     var defaults = {
+        // 参数
+        modalId: '',
         show: true,
         backdrop: true,
         keyboard: true
+        // 覆写
+        // 事件
     };
     var attributeMap = {
         modalId:'modal-id',
@@ -32,53 +37,47 @@ Jx().package("T.UI.Components", function(J){
     var ModalPop = new J.Class({
         // 构造函数
         init:function(elements, options){
-            this.inputElements = elements;
+            this.inputElements= elements;
+            this.element= this.inputElements.pop;
 
-            this.options             = options
-            this.$body               = $(document.body)
-            //this.element            = $(element)
-            this.element             = this.inputElements.pop;
-            this.dialog              = this.element.find('.modal-dialog')
-            this.$backdrop           = null
+            // 区分一个页面中存在多个控件实例
+            _currentPluginId += 1;
+            this.element.data('plugin-id', _currentPluginId);
+
             this.isShown             = null
             this.originalBodyPad     = null
             this.scrollbarWidth      = 0
             this.ignoreBackdropClick = false
 
-            
-            // this.element = $(element);
-            // //this.settings,
-
-            // this.container,
-            // this.elements,
-
-            // this.value = this.element.val();
-
             // // 初始化选项
             // this.initSettings(options);
+            this.settings             = options
+
+            // 初始化 html DOM 元素
+            this.initElements();
 
             // 初始化数据
             this.getData();
 
-            // // 构建html DOM
-            // this.buildHtml();
-            // // 初始化 html DOM 元素
-            // this.initElements();
-            // this.transferAttributes();
-
-            // // 创建 树型 菜单对象
-            // //this.menu=new LevelMenu(this.elements, this.settings);
-
             // 绑定事件
-            this.bindEvents();
+            this.bindEvents();            
             // // 绑定事件接口
             // this.bindEventsInterface();
         },
+        initElements: function(){
+            var context=this;
+
+            this.elements={
+                body: $(document.body),
+                dialog: context.element.find('.modal-dialog'),
+                backdrop: null
+            };
+        },
         getData: function(){
-            if (this.options.remote) {
+            if (this.settings.remote) {
                 this.element
                     .find('.modal-content')
-                    .load(this.options.remote, $.proxy(function () {
+                    .load(this.settings.remote, $.proxy(function () {
                         this.element.trigger('loaded.bs.modal')
                     }, this))
             }
@@ -93,6 +92,8 @@ Jx().package("T.UI.Components", function(J){
 
                 context.show(context.inputElements.original);
             });
+
+            this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
         },
         toggle: function (_relatedTarget) {
             return this.isShown ? this.hide() : this.show(_relatedTarget)
@@ -110,14 +111,14 @@ Jx().package("T.UI.Components", function(J){
 
             this.checkScrollbar()
             this.setScrollbar()
-            this.$body.addClass('modal-open')
+            this.elements.body.addClass('modal-open')
 
             this.escape()
             this.resize()
 
-            this.element.on('click.dismiss.bs.modal', '[data-dismiss="modal"]', $.proxy(this.hide, this))
+            // this.element.on('click.dismiss.bs.modal', '[data-dismiss="modal"]', $.proxy(this.hide, this))
 
-            this.dialog.on('mousedown.dismiss.bs.modal', function () {
+            this.elements.dialog.on('mousedown.dismiss.bs.modal', function () {
                 context.element.one('mouseup.dismiss.bs.modal', function (e) {
                     if ($(e.target).is(context.element)) context.ignoreBackdropClick = true
                 })
@@ -127,7 +128,7 @@ Jx().package("T.UI.Components", function(J){
                 var transition = $.support.transition && context.element.hasClass('fade')
 
                 if (!context.element.parent().length) {
-                    context.element.appendTo(context.$body) // don't move modals dom position
+                    context.element.appendTo(context.elements.body) // don't move modals dom position
                 }
 
                 context.element
@@ -147,7 +148,7 @@ Jx().package("T.UI.Components", function(J){
                 var e = $.Event('shown.bs.modal', { relatedTarget: _relatedTarget })
 
                 transition ?
-                    context.$dialog // wait for modal to slide in
+                    context.elements.dialog // wait for modal to slide in
                         .one('bsTransitionEnd', function () {
                             context.element.trigger('focus').trigger(e)
                         })
@@ -177,7 +178,7 @@ Jx().package("T.UI.Components", function(J){
                 .off('click.dismiss.bs.modal')
                 .off('mouseup.dismiss.bs.modal')
 
-            this.dialog.off('mousedown.dismiss.bs.modal')
+            this.elements.dialog.off('mousedown.dismiss.bs.modal')
 
             $.support.transition && this.element.hasClass('fade') ?
                 this.element
@@ -197,7 +198,7 @@ Jx().package("T.UI.Components", function(J){
         },
 
         escape: function () {
-            if (this.isShown && this.options.keyboard) {
+            if (this.isShown && this.settings.keyboard) {
                 this.element.on('keydown.dismiss.bs.modal', $.proxy(function (e) {
                     e.which == 27 && this.hide()
                 }, this))
@@ -218,7 +219,7 @@ Jx().package("T.UI.Components", function(J){
             var context = this
             this.element.hide()
             this.backdrop(function () {
-                context.$body.removeClass('modal-open')
+                context.elements.body.removeClass('modal-open')
                 context.resetAdjustments()
                 context.resetScrollbar()
                 context.element.trigger('hidden.bs.modal')
@@ -226,20 +227,20 @@ Jx().package("T.UI.Components", function(J){
         },
 
         removeBackdrop: function () {
-            this.$backdrop && this.$backdrop.remove()
-            this.$backdrop = null
+            this.elements.backdrop && this.elements.backdrop.remove()
+            this.elements.backdrop = null
         },
 
         backdrop: function (callback) {
             var context = this
             var animate = this.element.hasClass('fade') ? 'fade' : ''
 
-            if (this.isShown && this.options.backdrop) {
+            if (this.isShown && this.settings.backdrop) {
                 var doAnimate = $.support.transition && animate
 
-                this.$backdrop = $(document.createElement('div'))
+                this.elements.backdrop = $(document.createElement('div'))
                     .addClass('modal-backdrop ' + animate)
-                    .appendTo(this.$body)
+                    .appendTo(this.elements.body)
 
                 this.element.on('click.dismiss.bs.modal', $.proxy(function (e) {
                     if (this.ignoreBackdropClick) {
@@ -247,32 +248,32 @@ Jx().package("T.UI.Components", function(J){
                         return
                     }
                     if (e.target !== e.currentTarget) return
-                    this.options.backdrop == 'static'
+                    this.settings.backdrop == 'static'
                         ? this.element[0].focus()
                         : this.hide()
                 }, this))
 
-                if (doAnimate) this.$backdrop[0].offsetWidth // force reflow
+                if (doAnimate) this.elements.backdrop[0].offsetWidth // force reflow
 
-                this.$backdrop.addClass('in')
+                this.elements.backdrop.addClass('in')
 
                 if (!callback) return
 
                 doAnimate ?
-                    this.$backdrop
+                    this.elements.backdrop
                         .one('bsTransitionEnd', callback)
                         .emulateTransitionEnd(BACKDROP_TRANSITION_DURATION) :
                     callback()
 
-            } else if (!this.isShown && this.$backdrop) {
-                this.$backdrop.removeClass('in')
+            } else if (!this.isShown && this.elements.backdrop) {
+                this.elements.backdrop.removeClass('in')
 
                 var callbackRemove = function () {
                     context.removeBackdrop()
                     callback && callback()
                 }
                 $.support.transition && this.element.hasClass('fade') ?
-                    this.$backdrop
+                    this.elements.backdrop
                         .one('bsTransitionEnd', callbackRemove)
                         .emulateTransitionEnd(BACKDROP_TRANSITION_DURATION) :
                     callbackRemove()
@@ -315,21 +316,21 @@ Jx().package("T.UI.Components", function(J){
         },
 
         setScrollbar: function () {
-            var bodyPad = parseInt((this.$body.css('padding-right') || 0), 10)
+            var bodyPad = parseInt((this.elements.body.css('padding-right') || 0), 10)
             this.originalBodyPad = document.body.style.paddingRight || ''
-            if (this.bodyIsOverflowing) this.$body.css('padding-right', bodyPad + this.scrollbarWidth)
+            if (this.bodyIsOverflowing) this.elements.body.css('padding-right', bodyPad + this.scrollbarWidth)
         },
 
         resetScrollbar: function () {
-            this.$body.css('padding-right', this.originalBodyPad)
+            this.elements.body.css('padding-right', this.originalBodyPad)
         },
 
         measureScrollbar: function () { // thx walsh
             var scrollDiv = document.createElement('div')
             scrollDiv.className = 'modal-scrollbar-measure'
-            this.$body.append(scrollDiv)
+            this.elements.body.append(scrollDiv)
             var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth
-            this.$body[0].removeChild(scrollDiv)
+            this.elements.body[0].removeChild(scrollDiv)
             return scrollbarWidth
         }
     });
@@ -363,8 +364,11 @@ Jx().package("T.UI.Components", function(J){
         initElements: function(){
             this.elements={
                 original: this.element,
-                pop: $('#' + this.settings.modalId)
+                pop: $(this.settings.modalId)
             }
+        },
+        hide: function(){
+            this.pop.hide();
         }
     });
 });

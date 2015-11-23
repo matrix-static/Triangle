@@ -117,8 +117,8 @@ gulp.task('default', ['demo'])
                 '!src/framework/**/*-jq.js',
 				'!src/framework/**/*-ng.js'
 			] )
-			// .pipe( jshint('.jshintrc') )
-			// .pipe( jshint.reporter('default') )	// js语法检查
+			.pipe( jshint('.jshintrc') )
+			.pipe( jshint.reporter('default') )	// js语法检查
 			.pipe( concat(NAME+'.js') )
 			.pipe( gulp.dest('build/framework') );
 
@@ -127,8 +127,8 @@ gulp.task('default', ['demo'])
 				'src/framework/**/*-jq.js',
 				'!src/framework/layouts/**/*-jq.js',	// layouts是完整示例，不需要整合进Triangle-jq.js
 			] )
-			// .pipe( jshint('.jshintrc') )
-			// .pipe( jshint.reporter('default') )	// js语法检查
+			.pipe( jshint('.jshintrc') )
+			.pipe( jshint.reporter('default') )	// js语法检查
 			.pipe( concat(NAME+'-jq.js') )
 			.pipe( gulp.dest('build/framework') );
 
@@ -192,6 +192,8 @@ gulp.task('default', ['demo'])
 				'src/demo/modules/*/index.js',
 				'src/demo/app.js'
 			] )
+            .pipe( jshint('.jshintrc') )
+            .pipe( jshint.reporter('default') ) // js语法检查
 			.pipe( concat('app.js') )
 			.pipe( gulp.dest('build/demo') );
 
@@ -267,7 +269,8 @@ gulp.task('default', ['demo'])
 					'dist/framework', 
 					'dist/demo', 
 					'dist/examples',
-					'dist/refer'
+					'dist/refer',
+                    'dist/iefix'
 				] )
 			.pipe( clean({force: true}) );
 	})
@@ -275,7 +278,7 @@ gulp.task('default', ['demo'])
 	.task('dist-libs', ['build-libs'], function() {
 		// css:font
 		gulp.src( ['build/libs/fonts/*.*'] )
-			.pipe( gulp.dest('dist/libs/font') )
+			.pipe( gulp.dest('dist/libs/fonts') )
 
 		// css:image
 
@@ -292,6 +295,8 @@ gulp.task('default', ['demo'])
 		gulp.src( [
 					'build/libs/libs.js'
 				] )
+            // .pipe( jshint('.jshintrc') )
+            // .pipe( jshint.reporter('default') ) // js语法检查
 			.pipe( gulp.dest('dist/libs') )
 			.pipe( uglify() )
 			.pipe( rename('libs.min.js') )
@@ -307,16 +312,39 @@ gulp.task('default', ['demo'])
 			.pipe( gulp.dest('dist/framework') );
 		/* 合并 并 压缩 js 文件 */
 		gulp.src( ['build/framework/' + NAME + '.js'] )
+            .pipe( jshint('.jshintrc') )
+            .pipe( jshint.reporter('default') ) // js语法检查
 			.pipe( gulp.dest('dist/framework') )
 			.pipe( uglify() )
 			.pipe( rename(NAME+'.min.js') )
 			.pipe( gulp.dest('dist/framework') );
+        /* 合并 js -jq 文件 */
+        gulp.src( [
+                'build/framework/' + NAME + '-jq.js'
+            ] )
+            .pipe( jshint('.jshintrc') )
+            .pipe( jshint.reporter('default') ) // js语法检查
+            .pipe( gulp.dest('dist/framework') )
+            .pipe( uglify() )
+            .pipe( rename(NAME+'-jq.min.js') )
+            .pipe( gulp.dest('dist/framework') );
 		/* 合并 并 压缩 js ng 文件 */
 		gulp.src( ['build/framework/' + NAME + '-ng.js'] )
+            .pipe( jshint('.jshintrc') )
+            .pipe( jshint.reporter('default') ) // js语法检查
 			.pipe( gulp.dest('dist/framework') )
 			.pipe( uglify() )
 			.pipe( rename(NAME+'-ng.min.js') )
 			.pipe( gulp.dest('dist/framework') );
+
+        /* 复制 refer modules*/
+        gulp.src( ['build/refer/modules/**/*'] )
+            .pipe( gulp.dest('dist/refer/modules') )
+        gulp.src( ['build/iefix/**/*'] )
+            .pipe( gulp.dest('dist/iefix') )
+        /* 发布 media 文件*/
+        gulp.src( ['build/framework/media/**/*'] )
+            .pipe( gulp.dest('dist/framework/media') )
 	})
 	// 发布 演示
 	.task('dist-demo', ['dist-libs', 'dist-fram', 'build-demo'], function(){

@@ -180,10 +180,23 @@ Jx().package("T.UI.Controls", function(J){
             var html;
 
             if (this.settings.verticalbuttons) {
-                html = '<div class="input-group bootstrap-spinner"><span class="input-group-addon bootstrap-spinner-prefix">' + this.settings.prefix + '</span><span class="input-group-addon bootstrap-spinner-postfix">' + this.settings.postfix + '</span><span class="input-group-btn-vertical"><button class="' + this.settings.buttondown_class + ' bootstrap-spinner-up" type="button"><i class="' + this.settings.verticalupclass + '"></i></button><button class="' + this.settings.buttonup_class + ' bootstrap-spinner-down" type="button"><i class="' + this.settings.verticaldownclass + '"></i></button></span></div>';
+                html = ''+
+                    '<div class="input-group bootstrap-spinner"><span class="input-group-addon bootstrap-spinner-prefix">' + 
+                    this.settings.prefix + '</span><span class="input-group-addon bootstrap-spinner-postfix">' + 
+                    this.settings.postfix + '</span><span class="input-group-btn-vertical"><button class="' + 
+                    this.settings.buttondown_class + ' bootstrap-spinner-up" type="button"><i class="' + 
+                    this.settings.verticalupclass + '"></i></button><button class="' + this.settings.buttonup_class + 
+                    ' bootstrap-spinner-down" type="button"><i class="' + 
+                    this.settings.verticaldownclass + '"></i></button></span></div>';
             }
             else {
-                html = '<div class="input-group bootstrap-spinner"><span class="input-group-btn"><button class="' + this.settings.buttondown_class + ' bootstrap-spinner-down" type="button">-</button></span><span class="input-group-addon bootstrap-spinner-prefix">' + this.settings.prefix + '</span><span class="input-group-addon bootstrap-spinner-postfix">' + this.settings.postfix + '</span><span class="input-group-btn"><button class="' + this.settings.buttonup_class + ' bootstrap-spinner-up" type="button">+</button></span></div>';
+                html = ''+
+                    '<div class="input-group bootstrap-spinner"><span class="input-group-btn"><button class="' + 
+                    this.settings.buttondown_class + 
+                    ' bootstrap-spinner-down" type="button">-</button></span><span class="input-group-addon bootstrap-spinner-prefix">' + 
+                    this.settings.prefix + '</span><span class="input-group-addon bootstrap-spinner-postfix">' + 
+                    this.settings.postfix + '</span><span class="input-group-btn"><button class="' + 
+                    this.settings.buttonup_class + ' bootstrap-spinner-up" type="button">+</button></span></div>';
             }
 
             this.container = $(html).insertBefore(this.element);

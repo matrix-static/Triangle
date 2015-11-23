@@ -26,8 +26,39 @@
 
 .t-orgselect-dialog .t-tree-wraper{
     height:335px;
+    border: 1px solid #ccc;
     overflow-y:scroll;
 }
 .t-orgselect-dialog .t-tree li.list-group-item {
-    padding:5px 15px 5px 15px
+    border-left:0px;
+    border-right:0px;
+    padding:5px 15px 5px 15px;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space:nowrap;
+    width:100%;
+}
+
+t-orgselect-menu{
+    ;
+}
+t-orgselect-menu li{
+    widht:75px;
+    margin:2px 3px 2px 4px;
+    padding: 1px 1px 1px 3px;
+    border: 1px solid #ccc;
+    float: left;
+    text-align: left;
+    zoom: 1;
+}
+t-orgselect-menu li span{
+    line-height: 25px;
+    display: inline;
+}
+t-orgselect-menu li a{
+    width:24px;
+    padding: 3px 6px;
+    display:block;
+    float:right;
 }
