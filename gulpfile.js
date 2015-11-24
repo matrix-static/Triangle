@@ -18,6 +18,7 @@ gulp.task('default', ['demo'])
 	.task('build', ['build-exam'])				// 'clean', 	TODO:顺序执行问题，留待gulp4.0版本发布
 	.task('dist', ['dist-exam'])				// 'clean-all', TODO:顺序执行问题，留待gulp4.0版本发布
 	.task('demo', ['build', 'watch', 'www:demo'])
+	.task('exam', ['build', 'watch', 'www:exam'])
 
 	/* 测试环境 */
     .task('www:demo',function(){
@@ -32,7 +33,7 @@ gulp.task('default', ['demo'])
 		var bs=browserSync({
 			server:{
 				baseDir:'./build',
-				index:'examples/index.html'
+				index:'examples/jQuery/index.html'
 			}
 		});
 	})
@@ -366,6 +367,8 @@ gulp.task('default', ['demo'])
 	    gulp.watch('src/demo/**/*.html', ['build-demo']);
 	    gulp.watch('src/demo/**/*.less', ['build-demo']);
 	    gulp.watch('src/demo/**/*.js', ['build-demo']);
+
+	    gulp.watch('src/examples/**/*', ['build-exam']);
 
 	    //gulp.watch('src/examples/**/*.html', ['build-demo']);
 	    //gulp.watch('src/examples/**/*.less', ['build-demo']);
