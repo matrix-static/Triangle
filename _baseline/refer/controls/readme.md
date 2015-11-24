@@ -16,3 +16,9 @@ rightselect
 multiselect
     下拉多选控件
     https://github.com/davidstutz/bootstrap-multiselect
+
+anytime
+    日期选择控件
+    http://www.ama3.com/anytime
+    https://eonasdan.github.io/bootstrap-datetimepicker/
+    https://github.com/eternicode/bootstrap-datepicker

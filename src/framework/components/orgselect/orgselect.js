@@ -472,7 +472,13 @@ Jx().package("T.UI.Components", function(J){
             this._updateForselectedCount();
         },
         _renderValue: function(){
+            this.inputElements.dropdown.empty();
+            this.controls.rightselect.elements.right.empty();
+            this.inputElements.view.val('');
+            this.inputElements.original.val('');
+
             if(this.value.length === 0){
+                this._updateSelectedCount();
                 return;
             }
 
@@ -487,8 +493,7 @@ Jx().package("T.UI.Components", function(J){
             }
 
             var viewValues= '';
-            this.inputElements.dropdown.empty();
-            this.controls.rightselect.elements.right.empty();
+            
             for(var i=0; i<items.length; i++){
                 var item= items[i];
 
