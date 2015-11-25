@@ -288,14 +288,14 @@ Jx().package("T.UI.Controls", function(J){
                     str += d.getDay();
                     break;
                   case 'Y': // Year, numeric, four digits (negative if before 0001)
-                    str += AnyTime.pad(d.getFullYear(),4);
+                    str += pad(d.getFullYear(),4);
                     break;
                   case 'y': // Year, numeric (two digits, negative if before 0001)
                     t = d.getFullYear() % 100;
-                    str += AnyTime.pad(t,2);
+                    str += pad(t,2);
                     break;
                   case 'Z': // Year, numeric, four digits, unsigned (NON-MYSQL)
-                    str += AnyTime.pad(Math.abs(d.getFullYear()),4);
+                    str += pad(Math.abs(d.getFullYear()),4);
                     break;
                   case 'z': // Year, numeric, variable length, unsigned (NON-MYSQL)
                     str += Math.abs(d.getFullYear());
@@ -339,10 +339,10 @@ Jx().package("T.UI.Controls", function(J){
                     else
                       str += '+';
                     t = Math.abs(t);
-                    str += ((ch=='+')||(ch==':')) ? AnyTime.pad(Math.floor(t/60),2) : Math.floor(t/60);
+                    str += ((ch=='+')||(ch==':')) ? pad(Math.floor(t/60),2) : Math.floor(t/60);
                     if ( (ch==':') || (ch==';') )
                       str += ':';
-                    str += AnyTime.pad(t%60,2);
+                    str += pad(t%60,2);
                     break;
                   case 'f': // Microseconds (000000..999999)
                   case 'j': // Day of year (001..366)
@@ -1070,7 +1070,7 @@ Jx().package("T.UI.Controls", function(J){
                         t = String(i)+'am';
                     }
                     else
-                        t = AnyTime.pad(i,2);
+                        t = pad(i,2);
 
                     this.btn( amDiv, t, this.newHour,['hr','hr'+String(i)],lab+' '+t);
 
@@ -2342,7 +2342,7 @@ Jx().package("T.UI.Controls", function(J){
               era = (-1);
               year = 0 - year;
             }
-            year = AnyTime.pad( year, 4 );
+            year = pad( year, 4 );
             if ( elem.hasClass('AnyTime-mil-btn') )
               year = elem.html() + year.substring(1,4);
             else if ( elem.hasClass('AnyTime-cent-btn') )
@@ -2572,7 +2572,7 @@ Jx().package("T.UI.Controls", function(J){
             }
             if ( this.yPrior )
             {
-                this.yPrior.text(AnyTime.pad((current==1)?(-1):(current-1),4));
+                this.yPrior.text(pad((current==1)?(-1):(current-1),4));
                 if ( this.earliest )
                 {
                     cmpHi.setFullYear(current-1);
@@ -2583,10 +2583,10 @@ Jx().package("T.UI.Controls", function(J){
                 }
             }
             if ( this.yCur )
-                this.yCur.text(AnyTime.pad(current,4));
+                this.yCur.text(pad(current,4));
             if ( this.yNext )
             {
-                this.yNext.text(AnyTime.pad((current==-1)?1:(current+1),4));
+                this.yNext.text(pad((current==-1)?1:(current+1),4));
                 if ( this.latest )
                 {
                     cmpLo.setFullYear(current+1);
@@ -2879,7 +2879,7 @@ Jx().package("T.UI.Controls", function(J){
                 era = (-1);
                 yearValue = 0 - yearValue;
             }
-            yearValue = AnyTime.pad( yearValue, 4 );
+            yearValue = pad( yearValue, 4 );
             var eY = this.earliest && this.earliest.getFullYear();
             var lY = this.latest && this.latest.getFullYear();
 
@@ -2941,6 +2941,26 @@ Jx().package("T.UI.Controls", function(J){
             }
         }
     });
+
+    // TODO: need to remove
+    $.fn.AnyTime_current = function(isCurrent,isLegal)
+    {
+        if ( isCurrent )
+        {
+          this.removeClass('AnyTime-out-btn ui-state-default ui-state-disabled ui-state-highlight');
+          this.addClass('AnyTime-cur-btn ui-state-default ui-state-highlight');
+        }
+        else
+        {
+          this.removeClass('AnyTime-cur-btn ui-state-highlight');
+          if ( ! isLegal ){
+            this.addClass('AnyTime-out-btn ui-state-disabled');
+          }
+          else{
+            this.removeClass('AnyTime-out-btn ui-state-disabled');
+          }
+        }
+    };
 });
 
 
