@@ -348,7 +348,7 @@ Jx().package("T.UI.Components", function(J){
                 // }
             };
 
-            var typeahead= new T.UI.Components.Typeahead(this.elements.typeahead, {
+            var typeahead= new T.UI.Controls.Typeahead(this.elements.typeahead, {
                 matcher: function(item){
                     var matcher= new RegExp(this.query, 'i');
                     var result= matcher.test(item.name);// || matcher.text(item.loginName) || matcher.text(item.spell);

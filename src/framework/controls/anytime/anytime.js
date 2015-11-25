@@ -2942,7 +2942,9 @@ Jx().package("T.UI.Controls", function(J){
         }
     });
 });
-/* template javascript jQuery */
+
+
+/* anytime javascript jQuery */
 
 (function($) {
     // 严格模式

@@ -1,7 +1,7 @@
 /* typeahead javascript AngularJS */
 
 //angular.module('triangle.controls', [])
-T.UI.ngComponents
+T.UI.ngControls
     .directive('typeahead', ['$rootScope', '$compile', function($rootScope, $compile){
 
         function link($scope, $element, $attrs, undefined, link){

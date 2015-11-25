@@ -1,11 +1,11 @@
-/* carousel javascript AngularJS */
+/* level javascript AngularJS */
 
 //angular.module('triangle.controls', [])
-T.UI.ngComponents
-    .directive('carousel', ['$rootScope', '$compile', function($rootScope, $compile){
+T.UI.ngControls
+    .directive('level', ['$rootScope', '$compile', function($rootScope, $compile){
 
         function link($scope, $element, $attrs, undefined, link){
-            $element.carousel({});
+            $element.level({});
         }
 
         return {

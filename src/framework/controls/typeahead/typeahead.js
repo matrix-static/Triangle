@@ -20,7 +20,7 @@
  * ============================================================ */
 
 
-Jx().package("T.UI.Components", function(J){
+Jx().package("T.UI.Controls", function(J){
     // 严格模式
     'use strict';
 
@@ -480,7 +480,7 @@ Jx().package("T.UI.Components", function(J){
     $.fn[pluginName] = function(options) {
 
         this.each(function () {
-            var plugin=new T.UI.Components.Typeahead(this, $.extend(true, {}, options));
+            var plugin=new T.UI.Controls.Typeahead(this, $.extend(true, {}, options));
         });
 
         return this;
