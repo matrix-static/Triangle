@@ -22,3 +22,12 @@ anytime
     http://www.ama3.com/anytime
     https://eonasdan.github.io/bootstrap-datetimepicker/
     https://github.com/eternicode/bootstrap-datepicker
+
+loadmask
+    加载锁屏控件
+    https://github.com/iloveitaly/jquery.loadmask.spin
+    https://github.com/fgnass/spin.js
+    https://github.com/staaky/spinners    
+    http://tobiasahlin.com/spinkit/
+    http://designmodo.com/css3-jquery-loading-animations/
+    http://projects.nickstakenburg.com/spinners/

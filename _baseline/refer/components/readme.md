@@ -5,6 +5,8 @@ D3JS
 	
 jQuery Validation Plugin
 	表单验证方案
+jQuery datatables Plugin
+    复杂表格方案
 
 tinymce
 	富文本编辑控件
@@ -19,3 +21,7 @@ tinymce jbimages
 tree/bootstrap-treeview
     树控件
     https://github.com/jonmiles/bootstrap-treeview
+
+paginator
+    分页控件
+    https://github.com/lyonlai/bootstrap-paginator

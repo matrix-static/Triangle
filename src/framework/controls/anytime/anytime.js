@@ -6,6 +6,7 @@ Jx().package("T.UI.Controls", function(J){
     var defaults = {
         // 选项
         // fooOption: true,
+        format: ''
         // 覆写 类方法
         // parseData: undefined,
         // 事件
@@ -14,6 +15,7 @@ Jx().package("T.UI.Controls", function(J){
     };
     var attributeMap = {
         // fooOption: 'foo-option'
+        format: 'format'
     };
 
     var __daysIn = [ 31,28,31,30,31,30,31,31,30,31,30,31 ];     // 每个月有多少天
@@ -32,24 +34,25 @@ Jx().package("T.UI.Controls", function(J){
         return s;
     }
 
-    // Converter 私有变量
-    var _flen = 0;
-    var _longDay = 9;
-    var _longMon = 9;
-    var _shortDay = 6;
-    var _shortMon = 3;
-    var _offAl = Number.MIN_VALUE; // format time zone offset alleged
-    var _offCap = Number.MIN_VALUE; // parsed time zone offset captured
-    var _offF = Number.MIN_VALUE; // format time zone offset imposed
-    var _offFSI = (-1); // format time zone label subindex
-    var _offP = Number.MIN_VALUE; // parsed time zone offset assumed
-    var _offPSI = (-1);        // parsed time zone label subindex captured
-    var _captureOffset = false;
-
     var Converter = new J.Class({
-        defaults: defaults,
-        attributeMap: attributeMap,
-        init: function(options){           
+        // defaults: defaults,
+        // attributeMap: attributeMap,
+        init: function(options){          
+
+            // Converter 私有变量
+            this._flen = 0;
+            this._longDay = 9;
+            this._longMon = 9;
+            this._shortDay = 6;
+            this._shortMon = 3;
+            this._offAl = Number.MIN_VALUE; // format time zone offset alleged
+            this._offCap = Number.MIN_VALUE; // parsed time zone offset captured
+            this._offF = Number.MIN_VALUE; // format time zone offset imposed
+            this._offFSI = (-1); // format time zone label subindex
+            this._offP = Number.MIN_VALUE; // parsed time zone offset assumed
+            this._offPSI = (-1);        // parsed time zone label subindex captured
+            this._captureOffset = false;
+
 
             // public members
 
@@ -79,7 +82,7 @@ Jx().package("T.UI.Controls", function(J){
                 this.fmt = options.format;
             }
 
-            _flen = this.fmt.length;
+            this._flen = this.fmt.length;
 
             // 星期 的名称缩写 sum, mon
             if ( options.dayAbbreviations ){
@@ -90,16 +93,16 @@ Jx().package("T.UI.Controls", function(J){
             if ( options.dayNames )
             {
                 this.dNames = $.makeArray( options.dayNames );
-                _longDay = 1;
-                _shortDay = 1000;
+                this._longDay = 1;
+                this._shortDay = 1000;
                 for ( i = 0 ; i < 7 ; i++ )
                 {
                 len = this.dNames[i].length;
-                    if ( len > _longDay ){
-                        _longDay = len;
+                    if ( len > this._longDay ){
+                        this._longDay = len;
                     }
-                    if ( len < _shortDay ){
-                        _shortDay = len;
+                    if ( len < this._shortDay ){
+                        this._shortDay = len;
                     }
                 }
             }
@@ -114,26 +117,26 @@ Jx().package("T.UI.Controls", function(J){
             if ( options.monthNames )
             {
                 this.mNames = $.makeArray( options.monthNames );
-                _longMon = 1;
-                _shortMon = 1000;
+                this._longMon = 1;
+                this._shortMon = 1000;
                 for ( i = 0 ; i < 12 ; i++ )
                 {
                     len = this.mNames[i].length;
-                    if ( len > _longMon )
-                        _longMon = len;
-                    if ( len < _shortMon )
-                        _shortMon = len;
+                    if ( len > this._longMon )
+                        this._longMon = len;
+                    if ( len < this._shortMon )
+                        this._shortMon = len;
                 }
             }
             // UTC 时区偏移 (单位：分钟)
             if ( typeof options.utcFormatOffsetImposed != "undefined" )
-                _offF = options.utcFormatOffsetImposed;
+                this._offF = options.utcFormatOffsetImposed;
 
             if ( typeof options.utcParseOffsetAssumed != "undefined" )
-                _offP = options.utcParseOffsetAssumed;
+                this._offP = options.utcParseOffsetAssumed;
 
             if ( options.utcParseOffsetCapture )
-                _captureOffset = true;
+                this._captureOffset = true;
         },
         // 指定位置字符是否是数字
         dAt: function( str, pos )
@@ -147,12 +150,12 @@ Jx().package("T.UI.Controls", function(J){
         format: function( date )
         {
             var d = new Date(date.getTime());
-            if ( ( _offAl == Number.MIN_VALUE ) && ( _offF != Number.MIN_VALUE ) )
-                d.setTime( ( d.getTime() + (d.getTimezoneOffset()*60000) ) + (_offF*60000) );
+            if ( ( this._offAl == Number.MIN_VALUE ) && ( this._offF != Number.MIN_VALUE ) )
+                d.setTime( ( d.getTime() + (d.getTimezoneOffset()*60000) ) + (this._offF*60000) );
 
             var t;
             var str = '';
-            for ( var f = 0 ; f < _flen ; f++ )
+            for ( var f = 0 ; f < this._flen ; f++ )
             {
               if ( this.fmt.charAt(f) != '%' )
                 str += this.fmt.charAt(f);
@@ -305,8 +308,8 @@ Jx().package("T.UI.Controls", function(J){
                     break;
                   case '#': // signed timezone offset in minutes
                   {
-                    t = ( _offAl != Number.MIN_VALUE ) ? _offAl :
-                        ( _offF == Number.MIN_VALUE ) ? (0-d.getTimezoneOffset()) : _offF;
+                    t = ( this._offAl != Number.MIN_VALUE ) ? this._offAl :
+                        ( this._offF == Number.MIN_VALUE ) ? (0-d.getTimezoneOffset()) : this._offF;
                     if ( t >= 0 )
                         str += '+';
                     str += t;
@@ -314,12 +317,12 @@ Jx().package("T.UI.Controls", function(J){
                   }
                   case '@': // timezone offset label
                   {
-                    t = ( _offAl != Number.MIN_VALUE ) ? _offAl :
-                        ( _offF == Number.MIN_VALUE ) ? (0-d.getTimezoneOffset()) : _offF;
+                    t = ( this._offAl != Number.MIN_VALUE ) ? this._offAl :
+                        ( this._offF == Number.MIN_VALUE ) ? (0-d.getTimezoneOffset()) : this._offF;
                     if ( AnyTime.utcLabel && AnyTime.utcLabel[t] )
                     {
-                      if ( ( _offFSI > 0 ) && ( _offFSI < AnyTime.utcLabel[t].length ) )
-                        str += AnyTime.utcLabel[t][_offFSI];
+                      if ( ( this._offFSI > 0 ) && ( this._offFSI < AnyTime.utcLabel[t].length ) )
+                        str += AnyTime.utcLabel[t][this._offFSI];
                       else
                         str += AnyTime.utcLabel[t][0];
                       break;
@@ -332,8 +335,8 @@ Jx().package("T.UI.Controls", function(J){
                   case '-': // signed, 3-or-4-digit timezone offset in hours and minutes
                   case ':': // signed 4-digit timezone offset with colon delimiter
                   case ';': // signed 3-or-4-digit timezone offset with colon delimiter
-                    t = ( _offAl != Number.MIN_VALUE ) ? _offAl :
-                            ( _offF == Number.MIN_VALUE ) ? (0-d.getTimezoneOffset()) : _offF;
+                    t = ( this._offAl != Number.MIN_VALUE ) ? this._offAl :
+                            ( this._offF == Number.MIN_VALUE ) ? (0-d.getTimezoneOffset()) : this._offF;
                     if ( t < 0 )
                       str += '-';
                     else
@@ -358,29 +361,29 @@ Jx().package("T.UI.Controls", function(J){
                 } // switch ( this.fmt.charAt(f+1) )
                 f++;
               } // else
-            } // for ( var f = 0 ; f < _flen ; f++ )
+            } // for ( var f = 0 ; f < this._flen ; f++ )
             return str;
         },
         getUtcParseOffsetCaptured: function()
         {
-            return _offCap;
+            return this._offCap;
         },
         getUtcParseOffsetSubIndex: function()
         {
-            return _offPSI;
+            return this._offPSI;
         },
         // 将字符串转换为一个 Date 对象
         parse: function( str )
         {
-            _offCap = _offP;
-            _offPSI = (-1);
+            this._offCap = this._offP;
+            this._offPSI = (-1);
             var era = 1;
             var time = new Date(4,0,1,0,0,0,0);//4=leap year bug
             var slen = str.length;
             var s = 0;
-            var tzSign = 1, tzOff = _offP;
+            var tzSign = 1, tzOff = this._offP;
             var i, matched, sub, sublen, temp;
-            for ( var f = 0 ; f < _flen ; f++ )
+            for ( var f = 0 ; f < this._flen ; f++ )
             {
               if ( this.fmt.charAt(f) == '%' )
               {
@@ -531,9 +534,9 @@ Jx().package("T.UI.Controls", function(J){
                     break;
                   case 'M': // Month name (January..December)
                     matched = false;
-                    for (sublen=_shortMon ; s + sublen <= slen ; sublen++ )
+                    for (sublen=this._shortMon ; s + sublen <= slen ; sublen++ )
                     {
-                      if ( sublen > _longMon )
+                      if ( sublen > this._longMon )
                         break;
                       sub = str.substr(s,sublen);
                       for ( i = 0 ; i < 12 ; i++ )
@@ -590,9 +593,9 @@ Jx().package("T.UI.Controls", function(J){
                     break;
                   case 'W': // Weekday name (Sunday..Saturday)
                     matched = false;
-                    for (sublen=_shortDay ; s + sublen <= slen ; sublen++ )
+                    for (sublen=this._shortDay ; s + sublen <= slen ; sublen++ )
                     {
-                      if ( sublen > _longDay )
+                      if ( sublen > this._longDay )
                         break;
                       sub = str.substr(s,sublen);
                       for ( i = 0 ; i < 7 ; i++ )
@@ -650,7 +653,7 @@ Jx().package("T.UI.Controls", function(J){
                     tzOff *= tzSign;
                     break;
                   case '@': // timezone label
-                  {  _offPSI = (-1);
+                  {  this._offPSI = (-1);
                     if ( AnyTime.utcLabel )
                     {
                         matched = false;
@@ -673,7 +676,7 @@ Jx().package("T.UI.Controls", function(J){
                           }
                         if ( matched )
                         {
-                            _offPSI = i;
+                            this._offPSI = i;
                             tzOff = Number(tzOff);
                             break; // case
                         }
@@ -723,8 +726,8 @@ Jx().package("T.UI.Controls", function(J){
               time.setFullYear( 0 - time.getFullYear() );
             if ( tzOff != Number.MIN_VALUE )
             {
-               if ( _captureOffset )
-                 _offCap = tzOff;
+               if ( this._captureOffset )
+                 this._offCap = tzOff;
                else
                  time.setTime( ( time.getTime() - (tzOff*60000) ) - (time.getTimezoneOffset()*60000) );
             }
@@ -733,14 +736,14 @@ Jx().package("T.UI.Controls", function(J){
         },
         setUtcFormatOffsetAlleged: function( offset )
         {
-            var prev = _offAl;
-            _offAl = offset;
+            var prev = this._offAl;
+            this._offAl = offset;
             return prev;
         },
         setUtcFormatOffsetSubIndex: function( subIndex )
         {
-            var prev = _offFSI;
-            _offFSI = subIndex;
+            var prev = this._offFSI;
+            this._offFSI = subIndex;
             return prev;
         },
         destroy: function(){}
@@ -750,6 +753,8 @@ Jx().package("T.UI.Controls", function(J){
         defaults: defaults,
         attributeMap: attributeMap,
         init: function(element, options){
+            this.element= $(element);
+
             var context= this;
 
             $(document).ready(function(){
@@ -757,125 +762,47 @@ Jx().package("T.UI.Controls", function(J){
                 __initialized = true;
             });
 
+            // this.initialize(element.id, options);
 
-
-            this.initialize(element.id, options);
-        },
-
-        //  private members
-
-        twelveHr: false,
-        // ajaxOpts: null,     // options for AJAX requests
-        denyTab: true,      // set to true to stop Opera from tabbing away
-        askEra: false,      // prompt the user for the era in yDiv?
-        cloak: null,        // cloak div
-        conv: null,         // AnyTime.Converter
-        div: null,          // picker div
-        dB: null,           // body div
-        dD: null,           // date div
-        dY: null,           // years div
-        dMo: null,          // months div
-        dDoM: null,         // date-of-month table
-        hDoM: null,         // date-of-month heading
-        hMo: null,          // month heading
-        hTitle: null,       // title heading
-        hY: null,           // year heading
-        dT: null,           // time div
-        dH: null,           // hours div
-        dM: null,           // minutes div
-        dS: null,           // seconds div
-        dO: null,           // offset (time zone) div
-        earliest: null,     // earliest selectable date/time
-        fBtn: null,         // button with current focus
-        fDOW: 0,            // index to use as first day-of-week
-        hBlur: null,        // input handler
-        hClick: null,       // input handler
-        hFocus: null,       // input handler
-        hKeydown: null,     // input handler
-        hKeypress: null,    // input handler
-        hResize: null,      // event handler
-        id: null,           // picker ID
-        inp: null,          // input text field
-        latest: null,       // latest selectable date/time
-        // lastAjax: null,     // last value submitted using AJAX
-        lostFocus: false,   // when focus is lost, must redraw
-        lX: 'X',            // 关闭按钮 label for dismiss button
-        // lY: 'Year',         // 年 label for year
-        // lO: 'Time Zone',    // 时区 label for UTC offset (time zone)
-        lY: '年',           // 年 label for year
-        lO: '时区',         // 时区 label for UTC offset (time zone)
-        oBody: null,        // UTC offset selector popup
-        oConv: null,        // AnyTime.Converter for offset display
-        oCur: null,         // current-UTC-offset button
-        oDiv: null,         // UTC offset selector popup
-        oLab: null,         // UTC offset label
-        oList: null,       // UTC offset container
-        oSel: null,         // select (plus/minus) UTC-offset button
-        offMin: Number.MIN_VALUE, // current UTC offset in minutes
-        offSI: -1,          // current UTC label sub-index (if any)
-        offStr: "",         // current UTC offset (time zone) string
-        pop: true,          // picker is a popup?
-        ro: false,          // was input readonly before picker initialized?
-        time: null,         // current date/time
-        // url: null,          // URL to submit value using AJAX
-        yAhead: null,       // years-ahead button
-        y0XXX: null,        // millenium-digit-zero button (for focus)
-        yCur: null,         // current-year button
-        yDiv: null,         // year selector popup
-        yLab: null,         // year label
-        yNext: null,        // next-year button
-        yPast: null,        // years-past button
-        yPrior: null,       // prior-year button
-
-        //---------------------------------------------------------------------
-        //  .initialize() initializes the picker instance.
-        //---------------------------------------------------------------------
-
-        initialize: function( id )
-        {
             // var _this = this;
-            var context= this;
+            // var context= this;
 
-            this.id = 'AnyTime--'+id.replace(/[^-_.A-Za-z0-9]/g,'--AnyTime--');
+            this.id = 'AnyTime--'+element.id.replace(/[^-_.A-Za-z0-9]/g,'--AnyTime--');
 
-            var options = jQuery.extend(true,{},options||{});
-            options.utcParseOffsetCapture = true;
-            // this.conv = new AnyTime.Converter(options);
-            this.conv = new Converter(options);
+            // var options = jQuery.extend(true,{},options||{});
+            this.initSettings(options);
 
-            if ( options.placement )
+
+            this.settings.utcParseOffsetCapture = true;
+            // this.conv = new AnyTime.Converter(this.settings);
+            this.conv = new Converter(this.settings);
+
+            if ( this.settings.placement )
             {
-                if ( options.placement == 'inline' )
+                if ( this.settings.placement == 'inline' )
                     this.pop = false;
-                else if ( options.placement != 'popup' )
-                    throw 'unknown placement: ' + options.placement;
+                else if ( this.settings.placement != 'popup' )
+                    throw 'unknown placement: ' + this.settings.placement;
             }
 
-            // if ( options.ajaxOptions )
-            // {
-            //     this.ajaxOpts = jQuery.extend( {}, options.ajaxOptions );
-            //     if ( ! this.ajaxOpts.success )
-            //         this.ajaxOpts.success = function(data,status) { context.updVal(data); };
-            // }
+            if ( this.settings.earliest )
+                this.earliest = this.makeDate( this.settings.earliest );
 
-            if ( options.earliest )
-                this.earliest = this.makeDate( options.earliest );
-
-            if ( options.firstDOW )
+            if ( this.settings.firstDOW )
             {
-                if ( ( options.firstDOW < 0 ) || ( options.firstDOW > 6 ) )
-                    throw 'illegal firstDOW: ' + options.firstDOW;
-                this.fDOW = options.firstDOW;
+                if ( ( this.settings.firstDOW < 0 ) || ( this.settings.firstDOW > 6 ) )
+                    throw 'illegal firstDOW: ' + this.settings.firstDOW;
+                this.fDOW = this.settings.firstDOW;
             }
 
-            if ( options.latest )
-                this.latest = this.makeDate( options.latest );
+            if ( this.settings.latest )
+                this.latest = this.makeDate( this.settings.latest );
 
-            this.lX = options.labelDismiss || 'X';
-            // this.lY = options.labelYear || 'Year';
-            // this.lO = options.labelTimeZone || 'Time Zone';
-            this.lY = options.labelYear || '年';
-            this.lO = options.labelTimeZone || '时区';
+            this.lX = this.settings.labelDismiss || 'X';
+            // this.lY = this.settings.labelYear || 'Year';
+            // this.lO = this.settings.labelTimeZone || 'Time Zone';
+            this.lY = this.settings.labelYear || '年';
+            this.lO = this.settings.labelTimeZone || '时区';
 
             //  Infer what we can about what to display from the format.
 
@@ -885,8 +812,8 @@ Jx().package("T.UI.Controls", function(J){
             var shownFields = 0;
             var format = this.conv.fmt;
 
-            if ( typeof options.askEra != 'undefined' )
-                this.askEra = options.askEra;
+            if ( typeof this.settings.askEra != 'undefined' )
+                this.askEra = this.settings.askEra;
             else
                 this.askEra = (format.indexOf('%B')>=0) || (format.indexOf('%C')>=0) || (format.indexOf('%E')>=0);
             var askYear = (format.indexOf('%Y')>=0) || (format.indexOf('%y')>=0) || (format.indexOf('%Z')>=0) || (format.indexOf('%z')>=0);
@@ -897,22 +824,23 @@ Jx().package("T.UI.Controls", function(J){
             var askHour = this.twelveHr || (format.indexOf('%H')>=0) || (format.indexOf('%k')>=0) || (format.indexOf('%T')>=0);
             var askMinute = (format.indexOf('%i')>=0) || (format.indexOf('%r')>=0) || (format.indexOf('%T')>=0);
             var askSec = ( (format.indexOf('%r')>=0) || (format.indexOf('%S')>=0) || (format.indexOf('%s')>=0) || (format.indexOf('%T')>=0) );
-            if ( askSec && ( typeof options.askSecond != 'undefined' ) )
-                askSec = options.askSecond;
+            if ( askSec && ( typeof this.settings.askSecond != 'undefined' ) )
+                askSec = this.settings.askSecond;
             var askOff = ( (format.indexOf('%#')>=0) || (format.indexOf('%+')>=0) || (format.indexOf('%-')>=0) || (format.indexOf('%:')>=0) || (format.indexOf('%;')>=0) || (format.indexOf('%<')>=0) || (format.indexOf('%>')>=0) || (format.indexOf('%@')>=0) );
             var askTime = askHour || askMinute || askSec || askOff;
 
             if ( askOff )
-                // this.oConv = new AnyTime.Converter( { format: options.formatUtcOffset ||
-                this.oConv = new Converter( { format: options.formatUtcOffset ||
+                // this.oConv = new AnyTime.Converter( { format: this.settings.formatUtcOffset ||
+                this.oConv = new Converter( { format: this.settings.formatUtcOffset ||
                     format.match(/\S*%[-+:;<>#@]\S*/g).join(' ') } );
 
             //  Create the picker HTML and add it to the page.
             //  Popup pickers will be moved to the end of the body
             //  once the entire page has loaded.
 
-            this.inp = $(document.getElementById(id)); // avoids ID-vs-pseudo-selector probs like id="foo:bar"
+            this.inp = $(document.getElementById(element.id)); // avoids ID-vs-pseudo-selector probs like id="foo:bar"
             this.ro = this.inp.prop('readonly');
+            // // removed by matrix 2015-11-26
             this.inp.prop('readonly',true);
             this.div = $( '<div class="AnyTime-win AnyTime-pkr ui-widget ui-widget-content ui-corner-all" id="' + this.id + '" aria-live="off"></div>' );
             this.inp.after(this.div);
@@ -921,7 +849,7 @@ Jx().package("T.UI.Controls", function(J){
             this.dB = $( '<div class="AnyTime-body"></div>' );
             this.div.append( this.dB );
 
-            if ( options.hideInput )
+            if ( this.settings.hideInput )
                 this.inp.css({border:0,height:'1px',margin:0,padding:0,width:'1px'});
 
             //  Add dismiss box to title (if popup)
@@ -965,8 +893,8 @@ Jx().package("T.UI.Controls", function(J){
 
                 if ( askMonth )
                 {
-                    // lab = options.labelMonth || 'Month';
-                    lab = options.labelMonth || '月';
+                    // lab = this.settings.labelMonth || 'Month';
+                    lab = this.settings.labelMonth || '月';
                     this.hMo = $( '<h6 class="AnyTime-lbl AnyTime-lbl-month">' + lab + '</h6>' );
                     this.dD.append( this.hMo );
                     this.dMo = $('<ul class="AnyTime-mons" />');
@@ -995,8 +923,8 @@ Jx().package("T.UI.Controls", function(J){
 
                 if ( askDoM )
                 {
-                    //lab = options.labelDayOfMonth || 'Day of Month';
-                    lab = options.labelDayOfMonth || '日';
+                    //lab = this.settings.labelDayOfMonth || 'Day of Month';
+                    lab = this.settings.labelDayOfMonth || '日';
                     this.hDoM = $('<h6 class="AnyTime-lbl AnyTime-lbl-dom">' + lab + '</h6>' );
                     this.dD.append( this.hDoM );
                     this.dDoM =  $( '<table border="0" cellpadding="0" cellspacing="0" class="AnyTime-dom-table"/>' );
@@ -1052,8 +980,8 @@ Jx().package("T.UI.Controls", function(J){
                 this.dH = $('<div class="AnyTime-hrs"></div>');
                 this.dT.append(this.dH);
 
-                // lab = options.labelHour || 'Hour';
-                lab = options.labelHour || '时';
+                // lab = this.settings.labelHour || 'Hour';
+                lab = this.settings.labelHour || '时';
                 this.dH.append( $('<h6 class="AnyTime-lbl AnyTime-lbl-hr">'+lab+'</h6>') );
                 var amDiv = $('<ul class="AnyTime-hrs-am"/>');
                 this.dH.append( amDiv );
@@ -1096,8 +1024,8 @@ Jx().package("T.UI.Controls", function(J){
                 this.dM = $('<div class="AnyTime-mins"></div>');
                 this.dT.append(this.dM);
 
-                // lab = options.labelMinute || 'Minute';
-                lab = options.labelMinute || '分';
+                // lab = this.settings.labelMinute || 'Minute';
+                lab = this.settings.labelMinute || '分';
                 this.dM.append( $('<h6 class="AnyTime-lbl AnyTime-lbl-min">'+lab+'</h6>') );
                 tensDiv = $('<ul class="AnyTime-mins-tens"/>');
                 this.dM.append(tensDiv);
@@ -1142,8 +1070,8 @@ Jx().package("T.UI.Controls", function(J){
               {
                 this.dS = $('<div class="AnyTime-secs"></div>');
                 this.dT.append(this.dS);
-                // lab = options.labelSecond || 'Second';
-                lab = options.labelSecond || '秒';
+                // lab = this.settings.labelSecond || 'Second';
+                lab = this.settings.labelSecond || '秒';
                 this.dS.append( $('<h6 class="AnyTime-lbl AnyTime-lbl-sec">'+lab+'</h6>') );
                 tensDiv = $('<ul class="AnyTime-secs-tens"/>');
                 this.dS.append(tensDiv);
@@ -1210,8 +1138,8 @@ Jx().package("T.UI.Controls", function(J){
             //  Otherwise, determine a worthy title based on which (and how many)
             //  format fields have been specified.
 
-            if ( options.labelTitle )
-                this.hTitle.append( options.labelTitle );
+            if ( this.settings.labelTitle )
+                this.hTitle.append( this.settings.labelTitle );
             else if ( shownFields > 1 )
                 // this.hTitle.append( 'Select a '+(askDate?(askTime?'Date and Time':'Date'):'Time') );
                 this.hTitle.append( '选择 '+(askDate?(askTime?'日期时间':'日期'):'时间') );
@@ -1227,8 +1155,8 @@ Jx().package("T.UI.Controls", function(J){
                 this.time = this.conv.parse(this.inp.val());
                 this.offMin = this.conv.getUtcParseOffsetCaptured();
                 this.offSI = this.conv.getUtcParseOffsetSubIndex();
-                if ( 'init' in options ) // override
-                this.time = this.makeDate( options.init);
+                if ( 'init' in this.settings ) // override
+                this.time = this.makeDate( this.settings.init);
             }
             catch ( e )
             {
@@ -1283,41 +1211,71 @@ Jx().package("T.UI.Controls", function(J){
 
             if ( __initialized )
                 this.onReady();
+        },
 
-        }, // initialize()
+        //  private members
 
-
-        // //---------------------------------------------------------------------
-        // //  .ajax() notifies the server of a value change using Ajax.
-        // //---------------------------------------------------------------------
-
-        // ajax: function()
-        // {
-        //     if ( this.ajaxOpts && ( this.time.getTime() != this.lastAjax.getTime() ) )
-        //     {
-        //       try
-        //       {
-        //         var opts = jQuery.extend( {}, this.ajaxOpts );
-        //         if ( typeof opts.data == 'object' )
-        //             opts.data[this.inp[0].name||this.inp[0].id] = this.inp.val();
-        //         else
-        //         {
-        //             var opt = (this.inp[0].name||this.inp[0].id) + '=' + encodeURI(this.inp.val());
-        //             if ( opts.data )
-        //                 opts.data += '&' + opt;
-        //             else
-        //                 opts.data = opt;
-        //         }
-        //         $.ajax( opts );
-        //         this.lastAjax = this.time;
-        //       }
-        //       catch( e )
-        //       {
-        //       }
-        //     }
-        //     return;
-
-        // }, // .ajax()
+        twelveHr: false,
+        denyTab: true,      // set to true to stop Opera from tabbing away
+        askEra: false,      // prompt the user for the era in yDiv?
+        cloak: null,        // cloak div
+        conv: null,         // AnyTime.Converter
+        div: null,          // picker div
+        dB: null,           // body div
+        dD: null,           // date div
+        dY: null,           // years div
+        dMo: null,          // months div
+        dDoM: null,         // date-of-month table
+        hDoM: null,         // date-of-month heading
+        hMo: null,          // month heading
+        hTitle: null,       // title heading
+        hY: null,           // year heading
+        dT: null,           // time div
+        dH: null,           // hours div
+        dM: null,           // minutes div
+        dS: null,           // seconds div
+        dO: null,           // offset (time zone) div
+        earliest: null,     // earliest selectable date/time
+        fBtn: null,         // button with current focus
+        fDOW: 0,            // index to use as first day-of-week
+        hBlur: null,        // input handler
+        hClick: null,       // input handler
+        hFocus: null,       // input handler
+        hKeydown: null,     // input handler
+        hKeypress: null,    // input handler
+        hResize: null,      // event handler
+        id: null,           // picker ID
+        inp: null,          // input text field
+        latest: null,       // latest selectable date/time
+        // lastAjax: null,     // last value submitted using AJAX
+        lostFocus: false,   // when focus is lost, must redraw
+        lX: 'X',            // 关闭按钮 label for dismiss button
+        // lY: 'Year',         // 年 label for year
+        // lO: 'Time Zone',    // 时区 label for UTC offset (time zone)
+        lY: '年',           // 年 label for year
+        lO: '时区',         // 时区 label for UTC offset (time zone)
+        oBody: null,        // UTC offset selector popup
+        oConv: null,        // AnyTime.Converter for offset display
+        oCur: null,         // current-UTC-offset button
+        oDiv: null,         // UTC offset selector popup
+        oLab: null,         // UTC offset label
+        oList: null,       // UTC offset container
+        oSel: null,         // select (plus/minus) UTC-offset button
+        offMin: Number.MIN_VALUE, // current UTC offset in minutes
+        offSI: -1,          // current UTC label sub-index (if any)
+        offStr: "",         // current UTC offset (time zone) string
+        pop: true,          // picker is a popup?
+        ro: false,          // was input readonly before picker initialized?
+        time: null,         // current date/time
+        // url: null,          // URL to submit value using AJAX
+        yAhead: null,       // years-ahead button
+        y0XXX: null,        // millenium-digit-zero button (for focus)
+        yCur: null,         // current-year button
+        yDiv: null,         // year selector popup
+        yLab: null,         // year label
+        yNext: null,        // next-year button
+        yPast: null,        // years-past button
+        yPrior: null,       // prior-year button
 
         //---------------------------------------------------------------------
         //  .askOffset() is called by this.newOffset() when the UTC offset or
@@ -1428,10 +1386,10 @@ Jx().package("T.UI.Controls", function(J){
               var yBody = $('<div class="AnyTime-body AnyTime-body-yr-selector" ></div>');
               this.yDiv.append( yBody );
 
-              cont = $('<ul class="AnyTime-yr-mil" />' );
+              var cont = $('<ul class="AnyTime-yr-mil" />' );
               yBody.append(cont);
               this.y0XXX = this.btn( cont, 0, this.newYPos,['mil','mil0'],this.lY+' '+0+'000');
-              for ( i = 1; i < 10 ; i++ )
+              for ( var i = 1; i < 10 ; i++ )
                 this.btn( cont, i, this.newYPos,['mil','mil'+i],this.lY+' '+i+'000');
 
               cont = $('<ul class="AnyTime-yr-cent" />' );
@@ -1605,10 +1563,6 @@ Jx().package("T.UI.Controls", function(J){
             this.lostFocus = true;
         },
 
-        //---------------------------------------------------------------------
-        //  .dismissODiv() dismisses the UTC offset selector popover.
-        //---------------------------------------------------------------------
-
         dismissODiv: function(event)
         {
             this.oDiv.hide();
@@ -1616,20 +1570,12 @@ Jx().package("T.UI.Controls", function(J){
             this.setFocus(this.oCur);
         },
 
-        //---------------------------------------------------------------------
-        //  .dismissYDiv() dismisses the date selector popover.
-        //---------------------------------------------------------------------
-
         dismissYDiv: function(event)
         {
             this.yDiv.hide();
             this.cloak.hide();
             this.setFocus(this.yCur);
         },
-
-        //---------------------------------------------------------------------
-        //  .setFocus() makes a specified psuedo-button appear to get focus.
-        //---------------------------------------------------------------------
 
         setFocus: function(btn)
         {
@@ -2971,8 +2917,8 @@ Jx().package("T.UI.Controls", function(J){
     'use strict';
 
     // 控件类名
-    var pluginName = 'anytime';
-    var PluginClass=T.UI.Controls.Anytime;
+    var pluginName= 'anytime';
+    var PluginClass= T.UI.Controls.Anytime;
 
     var pluginRef = 't-plugin-ref';
     // 胶水代码

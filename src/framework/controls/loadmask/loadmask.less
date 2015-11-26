@@ -1,0 +1,46 @@
+.loadmask {
+    z-index: 100;
+    position: absolute;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    zoom: 1;
+}
+
+.loadmask-msg {
+    z-index: 20001;
+    position: absolute;
+    top: 0;
+    left: 0;
+    line-height: 1; /* this enables us to center the label text relative to the spinner */
+}
+
+.masked {
+    overflow: hidden !important;
+}
+.masked-relative {
+    position: relative !important;
+}
+.masked-hidden {
+    visibility: hidden !important;
+}
+
+
+.isloading-wrapper.isloading-right {
+    margin-left: 10px;
+}
+.isloading-overlay {
+    position: relative;
+    text-align: center;
+
+    .isloading-wrapper {
+        background: #FFFFFF;
+        //.border-radius(7px);
+        display: inline-block;
+        margin: 0 auto;
+        padding: 10px 20px;
+        top: 10%;
+        z-index:9000;
+    }
+}

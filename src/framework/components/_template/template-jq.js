@@ -11,7 +11,7 @@
     var pluginRef = 't-plugin-ref';
     // 胶水代码
     $.fn[pluginName] = function(options) {
-
+        var result;
         this.each(function () {
             if(options === 'destroy'){
                 jqElement.data(pluginRef).destroy();
@@ -25,7 +25,21 @@
             {
                 plugin=new PluginClass(this, $.extend(true, {}, options));
                 jqElement.data(pluginRef, plugin);
+
+                return;
             }
+
+            if(typeof options === 'string'){
+                if(!plugin[options]){
+                    throw '方法 ' + option + ' 不存在';
+                }
+
+                var args = arguments;
+                result = plugin[option].apply(data, Array.prototype.slice.call(args, 1));
+            }
+            // else{
+            //     result= plugin.updateOptions(options);
+            // }
         });
 
         return this;
