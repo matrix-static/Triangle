@@ -1,12 +1,12 @@
-/* template javascript jQuery */
+/* orgselect javascript jQuery */
 
 (function($) {
     // 严格模式
     'use strict';
 
     // 控件类名
-    var pluginName = 'template';
-    var PluginClass=T.UI.Controls.Template;
+    var pluginName = 'orgselect';
+    var PluginClass=T.UI.Components.Orgselect;
 
     var pluginRef = 't-plugin-ref';
     // 胶水代码

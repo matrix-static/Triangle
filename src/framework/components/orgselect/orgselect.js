@@ -680,32 +680,3 @@ Jx().package("T.UI.Components", function(J){
     });
 
 });
-
-
-
-
-/* orgselect javascript jQuery */
-
-(function($) {
-    // 严格模式
-    'use strict';
-
-    // 控件类名
-    var pluginName = "orgslt";
-
-        // 胶水代码
-    $.fn[pluginName] = function(options) {
-
-        this.each(function () {
-            var jqElement = $(this);
-            if (jqElement.data('plugin-ref')) {
-                jqElement.data('plugin-ref').destroy();
-            }
-            jqElement.data('plugin-ref', new T.UI.Components.Orgselect(this, $.extend(true, {}, options)));
-        });
-
-        return this;
-
-    };
-
-})(jQuery);

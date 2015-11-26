@@ -1,12 +1,12 @@
-// /* carousel javascript jQuery */
+// /* dropdown javascript jQuery */
 
 // (function($) {
 //     // 严格模式
 //     'use strict';
 
 //     // 控件类名
-//     var pluginName = 'carousel';
-//     var PluginClass=T.UI.Controls.Carousel;
+//     var pluginName = 'dropdown';
+//     var PluginClass=T.UI.Controls.Dropdown;
 
 //     var pluginRef = 't-plugin-ref';
 //     // 胶水代码

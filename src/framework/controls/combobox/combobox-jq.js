@@ -1,12 +1,12 @@
-// /* carousel javascript jQuery */
+// /* combobox javascript jQuery */
 
 // (function($) {
 //     // 严格模式
 //     'use strict';
 
 //     // 控件类名
-//     var pluginName = 'carousel';
-//     var PluginClass=T.UI.Controls.Carousel;
+//     var pluginName = 'combobox';
+//     var PluginClass=T.UI.Controls.Combobox;
 
 //     var pluginRef = 't-plugin-ref';
 //     // 胶水代码

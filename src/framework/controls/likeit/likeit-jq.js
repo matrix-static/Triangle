@@ -1,3 +1,5 @@
+/* likeit javascript jQuery */
+
 (function($) {
     // 严格模式
     'use strict';
@@ -9,20 +11,34 @@
     var pluginRef = 't-plugin-ref';
     // 胶水代码
     $.fn[pluginName] = function(options) {
+        if(typeof options === 'string'){
+            // 2. 调用API
+            var plugin = this.data(pluginRef);
 
-        this.each(function () {
-            if(options === 'destroy'){
-                jqElement.data(pluginRef).destroy();
-                jqElement.data(pluginRef).remove();
-                return;
+            if(!plugin || !plugin[options]){
+                throw '方法 ' + options + ' 不存在';
             }
 
+            var result = plugin[option].apply(data, Array.prototype.slice.call(arguments, 1));
+
+            if(options === 'destroy'){
+                jqElement.removeData(pluginRef);
+            }
+
+            return result;
+        }
+
+        this.each(function () {
             var jqElement=$(this);
             var plugin = jqElement.data(pluginRef);
-            if(plugin === undefined)
-            {
+            if(plugin === undefined){
+                // 1. 创建新对象
                 plugin=new PluginClass(this, $.extend(true, {}, options));
                 jqElement.data(pluginRef, plugin);
+            }
+            else{
+                // 3. 更新选项
+                plugin.updateOptions || plugin.updateOptions(options);
             }
         });
 

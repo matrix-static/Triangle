@@ -426,30 +426,4 @@ Jx().package("T.UI.Controls", function(J){
             this.disabled=true;
         }
     });
-
 });
-
-
-
-
-/* level javascript jQuery */
-
-(function($) {
-    // 严格模式
-    'use strict';
-
-    // 控件类名
-    var pluginName = "level";
-
-        // 胶水代码
-    $.fn[pluginName] = function(options) {
-
-        this.each(function () {
-            var plugin=new T.UI.Controls.Level(this, $.extend(true, {}, options));
-        });
-
-        return this;
-
-    };
-
-})(jQuery);

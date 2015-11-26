@@ -508,5 +508,4 @@ Jx().package("T.UI.Controls", function(J){
     };
     
     contruct();
-
 });

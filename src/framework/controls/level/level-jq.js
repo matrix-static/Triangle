@@ -1,12 +1,12 @@
-/* template javascript jQuery */
+/* level javascript jQuery */
 
 (function($) {
     // 严格模式
     'use strict';
 
     // 控件类名
-    var pluginName = 'template';
-    var PluginClass=T.UI.Controls.Template;
+    var pluginName = 'level';
+    var PluginClass=T.UI.Controls.Level;
 
     var pluginRef = 't-plugin-ref';
     // 胶水代码

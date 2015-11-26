@@ -10,8 +10,7 @@
 
 
 
- Jx().package("T.UI.Components", function(J){
-
+Jx().package("T.UI.Components", function(J){
     // 严格模式
     'use strict';
 
@@ -489,24 +488,3 @@
         }
     });
 });
-
-
-
-(function($) {
-    // 严格模式
-    'use strict';
-
-    // 控件类名
-    var pluginName = 'rightselect';
-
-    // 胶水代码
-    var pluginRef = 'plugin-ref'
-    $.fn[pluginName] = function(options) {
-        this.each(function () {
-            var plugin=new T.UI.Components.RightSelect(this, $.extend(true, {}, options));
-        });
-
-        return this;
-    };
-
-})(jQuery);

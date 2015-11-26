@@ -11,35 +11,35 @@
     var pluginRef = 't-plugin-ref';
     // 胶水代码
     $.fn[pluginName] = function(options) {
-        var result;
-        this.each(function () {
-            if(options === 'destroy'){
-                jqElement.data(pluginRef).destroy();
-                jqElement.data(pluginRef).remove();
-                return;
+        if(typeof options === 'string'){
+            // 2. 调用API
+            var plugin = this.data(pluginRef);
+
+            if(!plugin || !plugin[options]){
+                throw '方法 ' + options + ' 不存在';
             }
 
+            var result = plugin[option].apply(data, Array.prototype.slice.call(arguments, 1));
+
+            if(options === 'destroy'){
+                jqElement.removeData(pluginRef);
+            }
+
+            return result;
+        }
+
+        this.each(function () {
             var jqElement=$(this);
             var plugin = jqElement.data(pluginRef);
-            if(plugin === undefined)
-            {
+            if(plugin === undefined){
+                // 1. 创建新对象
                 plugin=new PluginClass(this, $.extend(true, {}, options));
                 jqElement.data(pluginRef, plugin);
-
-                return;
             }
-
-            if(typeof options === 'string'){
-                if(!plugin[options]){
-                    throw '方法 ' + option + ' 不存在';
-                }
-
-                var args = arguments;
-                result = plugin[option].apply(data, Array.prototype.slice.call(args, 1));
+            else{
+                // 3. 更新选项
+                plugin.updateOptions || plugin.updateOptions(options);
             }
-            // else{
-            //     result= plugin.updateOptions(options);
-            // }
         });
 
         return this;

@@ -372,25 +372,3 @@ Jx().package("T.UI.Components", function(J){
         }
     });
 });
-
-/* modal javascript jQuery */
-
-(function($) {
-    // 严格模式
-    'use strict';
-
-    // 控件类名
-    var pluginName = "modal";
-
-        // 胶水代码
-    $.fn[pluginName] = function(options) {
-
-        this.each(function () {
-            var plugin=new T.UI.Components.Modal(this, $.extend(true, {}, options));
-        });
-
-        return this;
-
-    };
-
-})(jQuery);
