@@ -1,17 +1,20 @@
 	<div class="bs-docs-section">
-		<h1 id="" class="page-header">spinner</h1>
+		<h1 id="spinner" class="page-header">spinner</h1>
 		<p class="lead">combobox需求</p>
 		<h2 id="spinner-overview">概述</h2>
 		<p>概述概述</p>
 		<h2 id="spinner-examples">示例</h2>
 		<div class="row">
-			<div class="col-md-5">
+			<div class="col-md-5" ng-controller="bindController">
 				<label for="demo0">使用 data 属性示例</label>
+				<span>{{spinnerValue}}</span>
+                <input type="button" value="56" ng-click="spinnerValue='56'">
 				<input 
 					id="demo0"
 					typ="text"
 					name="demo0"
 					spinner
+					ng-model="spinnerValue"
 					value="42"
 					data-t-min="0"
 					data-t-max="100"

@@ -11,6 +11,39 @@
             230000,230200,230227
         -->
         <div class="row">
+            <div class="col-md-5" ng-controller="bindController">
+                <label for="level">双向绑定</label>
+                <span>{{levelValue}}</span>
+                <input type="button" value="浙江 / 绍兴 / 越城" ng-click="levelValue='330000,330600,330602'">
+                <input 
+                    id="level"
+                    type="text"
+                    class="level form-control"
+                    name="level"
+                    value=""
+                    level
+                    ng-model="levelValue"
+                    data-t-level-names="省,市,区/县"
+                    data-t-data-url="/demo/controls/level/data.json"
+                    />
+            </div>
+            <div class="col-md-7">
+                <pre class="prettyprint">
+&lt;input 
+    id=&quot;level&quot;
+    typ=&quot;text&quot;
+    name=&quot;level&quot;
+    value=&quot;&quot;
+    level
+    data-t-level-names=&quot;省,市,区/县&quot;
+    data-t-data-url=&quot;/demo/controls/level/data.json&quot;
+    /&gt;
+                </pre>
+            </div>
+        </div>
+
+
+        <div class="row">
             <div class="col-md-5">
                 <label for="level">地址</label>
                 <input 

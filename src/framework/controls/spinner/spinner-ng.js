@@ -7,9 +7,18 @@ T.UI.ngControls
     .directive('spinner', ['$rootScope', '$compile', function($rootScope, $compile){
 
         function link($scope, $element, $attrs, undefined, link){
-            var options = $scope.options;
-            var control = new T.UI.Controls.Spinner($element, $.extend(true, {}, options));
             // $element.spinner({});
+
+            var options = $scope.options;
+            var plugin = new T.UI.Controls.Spinner($element, $.extend(true, {}, options));
+
+            // var ngModelValue=$element.attr('ng-model');
+            // if(ngModelValue){
+            //     $scope.$parent.$watch(ngModelValue, function(newValue, oldValue) {
+            //         //plugin.setValue(newValue);
+            //         plugin.reflesh();
+            //     }, true);
+            // }
         }
 
         return {

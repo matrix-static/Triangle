@@ -41,6 +41,12 @@ angular.module('pnApp.controllers', [])
             // onSearchCleared: function(e, node){ alert( node.text + ': onSearchCleared') }
         };
         $scope.treeApi = treeOptions;
+    }])
+	.controller('bindController', ['$scope', '$rootScope', function ($scope, $rootScope){
+        $scope.comboboxValue= 'CO';
+        $scope.spinnerValue= 55;
+        $scope.typeaheadValue= 'Virginia';
+        $scope.levelValue= '230000,230200,230227';	// 330000,330600,330682 浙江 / 绍兴 / 上虞
     }]);
 
         

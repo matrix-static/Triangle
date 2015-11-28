@@ -17,60 +17,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * ============================================================ */
-!function($) {
+Jx().package("T.UI.Controls", function(J){
+    // 严格模式
+    'use strict';
 
-    "use strict";
-
-    /* COMBOBOX PUBLIC CLASS DEFINITION
-     * ================================ */
-    
+    var _crrentPluginId = 0;
     var defaults = {
-        bsVersion: '3',
-        menu: '<ul class="typeahead typeahead-long dropdown-menu"></ul>',
-        item: '<li><a href="#"></a></li>'
+        // 选项
+        // 覆写 类方法
+        // parseData: undefined,
+        // 事件
+        // onFooSelected: undefined,
+        // onFooChange: function(e, data){}
+    };
+    var attributeMap = {
+        // fooOption: 'foo-option'
     };
 
-    var Plugin = function(element, options) {
-        this.options = $.extend({}, defaults, options);
-        this.$source = $(element);
-        this.$container = this.setup();
-        this.$element = this.$container.find('input[type=text]');
-        this.$target = this.$container.find('input[type=hidden]');
-        this.$button = this.$container.find('.dropdown-toggle');
-        this.$menu = $(this.options.menu).appendTo('body');
-        this.template = this.options.template || this.template
-        this.matcher = this.options.matcher || this.matcher;
-        this.sorter = this.options.sorter || this.sorter;
-        this.highlighter = this.options.highlighter || this.highlighter;
-        this.shown = false;
-        this.selected = false;
-        this.refresh();
-        this.transferAttributes();
-        this.listen();
+    this.Combobox = new J.Class({extend: T.UI.BaseControl},{
+        defaults: defaults,
+        attributeMap: attributeMap,
 
-    };
-
-    Plugin.prototype = {
-        setup: function() {
-            var combobox = $(this.template());
-            this.$source.before(combobox);
-            this.$source.hide();
-            return combobox;
-
+        settings: {},
+        value: '',
+        data: {},
+        templates: {
+            // menu: '<ul class="typeahead typeahead-long dropdown-menu"></ul>',
+            item: '<li><a href="#"></a></li>'
         },
-        disable: function() {
-            this.$element.prop('disabled', true);
-            this.$button.attr('disabled', true);
-            this.disabled = true;
-            this.$container.addClass('combobox-disabled');
 
-        },
-        enable: function() {
-            this.$element.prop('disabled', false);
-            this.$button.attr('disabled', false);
-            this.disabled = false;
-            this.$container.removeClass('combobox-disabled');
+        // 构造函数
+        init: function(element, options){
+            this.element=$(element);
 
+            // // 防止多次初始化
+            // if (this.isInitialized()) { 
+            //     return this.getRef(); 
+            // }
+            // this.initialize(element);
+
+            this.initSettings(options);
+            // this.value= this.element.val();
+            this.matcher = this.settings.matcher || this.matcher;
+            this.sorter = this.settings.sorter || this.sorter;
+            this.highlighter = this.settings.highlighter || this.highlighter;
+            this.shown = false;
+            this.selected = false;
+
+            this.buildHtml();
+            this.initElements();
+
+            // this.refresh();
+            this.source = this.parse();
+            this.settings.items = this.source.length;
+
+            this.transferAttributes();
+
+            this.bindEvents();
+             // this.bindEventsInterface();
         },
         parse: function() {
             var that = this,
@@ -78,10 +82,10 @@
                 source = [],
                 selected = false,
                 selectedValue = '';
-            this.$source.find('option').each(function() {
+            this.element.find('option').each(function() {
                 var option = $(this);
                 if (option.val() === '') {
-                    that.options.placeholder = option.text();
+                    that.settings.placeholder = option.text();
                     return;
                 }
                 map[option.text()] = option.val();
@@ -94,53 +98,35 @@
             })
             this.map = map;
             if (selected) {
-                this.$element.val(selected);
-                this.$target.val(selectedValue);
-                this.$container.addClass('combobox-selected');
+                this.elements.input.val(selected);
+                // this.elements.target.val(selectedValue);
+                this.elements.original.val(selectedValue);
+                this.container.addClass('combobox-selected');
                 this.selected = true;
             }
             return source;
-
-        },
-        transferAttributes: function() {
-            this.options.placeholder = this.$source.attr('data-placeholder') || this.options.placeholder
-            this.$element.attr('placeholder', this.options.placeholder)
-            this.$target.prop('name', this.$source.prop('name'))
-            this.$target.val(this.$source.val())
-            this.$source.removeAttr('name')
-            // Remove from source otherwise form will pass parameter twice.
-            this.$element.attr('required', this.$source.attr('required'))
-            this.$element.attr('rel', this.$source.attr('rel'))
-            this.$element.attr('title', this.$source.attr('title'))
-            this.$element.attr('class', this.$source.attr('class'))
-            this.$element.attr('tabindex', this.$source.attr('tabindex'))
-            this.$source.removeAttr('tabindex')
-            if (this.$source.attr('disabled') !== undefined)
-            this.disable();
-
         },
         select: function() {
-            var val = this.$menu.find('.active').attr('data-value');
-            this.$element.val(this.updater(val)).trigger('change');
-            this.$target.val(this.map[val]).trigger('change');
-            this.$source.val(this.map[val]).trigger('change');
-            this.$container.addClass('combobox-selected');
+            var val = this.elements.menu.find('.active').attr('data-value');
+            this.elements.input.val(this.updater(val)).trigger('change');
+            // this.elements.target.val(this.map[val]).trigger('change');
+            this.element.val(this.map[val]).trigger('change');
+            this.container.addClass('combobox-selected');
             this.selected = true;
             return this.hide();
         },
         updater: function(item) {
             return item;
-
         },
         show: function() {
             var pos = $.extend({},
-            this.$element.position(), {
-                height: this.$element[0].offsetHeight
+            this.elements.input.position(), {
+                height: this.elements.input[0].offsetHeight
 
             });
 
-            this.$menu
-                .insertAfter(this.$element)
+            this.elements.menu
+                .insertAfter(this.elements.input)
                 .css({
                     top: pos.top + pos.height
                     ,
@@ -155,17 +141,15 @@
             return this;
         },
         hide: function() {
-            this.$menu.hide();
+            this.elements.menu.hide();
             $('.dropdown-menu').off('mousedown', $.proxy(this.scrollSafety, this));
-            this.$element.on('blur', $.proxy(this.blur, this));
+            this.elements.input.on('blur', $.proxy(this.blur, this));
             this.shown = false;
             return this;
-
         },
         lookup: function(event) {
-            this.query = this.$element.val();
+            this.query = this.elements.input.val();
             return this.process(this.source);
-
         },
         process: function(items) {
             var that = this;
@@ -183,20 +167,10 @@
 
             }
 
-            return this.render(items.slice(0, this.options.items)).show();
-        },
-        template: function() {
-            if (this.options.bsVersion == '2') {
-                return '<div class="combobox-container"><input type="hidden" /> <div class="input-append"> <input type="text" autocomplete="off" /> <span class="add-on dropdown-toggle" data-dropdown="dropdown"> <span class="caret"/> <i class="icon-remove"/> </span> </div> </div>'
-
-            } else {
-                return '<div class="combobox-container"> <input type="hidden" /> <div class="input-group"> <input type="text" autocomplete="off" /> <span class="input-group-addon dropdown-toggle" data-dropdown="dropdown"> <span class="caret" /> <span class="glyphicon glyphicon-remove" /> </span> </div> </div>'
-
-            }
+            return this.render(items.slice(0, this.settings.items)).show();
         },
         matcher: function(item) {
-            return~item.toLowerCase().indexOf(this.query.toLowerCase());
-
+            return ~item.toLowerCase().indexOf(this.query.toLowerCase());
         },
         sorter: function(items) {
             var beginswith = [],
@@ -230,32 +204,32 @@
             var that = this;
 
             items = $(items).map(function(i, item) {
-                i = $(that.options.item).attr('data-value', item);
+                i = $(that.templates.item).attr('data-value', item);
                 i.find('a').html(that.highlighter(item));
                 return i[0];
             })
 
             items.first().addClass('active');
-            this.$menu.html(items);
+            this.elements.menu.html(items);
             return this;
         },
         next: function(event) {
-            var active = this.$menu.find('.active').removeClass('active'),
+            var active = this.elements.menu.find('.active').removeClass('active'),
                 next = active.next();
 
             if (!next.length) {
-                next = $(this.$menu.find('li')[0]);
+                next = $(this.elements.menu.find('li')[0]);
 
             }
 
             next.addClass('active');
         },
         prev: function(event) {
-            var active = this.$menu.find('.active').removeClass('active'),
+            var active = this.elements.menu.find('.active').removeClass('active'),
                 prev = active.prev();
 
             if (!prev.length) {
-                prev = this.$menu.find('li').last();
+                prev = this.elements.menu.find('li').last();
 
             }
 
@@ -263,7 +237,7 @@
         },
         toggle: function() {
             if (!this.disabled) {
-                if (this.$container.hasClass('combobox-selected')) {
+                if (this.container.hasClass('combobox-selected')) {
                     this.clearTarget();
                     this.triggerChange();
                     this.clearElement();
@@ -277,67 +251,34 @@
                         this.lookup();
 
                     }
-
                 }
-
             }
-
         },
         scrollSafety: function(e) {
             if (e.target.tagName == 'UL') {
-                this.$element.off('blur');
+                this.elements.input.off('blur');
             }
         },
         clearElement: function() {
-            this.$element.val('').focus();
-
+            this.elements.input.val('').focus();
         },
         clearTarget: function() {
-            this.$source.val('');
-            this.$target.val('');
-            this.$container.removeClass('combobox-selected');
+            this.element.val('');
+            // this.elements.target.val('');
+            this.container.removeClass('combobox-selected');
             this.selected = false;
-
         },
         triggerChange: function() {
-            this.$source.trigger('change');
-
-        },
-        refresh: function() {
-            this.source = this.parse();
-            this.options.items = this.source.length;
-
-        },
-        listen: function() {
-            this.$element
-            .on('focus', $.proxy(this.focus, this))
-            .on('blur', $.proxy(this.blur, this))
-            .on('keypress', $.proxy(this.keypress, this))
-            .on('keyup', $.proxy(this.keyup, this));
-
-            if (this.eventSupported('keydown')) {
-                this.$element.on('keydown', $.proxy(this.keydown, this));
-
-            }
-
-            this.$menu
-            .on('click', $.proxy(this.click, this))
-            .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
-            .on('mouseleave', 'li', $.proxy(this.mouseleave, this));
-
-            this.$button
-            .on('click', $.proxy(this.toggle, this));
-
-        },
+            this.element.trigger('change');
+        },        
         eventSupported: function(eventName) {
-            var isSupported = eventName in this.$element;
+            var isSupported = eventName in this.elements.input;
             if (!isSupported) {
-                this.$element.setAttribute(eventName, 'return;');
-                isSupported = typeof this.$element[eventName] === 'function';
+                this.elements.input.setAttribute(eventName, 'return;');
+                isSupported = typeof this.elements.input[eventName] === 'function';
 
             }
             return isSupported;
-
         },
         move: function(e) {
             if (!this.shown) {
@@ -369,19 +310,16 @@
             }
 
             e.stopPropagation();
-
         },
         keydown: function(e) {
             this.suppressKeyPressRepeat = ~$.inArray(e.keyCode, [40, 38, 9, 13, 27]);
             this.move(e);
-
         },
         keypress: function(e) {
             if (this.suppressKeyPressRepeat) {
                 return;
             }
             this.move(e);
-
         },
         keyup: function(e) {
             switch (e.keyCode) {
@@ -431,20 +369,18 @@
 
             e.stopPropagation();
             e.preventDefault();
-
         },
         focus: function(e) {
             this.focused = true;
-
         },
         blur: function(e) {
             var that = this;
             this.focused = false;
-            var val = this.$element.val();
+            var val = this.elements.input.val();
             if (!this.selected && val !== '') {
-                this.$element.val('');
-                this.$source.val('').trigger('change');
-                this.$target.val('').trigger('change');
+                this.elements.input.val('');
+                this.element.val('').trigger('change');
+                // this.elements.target.val('').trigger('change');
 
             }
             if (!this.mousedover && this.shown) {
@@ -458,35 +394,145 @@
             e.stopPropagation();
             e.preventDefault();
             this.select();
-            this.$element.focus();
+            this.elements.input.focus();
         },
         mouseenter: function(e) {
             this.mousedover = true;
-            this.$menu.find('.active').removeClass('active');
+            this.elements.menu.find('.active').removeClass('active');
             $(e.currentTarget).addClass('active');
         },
         mouseleave: function(e) {
             this.mousedover = false;
-        }
+        },
+        buildHtml: function(){
+            var template= ''+
+                '<div class="combobox-container"> '+
+                // '    <input type="hidden" /> '+
+                '    <div class="input-group"> '+
+                '       <input type="text" autocomplete="off" /> '+
+                '       <span class="input-group-addon dropdown-toggle" data-dropdown="dropdown"> '+
+                '       <span class="caret" /> '+
+                '       <span class="glyphicon glyphicon-remove" /> </span> '+
+                '    </div> '+
+                '</div>';
+            this.container= $(template);
 
-    };
+            // menu: '<ul class="typeahead typeahead-long dropdown-menu"></ul>',
+            // item: '<li><a href="#"></a></li>'
+            
 
-    
-    // 控件类名
-    var pluginName = "combobox";
-    // 胶水代码
-    $.fn[pluginName] = function(options) {
+            // var combobox = $(this.template());            
+            // return combobox;
+        },
+        initElements: function(){
+            // var context= this;
 
-        this.each(function () {
-            var jqElement = $(this);
-            if (jqElement.data(pluginName)) {
-                jqElement.data(pluginName).remove();
+            var menuTemplate= '<ul class="typeahead typeahead-long dropdown-menu"></ul>';
+            // $(this.settings.menu).appendTo('body')
+            var jqMenu= $(menuTemplate).appendTo('body');
+
+            this.elements={
+                original: this.element,
+                input: $('input[type=text]', this.container),
+                // target: $('input[type=hidden]', this.container),
+                button: $('.dropdown-toggle', this.container),
+                menu: jqMenu
+                // view: $('input[type=text]', this.container)
+                // getTab: function(levelIndex){
+                //     var tabSelector='.t-level-tab-'+levelIndex;
+                //     return $(tabSelector, context.container);
+                // }
+            };
+
+            // this.$element = this.container.find('input[type=text]');
+
+            this.element.before(this.container);
+            this.element.hide();
+        },
+        bindEvents: function(){
+            var context= this;
+            var element= this.element;
+
+            this.elements.input
+                .on('focus', $.proxy(this.focus, this))
+                .on('blur', $.proxy(this.blur, this))
+                .on('keypress', $.proxy(this.keypress, this))
+                .on('keyup', $.proxy(this.keyup, this));
+
+            if (this.eventSupported('keydown')) {
+                this.elements.input.on('keydown', $.proxy(this.keydown, this));
+
             }
-            jqElement.data(pluginName, new Plugin(this, $.extend(true, {}, options)));
-        });
 
-        return this;
-    };
+            this.elements.menu
+                .on('click', $.proxy(this.click, this))
+                .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
+                .on('mouseleave', 'li', $.proxy(this.mouseleave, this));
 
+            this.elements.button
+                .on('click', $.proxy(this.toggle, this));
+            // element.on('click', $.proxy(this.onFooClick, this));
+        },
+        // bindEventsInterface: function(){
+        //     var context= this;
+        //     var element= this.element;
 
-} (window.jQuery);
+        //     if(this.settings.onFooSelected){
+        //         element.on('click.t.template', $.proxy(this.settings.onFooSelected, this));
+        //     }
+        // },
+        // render: function(){},
+
+        // 事件处理
+        // onFooClick: function(e, data){
+        //     ;
+        // },
+        transferAttributes: function() {
+            this.settings.placeholder = this.element.attr('data-placeholder') || this.settings.placeholder
+            this.elements.input.attr('placeholder', this.settings.placeholder)
+            // this.elements.target.prop('name', this.element.prop('name'))
+            // this.elements.target.val(this.element.val())
+            this.element.removeAttr('name')
+            // Remove from source otherwise form will pass parameter twice.
+            this.elements.input.attr('required', this.element.attr('required'))
+            this.elements.input.attr('rel', this.element.attr('rel'))
+            this.elements.input.attr('title', this.element.attr('title'))
+            this.elements.input.attr('class', this.element.attr('class'))
+            this.elements.input.attr('tabindex', this.element.attr('tabindex'))
+            this.element.removeAttr('tabindex')
+            if (this.element.attr('disabled') !== undefined){
+                this.disable();
+            }
+        },
+
+        // API
+        reflesh: function() {
+            var value= this.elements.original.val();
+            this.elements.input.val(this.updater(value));//.trigger('change');
+            // this.elements.target.val(this.map[value]);//.trigger('change');
+            // this.element.val(this.map[value]);//.trigger('change');
+            this.container.addClass('combobox-selected');
+            this.selected = true;
+            return this.hide();
+        },
+        // setValue: function(value){
+        //     this.elements.original.val(value);
+        //     this.refresh();
+        // },
+        enable: function() {
+            this.elements.input.prop('disabled', false);
+            this.elements.button.attr('disabled', false);
+            this.disabled = false;
+            this.container.removeClass('combobox-disabled');
+
+        },
+        disable: function() {
+            this.elements.input.prop('disabled', true);
+            this.elements.button.attr('disabled', true);
+            this.disabled = true;
+            this.container.addClass('combobox-disabled');
+
+        },        
+        destroy: function(){}
+    });
+});

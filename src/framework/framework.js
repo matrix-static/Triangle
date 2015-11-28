@@ -59,8 +59,8 @@ Jx().package("T.UI", function(J){
         disable: function(){},
 
         destroy: function () {            
-            this.container.remove();
-            this.container = null;
+            // this.container.remove();
+            // this.container = null;
             // Switch off events
             this.unbindEvents();
 

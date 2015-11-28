@@ -662,6 +662,11 @@ Jx().package("T.UI.Controls", function(J){
 
             this.spincount = 0;
             this.spinning = false;
-        }
+        }//,
+        // setValue: function(value){
+        //     this.element.val(value);
+        //     this.elements.input.val(value);
+        //     this._checkValue();
+        // }
     });
 });

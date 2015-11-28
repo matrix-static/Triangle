@@ -47,8 +47,8 @@ Jx().package("T.UI.Controls", function(J){
                 context.render();
              });
 
-             this.bindEvents();
-             // this.bindEventsInterface();
+            this.bindEvents();
+            // this.bindEventsInterface();
         },
 
         // 模板模式 方法
@@ -122,7 +122,7 @@ Jx().package("T.UI.Controls", function(J){
         // },
 
         // API
-        reflash: function(){},
+        refresh: function(){},
         enable: function(){},
         disable: function(){},
         destroy: function(){}

@@ -19,7 +19,7 @@
                 throw '方法 ' + options + ' 不存在';
             }
 
-            var result = plugin[option].apply(data, Array.prototype.slice.call(arguments, 1));
+            var result = plugin[options].apply(plugin, Array.prototype.slice.call(arguments, 1));
 
             if(options === 'destroy'){
                 jqElement.removeData(pluginRef);

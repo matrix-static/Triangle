@@ -42,7 +42,7 @@ Jx().package("T.UI.Controls", function(J){
             this.bindEventsInterface();
 
             // 根据值，状态，设置等刷新视图
-            this.reflash();
+            this.reflesh();
         },
         /*getData:function(){
             //this.data.areaTree=areaTree;
@@ -197,7 +197,7 @@ Jx().package("T.UI.Controls", function(J){
                 }
 
                 // 刷新视图
-                context.reflash();
+                context.reflesh();
 
                 if(!node.childs){
                     // 选完最后一级隐藏 树型菜单
@@ -205,7 +205,7 @@ Jx().package("T.UI.Controls", function(J){
                 }
             })
         },
-        reflash:function(){
+        reflesh:function(){
             this._activeTab();
 
             var treePath = this.getPath();
@@ -231,7 +231,7 @@ Jx().package("T.UI.Controls", function(J){
             // 修改视图中的文字
             nodeNamePath += node.name;
             this.inputElements.view.val(nodeNamePath);
-            this._setTab(treePath.length-1, node.name);             
+            this._setTab(treePath.length-1, node.name);
         },
         _setTab:function(index, text){
             var jqActiveTab= this.elements.getTab(index);
@@ -245,7 +245,7 @@ Jx().package("T.UI.Controls", function(J){
             this.elements.getContent(this.activeLevelIndex).show();
         },
         getPath:function(){
-            var initValue = this.inputElements.orginal.val();
+            var initValue = this.inputElements.original.val();
             var treePath = initValue === '' ? [] : initValue.split(',');
             return treePath;
         },
@@ -259,7 +259,9 @@ Jx().package("T.UI.Controls", function(J){
             // 选中当前ID
             treePath.push(id);
 
-            this.inputElements.orginal.val(treePath.join(','));
+            this.inputElements.original.val(treePath.join(','));
+            // 触发 AngularJS 双向绑定
+            this.inputElements.original.trigger('change');
         },
         blur: function (e) {
             var context = this;
@@ -296,9 +298,8 @@ Jx().package("T.UI.Controls", function(J){
         },
         hide: function(){
             this.container.hide();
-            //alert(this.inputElements.orginal.val());
-        }
-        
+            //alert(this.inputElements.original.val());
+        }        
     });
 
     this.Level = new J.Class({extend : T.UI.BaseControl}, {
@@ -319,8 +320,16 @@ Jx().package("T.UI.Controls", function(J){
             // 初始化选项
             this.initSettings(options);
 
-            // 初始化数据
-            this.getData();
+            // // 初始化数据
+            // this.getData();
+
+            var context= this;
+            // var d = $.Deferred();
+            this.d = $.Deferred();
+            $.when(this.getData(this.d))
+             .done(function(){
+                context.render();
+             });
 
             // 构建html DOM
             this.buildHtml();
@@ -346,7 +355,7 @@ Jx().package("T.UI.Controls", function(J){
             this.container = $(htmlTemplate);
             this.element.before(this.container);
         },
-        getData:function(){
+        getData:function(d){
             /*
             // 省/市/区县 树
             var areaTree={
@@ -354,26 +363,57 @@ Jx().package("T.UI.Controls", function(J){
                 childs:{}
             };
             */
+            // var context = this;
+            // $.ajax({
+            //     dataType: 'json',
+            //     url: this.settings.dataUrl,
+            //     data: {},
+            //     success: function(data){
+            //         context.createMenu(data);
+            //     }
+            // });
+
+            if (this.settings.data) {
+                this.data = $.extend(true, [], this.settings.data);
+                delete this.settings.data;
+
+                d.resolve();
+
+                return d.promise();
+            }
+
             var context = this;
             $.ajax({
                 dataType: 'json',
                 url: this.settings.dataUrl,
                 data: {},
                 success: function(data){
-                    context.createMenu(data);
+                    context.data=data;// $.extend(true, [], data);
+
+                    d.resolve();
+                },
+                error: function(xmlHttpRequest, status, error){
+                    alert('控件id：' + context.element.attr('id')+'，ajax获取数据失败!');
+
+                    d.resolve();
                 }
             });
+
+            return d.promise();
         },
-        createMenu:function(data){
-            this.menu=new LevelMenu(this.elements, this.settings, data);
+        // createMenu:function(data){
+        //     this.menu=new LevelMenu(this.elements, this.settings, data);
+        // },
+        render: function(){
+            this.menu=new LevelMenu(this.elements, this.settings, this.data);
         },
         initElements:function () {
             this.elements = {
-                orginal: this.element,
+                original: this.element,
                 view: $('input[type=text]', this.container)
             };
 
-            this.elements.orginal.hide();
+            this.elements.original.hide();
             this.elements.view.attr("readonly","readonly");
         },
         bindEvents:function () {
@@ -410,10 +450,22 @@ Jx().package("T.UI.Controls", function(J){
             this.elements.view.attr('title', this.element.attr('title'))
             this.elements.view.attr('class', this.element.attr('class'))
             this.elements.view.attr('tabindex', this.element.attr('tabindex'))
-            this.elements.orginal.removeAttr('tabindex')
+            this.element.removeAttr('tabindex')
             if (this.element.attr('disabled')!==undefined){
                this.disable();
             }
+        },
+        // setValue: function(value){
+        //     this.element.val(value); // ng-model修改时，值已改变，不需要再设置
+        //     this.menu.reflesh();
+        // },
+        reflesh: function(){
+            // this.menu.reflesh();
+            var context= this;
+            $.when(this.d.promise())
+             .done(function(){
+                context.menu.reflesh();
+             });
         },
         enable: function(){
             this.element.prop('disabled', false);

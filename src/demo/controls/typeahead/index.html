@@ -7,8 +7,10 @@
         <p>示例示例</p>
 
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-5" ng-controller="bindController">
                 <label for="typeahead">Label</label>
+                <span>{{typeaheadValue}}</span>
+                <input type="button" value="Ohio" ng-click="typeaheadValue='Ohio'">
                 <input 
                     id="typeahead"
                     type="type"
@@ -16,6 +18,7 @@
                     name="typeahead"
                     value=""
                     typeahead
+                    ng-model="typeaheadValue"
                     data-t-source=''
                     data-t-data-url="/demo/controls/typeahead/data.json"
                     />

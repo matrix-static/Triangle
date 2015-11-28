@@ -7,8 +7,10 @@
         <p>示例示例</p>
 
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-5" ng-controller="bindController">
                 <label for="ctrlid">Label</label>
+                <span>{{templateValue}}</span>
+                <input type="button" value="foo" ng-click="templateValue='foo'">
                 <template 
                     id="ctrlid"
                     type="type"
@@ -16,6 +18,7 @@
                     name="template"
                     value=""
                     template
+                    ng-model="templateValue"
                     data-t-template=""
                     data-t-data-url="/demo/controls/template/data.json"
                     />

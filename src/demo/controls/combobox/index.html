@@ -5,9 +5,18 @@
 		<p>概述概述</p>
 		<h2 id="combobox-examples">示例</h2>
 		<div class="row">
-            <div class="col-md-5">
+            <div class="col-md-5" ng-controller="bindController">
                 <label for="cbbCountry">国家</label>
-                <select id="cbbCountry" combobox class="combobox form-control">
+                <span>{{comboboxValue}}</span>
+                <input type="button" value="FL" ng-click="comboboxValue='FL'">
+                <!--
+                    combobox
+                -->
+                <select 
+                    id="cbbCountry" 
+                    combobox
+                    class="combobox form-control" 
+                    ng-model="comboboxValue">
                     <option value="">Select a State</option>
                     <option value="AL" selected="selected">Alabama</option>
                     <option value="AK">Alaska</option>

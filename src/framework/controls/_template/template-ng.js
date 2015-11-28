@@ -5,6 +5,17 @@ T.UI.ngControls
 
         function link($scope, $element, $attrs, undefined, link){
             $element.template({});
+
+            // var options = $scope.options;
+            // var plugin = new T.UI.Controls.Template($element, $.extend(true, {}, options));
+
+            // var ngModelValue=$element.attr('ng-model');
+            // if(ngModelValue){
+            //     $scope.$parent.$watch(ngModelValue, function(newValue, oldValue) {
+            //         //plugin.setValue(newValue);
+            //         plugin.reflesh();
+            //     }, true);
+            // }
         }
 
         return {
