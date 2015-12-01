@@ -21,7 +21,7 @@ Jx().package("T.UI.Components", function(J){
     var OrgselectModal=new J.Class({
         data: {},
         states: {},
-        init:function(elements, options, value){
+        init:function(elements, options){
             this.inputElements = elements;
 
             // 初始化选项
@@ -31,7 +31,7 @@ Jx().package("T.UI.Components", function(J){
             
             // 这里保存数组
             // this.value=value;
-            this.value=value ? value.split(',') : [];
+            // this.value=value ? value.split(',') : [];
 
             // // 状态
             // this.states={};
@@ -40,8 +40,8 @@ Jx().package("T.UI.Components", function(J){
             // this.data=data;
             // this.getData();
             var context= this;
-            var d= $.Deferred();
-            $.when(this.getData(d))
+            this.d= $.Deferred();
+            $.when(this.getData(this.d))
              .done(function(){
                 context.render();
              });
@@ -65,7 +65,7 @@ Jx().package("T.UI.Components", function(J){
             this.bindEventsInterface();
 
             // 根据值，状态，设置等刷新视图
-            this.reflash();
+            this.refresh();
         },
         getData:function(d){
             if(this.settings.data){
@@ -418,12 +418,14 @@ Jx().package("T.UI.Components", function(J){
             this._renderLeft();
         },
         onConfirm: function(){
-            this.value=[];
+            var values=[];
             var options=this.controls.rightselect.elements.right.children();
             for(var i=0; i<options.length; i++){
                 var jqOption=$(options[i]);
-                this.value[this.value.length]=jqOption.val();
+                values.push(jqOption.val());
             }
+
+            this._setValue(values.join(','));
 
             this.controls.pop.hide();
             this._renderValue();
@@ -475,17 +477,18 @@ Jx().package("T.UI.Components", function(J){
             this.inputElements.dropdown.empty();
             this.controls.rightselect.elements.right.empty();
             this.inputElements.view.val('');
-            this.inputElements.original.val('');
+            // this.inputElements.original.val('');
 
-            if(this.value.length === 0){
+            var values= this._getValues();
+            if(values.length === 0){
                 this._updateSelectedCount();
                 return;
             }
 
             var items=[];
-            for(var i=0; i<this.value.length; i++){
+            for(var i=0; i<values.length; i++){
                 for(var j=0; j<this.data.users.length; j++){
-                    if(this.value[i]==this.data.users[j].id){
+                    if(values[i]==this.data.users[j].id){
                         items[items.length]=this.data.users[j]
                         break;
                     }
@@ -503,7 +506,6 @@ Jx().package("T.UI.Components", function(J){
             }
             viewValues=viewValues.substr(0, viewValues.length-1);
             this.inputElements.view.val(viewValues);
-            this.inputElements.original.val(this.value.join(','));
 
             this._updateSelectedCount();
             
@@ -514,9 +516,13 @@ Jx().package("T.UI.Components", function(J){
                 e.stopPropagation();
 
                 var id=$(this).attr('data-t-id');
-                var index= context.value.indexOf(id);
+                var values= context._getValues();
 
-                context.value= context.value.slice(0, index).concat(context.value.slice(index+1, context.value.length));
+                var index= values.indexOf(id);
+                var newValues= values.slice(0, index).concat(values.slice(index+1, values.length));
+
+                context.setValue(newValues.join(','))
+
                 context._renderValue();
             });
 
@@ -529,8 +535,22 @@ Jx().package("T.UI.Components", function(J){
             var right= this.controls.rightselect.elements.right;
             this.elements.selectedCount.text(right.find('option').length);
         },
-        reflash: function(){},
-        getPath: function(){},
+        _getValues: function(){
+            var sValue= this.inputElements.original.val();
+            var values= sValue ? sValue.split(',') : [];
+            return values;
+        },
+        refresh: function(){
+            var context= this;
+            $.when(this.d.promise())
+             .done(function(){
+                context._renderValue();
+             });
+        },
+        setValue: function(value){
+            this.inputElements.original(value);
+            this.inputElements.original.trigger('trigger');
+        },
         change: function(id, levelIndex){},
         show: function () {
             this.container.show();
@@ -555,7 +575,7 @@ Jx().package("T.UI.Components", function(J){
             this.container,
             this.elements,
 
-            this.value = this.element.val();
+            // this.value = this.element.val();
 
             // 区分一个页面中存在多个控件实例
             _currentPluginId += 1;
@@ -625,7 +645,7 @@ Jx().package("T.UI.Components", function(J){
             this.elements.original.hide();
             this.elements.view.prop("readonly","readonly");
 
-            this.modal= new OrgselectModal(this.elements,this.settings, this.value);
+            this.modal= new OrgselectModal(this.elements,this.settings);
         },
         bindEvents:function () {
             var context=this;
@@ -665,6 +685,9 @@ Jx().package("T.UI.Components", function(J){
             if (this.element.attr('disabled')!==undefined){
                this.disable();
             }
+        },
+        refresh: function(){
+            this.modal.refresh();
         },
         enable: function(){
             this.element.attr('disabled', false);

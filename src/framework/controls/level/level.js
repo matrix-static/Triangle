@@ -33,6 +33,7 @@ Jx().package("T.UI.Controls", function(J){
 
             // 构建html DOM
             this.buildHtml();
+            this.initElements();
             
             //this.transferAttributes();
 
@@ -42,22 +43,12 @@ Jx().package("T.UI.Controls", function(J){
             this.bindEventsInterface();
 
             // 根据值，状态，设置等刷新视图
-            this.reflesh();
+            this.refresh();
         },
         /*getData:function(){
             //this.data.areaTree=areaTree;
         },*/
         buildHtml:function(){
-            // 构建容器DOM
-            this.buildContainer();
-
-            // 初始化 html DOM 元素
-            this.initElements();
-
-            // 构建内容DOM
-            this.buildContent();
-        },
-        buildContainer:function(){
             var htmlTabs='';
             var htmlContents='';
             for(var i=0; i<this.levels.length; i++){
@@ -79,6 +70,9 @@ Jx().package("T.UI.Controls", function(J){
             this.container=$(htmlTemplate);
             this.container.insertAfter(this.inputElements.view);
         },
+        buildContainer:function(){
+            
+        },
         initElements:function(){
             var context=this;
 
@@ -99,31 +93,19 @@ Jx().package("T.UI.Controls", function(J){
                 }
             };
         },
-        buildContent:function(){
-            var treePath = this.getPath();
-            if(treePath.length === 0){
-                // treepath可能为空
-                this.activeLevelIndex = 0;
-
-                this._buildNodes(this.data, 0);
-            }
-            else{
-                this.activeLevelIndex = treePath.length == this.levels.length ? this.levels.length -1 : treePath.length;
-
-                var node=this.data;
-                for(var i=0; i<=treePath.length; i++){
-                    this._buildNodes(node, i);
-                    node= node.childs[treePath[i]];
+        grep: function(nodes, nodeId){
+            for(var i=0; i<nodes.length; i++){
+                if(nodeId === nodes[i].id){
+                    var node= nodes[i];
+                    return node;
                 }
             }
         },
-        _buildNodes:function(node, levelIndex){
-            var childs=node.childs;
+        _buildNodes:function(nodes, levelIndex){
             var htmlTemplate='<ul class="t-level-nodes">';
-            for(var p in childs){
-                var childId=p;
-                var childName=childs[p].name;
-                htmlTemplate += '<li data-t-id="'+childId+'">'+childName+'</li>'; 
+            for(var i=0; i<nodes.length; i++){
+                var node= nodes[i];
+                htmlTemplate += '<li data-t-id="'+node.id+'">'+node.name+'</li>'; 
             }
             htmlTemplate+='</ul>';
 
@@ -137,6 +119,7 @@ Jx().package("T.UI.Controls", function(J){
             this.inputElements.view
                 .on('click',       $.proxy(this.show, this))
                 .on('blur',       $.proxy(this.blur, this));
+
             this.container
                 .on('mouseenter', $.proxy(this.mouseenter, this))
                 .on('mouseleave', $.proxy(this.mouseleave, this));
@@ -154,11 +137,11 @@ Jx().package("T.UI.Controls", function(J){
 
             var treePath = this.getPath();
             for(var i=0; i <= treePath.length; i++){
-                this._bindNodes(i);
+                this._bindEventsNodes(i);
             }
         },
         bindEventsInterface:function () {},
-        _bindNodes:function(levelIndex){
+        _bindEventsNodes:function(levelIndex){
             var context=this;
 
             var jqNodes=this.elements.getNodes(levelIndex);
@@ -167,25 +150,11 @@ Jx().package("T.UI.Controls", function(J){
 
                 // 更新值
                 context.change(id, context.activeLevelIndex);
+                context.refresh();
                 
 
                 var treePath = context.getPath();
-                var parentNode=context.data;
-                for(var i=0; i<context.activeLevelIndex; i++){
-                    var nodeId=treePath[i];
-                    parentNode=parentNode.childs[nodeId];
-                }
-                var node = parentNode.childs[id];
-
                 if(treePath.length < context.levels.length){
-                    // 显示 下一级 tab
-                    context.activeLevelIndex++;
-                    
-                    // 显示 下一级 节点
-                    context._buildNodes(node, treePath.length);
-                    // 重新绑定 下一级 点击事件
-                    context._bindNodes(context.activeLevelIndex);
-
                     // 清空下一级后的 tab
                     for(var i=treePath.length; i < context.levels.length; i++){
                         context._setTab(i, context.levels[i]);
@@ -195,43 +164,32 @@ Jx().package("T.UI.Controls", function(J){
                         context.elements.getContent(i).empty();
                     }
                 }
-
-                // 刷新视图
-                context.reflesh();
-
-                if(!node.childs){
-                    // 选完最后一级隐藏 树型菜单
+                else{
+                    // 选完最后一级，隐藏菜单
                     context.hide();
                 }
             })
         },
-        reflesh:function(){
-            this._activeTab();
-
+        refresh:function(){
             var treePath = this.getPath();
 
-            // 初始化时 value 可能为空
-            if(treePath.length === 0){
-                return;
+            this._refreshInputView(treePath);
+            this._refreshTabs(treePath);
+            this._refreshTabContents(treePath);
+            
+            this.activeLevelIndex= this.getLastestTabIndex(treePath);
+            this._activeTab();
+        },
+        _refreshTabs: function(treePath){
+            var nodes= this.data;
+            var node;
+            for(var i=0; i<treePath.length; i++){
+                var nodeId= treePath[i];
+                node= this.grep(nodes, nodeId);
+                nodes= node.childs;
+
+                this._setTab(i, node.name);
             }
-
-            var id=treePath[treePath.length-1];
-
-            // 查找节点
-            var nodeNamePath = '';
-            var parentNode=this.data;
-            for(var i=0; i<treePath.length-1; i++){
-                var nodeId=treePath[i];
-                parentNode=parentNode.childs[nodeId];
-                nodeNamePath += parentNode.name + ' / ';
-                this._setTab(i, parentNode.name);
-            }
-            var node = parentNode.childs[id];
-
-            // 修改视图中的文字
-            nodeNamePath += node.name;
-            this.inputElements.view.val(nodeNamePath);
-            this._setTab(treePath.length-1, node.name);
         },
         _setTab:function(index, text){
             var jqActiveTab= this.elements.getTab(index);
@@ -244,10 +202,44 @@ Jx().package("T.UI.Controls", function(J){
             this.elements.contents.hide();            
             this.elements.getContent(this.activeLevelIndex).show();
         },
+        _refreshTabContents: function(treePath){
+            var nodes= this.data;
+            var node;
+            var lastestTabIndex= this.getLastestTabIndex(treePath);
+            for(var i=0; i<lastestTabIndex+1; i++){
+                this._buildNodes(nodes, i);
+                this._bindEventsNodes(i);
+
+                var nodeId= treePath[i];
+                if(!nodeId){
+                    break;
+                }
+                node= this.grep(nodes, nodeId);
+                nodes= node.childs;
+            }
+        },
+        _refreshInputView: function(treePath){
+            var nodeNames= [];
+            var nodes= this.data;
+            var node;
+            for(var i=0; i<treePath.length; i++){
+                var nodeId= treePath[i];
+                node= this.grep(nodes, nodeId);
+                nodes= node.childs;
+
+                nodeNames.push(node.name);
+            }
+            var nodeNamePath= nodeNames.join(' / ');
+            this.inputElements.view.val(nodeNamePath);
+        },
         getPath:function(){
             var initValue = this.inputElements.original.val();
             var treePath = initValue === '' ? [] : initValue.split(',');
             return treePath;
+        },
+        getLastestTabIndex: function(treePath){
+            var lastestTabIndex= treePath.length === this.levels.length ? treePath.length-1 : treePath.length;
+            return lastestTabIndex;
         },
         change:function(id, levelIndex){
             var treePath = this.getPath();
@@ -262,7 +254,7 @@ Jx().package("T.UI.Controls", function(J){
             this.inputElements.original.val(treePath.join(','));
             // 触发 AngularJS 双向绑定
             this.inputElements.original.trigger('change');
-        },
+        },        
         blur: function (e) {
             var context = this;
             if (!this.mousedover) {
@@ -347,7 +339,7 @@ Jx().package("T.UI.Controls", function(J){
         },
         buildHtml:function () {
             var htmlTemplate = ''+ 
-                '<div class="t-level-container">'+ 
+                '<div class="t-level-container">'+
                 //'    <input type="hidden" />'+
                 '    <input type="text" autocomplete="off" />'+
                 '</div>';
@@ -459,12 +451,12 @@ Jx().package("T.UI.Controls", function(J){
         //     this.element.val(value); // ng-model修改时，值已改变，不需要再设置
         //     this.menu.reflesh();
         // },
-        reflesh: function(){
+        refresh: function(){
             // this.menu.reflesh();
             var context= this;
             $.when(this.d.promise())
              .done(function(){
-                context.menu.reflesh();
+                context.menu.refresh();
              });
         },
         enable: function(){

@@ -20,7 +20,7 @@ T.UI.ngControls
             if(ngModelValue){
                 $scope.$parent.$watch(ngModelValue, function(newValue, oldValue) {
                     // plugin.setValue(newValue);
-                    plugin.reflesh();
+                    plugin.refresh();
                 }, true);
             }
 

@@ -57,6 +57,9 @@
 	10. 清理文件
 		输入以下命令
 			npm install gulp-clean --save-dev
+    11. zip压缩
+        输入以下命令
+            npm install --save-dev gulp-zip
 	
 	
 		

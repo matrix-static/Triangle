@@ -506,7 +506,7 @@ Jx().package("T.UI.Controls", function(J){
         },
 
         // API
-        reflesh: function() {
+        refresh: function() {
             var value= this.elements.original.val();
             this.elements.input.val(this.updater(value));//.trigger('change');
             // this.elements.target.val(this.map[value]);//.trigger('change');

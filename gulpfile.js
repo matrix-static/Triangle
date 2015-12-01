@@ -1,7 +1,8 @@
 var NAME = 'Triangle';
+var VERSION = '0.0.1'
 
 var gulp = require('gulp');
-var browserSync=require('browser-sync');	// .create() 不能加create
+var browserSync = require('browser-sync');	// .create() 不能加create
 var fileInclude = require('gulp-file-include');		// html文件包含
 var rename = require('gulp-rename');		// 重命名
 var clean = require('gulp-clean');			// 清理文件
@@ -9,7 +10,8 @@ var less = require('gulp-less');			// less 支持
 var concat = require('gulp-concat');		// 合并
 var minifycss = require('gulp-minify-css');	// 压缩css
 var uglify = require('gulp-uglify');		// 压缩js
-var jshint=require('gulp-jshint');			// 语法检查
+var jshint = require('gulp-jshint');			// 语法检查
+var zip = require('gulp-zip');
 
 
 gulp.task('default', ['demo'])
@@ -17,6 +19,7 @@ gulp.task('default', ['demo'])
 	.task('clean-all', ['clean', 'clean-dist'])
 	.task('build', ['build-exam'])				// 'clean', 	TODO:顺序执行问题，留待gulp4.0版本发布
 	.task('dist', ['dist-exam'])				// 'clean-all', TODO:顺序执行问题，留待gulp4.0版本发布
+    .task('release', ['rele-zips'])
 	.task('demo', ['build', 'watch', 'www:demo'])
 	.task('exam', ['build', 'watch', 'www:exam'])
 
@@ -357,6 +360,18 @@ gulp.task('default', ['demo'])
 		gulp.src(['build/examples/**/*'])
 			.pipe( gulp.dest('dist/examples') );
 	})
+
+    .task('rele-zips', function(){
+        /* 压缩文件 */
+        gulp.src([
+                'dist/libs/**/*',
+                'dist/framework/**/*',
+                'dist/refer/**/*',
+                'dist/iefix/**/*'
+            ], {base: './dist'})
+            .pipe( zip(NAME + '_v' + VERSION + '.zip') )
+            .pipe( gulp.dest('_releases/v' + VERSION + '/') );   // ' + NAME + '/
+    })
 
 	/* 监视 文件的变化 */
 	.task('watch', function () {
