@@ -23,14 +23,15 @@
     var _crrentPluginId = 0;
     var defaults = {
         // 选项
-        totalRecords: 0,
-        pageSize: 10,
-        pageIndex: 0,
+        totalRecords: 0,    // 记录数
+        pageSize: 10,       // 每页记录数
+        pageIndex: 0,       // 当前页
+        pageButtons: 5,     // 分页按钮数 必须为奇数 3, 5, 7 ,9 ....
         // totalPages: 1,
-        containerClass: '',
-        size: 'normal',
-        alignment: 'left',
-        listContainerClass: '',
+        // containerClass: '',
+        // size: 'normal',
+        // alignment: 'left',
+        // listContainerClass: '',
         // 覆写 类方法
         // parseData: undefined,
     };
@@ -38,17 +39,9 @@
         // fooOption: 'foo-option'
         totalRecords: 'total-records',
         pageSize: 'page-size',
-        pageIndex: 'page-index'
+        pageIndex: 'page-index',
+        pageButtons: 'page-buttons'
     };
-
-    // var bootstrapTooltipOptions: {
-    //     animation: true,
-    //     html: true,
-    //     placement: 'top',
-    //     selector: false,
-    //     title: '',
-    //     container: false
-    // }
 
     this.Paginator = new J.Class({extend: T.UI.BaseControl},{
         defaults: defaults,
@@ -85,8 +78,8 @@
             // this.lastPageIndex = 0;
             this.updateOptions(this.settings);
 
-            this.buildHtml();
-            this.initElements();
+            // this.buildHtml();
+            // this.initElements();
 
             // var context= this;
             // $.when(this.getData())
@@ -94,7 +87,7 @@
             //     context.render();
             //  });
 
-             this.bindEvents();
+             // this.bindEvents();
              // this.bindEventsInterface();
         },
 
@@ -173,363 +166,159 @@
 
         updateOptions: function (options) {
 
-            // this.options = $.extend({}, (this.options || $.fn.bootstrapPaginator.defaults), options);
+            this.settings = $.extend(true, {}, this.settings, options);
 
-            this.totalPages = this.settings.totalRecords % this.settings.pageSize === 0 ? this.settings.totalRecords / this.settings.pageSize : this.settings.totalRecords / this.settings.pageSize +1; 
+            // 总页数
+            if(this.settings.totalRecords % this.settings.pageSize === 0){
+                this.totalPages= this.settings.totalRecords / this.settings.pageSize;
+            }
+            else{
+                this.totalPages= Math.ceil(this.settings.totalRecords / this.settings.pageSize);
+            }
+            // 最少有一页
+            this.totalPages= this.totalPages < 1 ? 1 : this.totalPages;
 
-            this.setCurrPageIndex(this.settings.pageIndex);
+            // 分页按钮数 必须为奇数 3, 5, 7 ,9 ....
+            this.settings.pageButtons= this.settings.pageButtons%2 === 0 ? this.settings.pageButtons+1 : this.settings.pageButtons;     
 
-            // this.bindEvents();
-
-            //render the paginator
+            this.jumpTo(this.settings.pageIndex);
+        },
+        jumpTo: function (pageIndex) {
+            this.pageIndex = pageIndex < 0 ? 0 : pageIndex > this.totalPages-1 ? this.totalPages-1 : pageIndex;
             this.render();
 
-            // if (!this.initialized && this.lastPageIndex !== this.pageIndex) {
+            // if (this.lastPageIndex !== this.pageIndex) {
             //     this.element.trigger('page-changed', [this.lastPageIndex, this.pageIndex]);
             // }
         },
-        jumpTo: function (pageIndex) {
-
-            this.setCurrPageIndex(pageIndex);
-
-            this.render();
-
-            if (this.lastPageIndex !== this.pageIndex) {
-                this.element.trigger('page-changed', [this.lastPageIndex, this.pageIndex]);
-            }
-        },
-        showNext: function () {
-            this.jumpTo(this.pageIndex ++);
-        },
-        showPrevious: function () {
-            this.jumpTo(this.pageIndex --);
-        },
-        showFirst: function () {
-            this.jumpTo(0);
-        },
-        showLast: function () {
-            this.jumpTo(this.totalPages-1);
-        },
+       
         onPageItemClicked: function (event) {
             var type = event.data.type,
                 page = event.data.page;
-
             this.element.trigger('page-clicked', [event, type, page]);
         },
         onPageClicked: function (event, originalEvent, type, pageIndex) {
-            // var currentTarget = $(event.currentTarget);
-
-            switch (type) {
-            case 'first':
-                this.showFirst();
-                break;
-            case 'prev':
-                this.showPrevious();
-                break;
-            case 'next':
-                this.showNext();
-                break;
-            case 'last':
-                this.showLast();
-                break;
-            case 'page':
-                this.jumpTo(pageIndex);
-                break;
-            }
+            this.jumpTo(pageIndex);
         },
         render: function () {
 
-            var sizes={
-                'large': 'pagination-lg',
-                'small': 'pagination-sm',
-                'mini': ''
-            };
-
             //fetch the container class and add them to the container
-            var containerClass = this.getValueFromOption(this.settings.containerClass, this.element),
-                size = this.settings.size || 'normal',
-                alignment = this.settings.alignment || 'left',
-                pages = this.getTotalPages(),
-                listContainer = this.element,
-                listContainerClass = null,
-                first = null,
-                prev = null,
-                next = null,
-                last = null,
-                p = null,
-                i = 0;
+            var pages = this.getPageButtons();
+            var listContainer = this.element;
 
-            this.element.prop('class', '');
+            // add class
+            // this.element.prop('class', '');
+            this.element.addClass('pagination');     // pagination-lg / pagination / pagination-sm
+            // this.element.addClass(containerClass);
 
-            this.element.addClass('pagination');
-
-            switch (size.toLowerCase()) {
-            case 'large':
-            case 'small':
-            case 'mini':
-                this.element.addClass(sizes[size.toLowerCase()]);
-                break;
-            default:
-                break;
-            }
-
-            this.element.addClass(containerClass);
-
-            //empty the outter most container then add the listContainer inside.
             this.element.empty();
 
-            //update the page element reference
-            this.pageRef = [];
+            var htmlItems= '';
+            var prev= '<li><a data-pi="'+pages.prev+'">&lt;上一页</a><li>';
+            htmlItems+= prev;
 
-            if (pages.first) {//if the there is first page element
-                first = this.buildPageItem('first', pages.first);
-
-                if (first) {
-                    listContainer.append(first);
-                }
-
+            if(typeof pages.first !== 'undefined'){
+                var first = '<li><a data-pi="0">1</a><li>';
+                htmlItems+= first;
             }
 
-            if (pages.prev) {//if the there is previous page element
-
-                prev = this.buildPageItem('prev', pages.prev);
-
-                if (prev) {
-                    listContainer.append(prev);
-                }
-
+            if(typeof pages.prevSection !== 'undefined'){
+                var prevSection= '<li><a data-pi="'+pages.prevSection+'">...</a><li>';
+                htmlItems+= prevSection;
             }
 
-
-            for (i = 0; i < pages.length; i = i + 1) {//fill the numeric pages.
-
-                p = this.buildPageItem('page', pages[i]);
-
-                if (p) {
-                    listContainer.append(p);
-                }
+            for (var i = 0; i < pages.length; i = i + 1) {
+                var itemClass = (pages[i] === this.pageIndex) ? ' class="active"' : '';
+                var item = '<li'+itemClass+'><a data-pi="'+pages[i]+'">'+(pages[i]+1)+'</a><li>';
+                htmlItems+= item;
             }
 
-            if (pages.next) {//if there is next page
-
-                next = this.buildPageItem('next', pages.next);
-
-                if (next) {
-                    listContainer.append(next);
-                }
+            if(typeof pages.nextSection !== 'undefined'){
+                var nextSection= '<li><a data-pi="'+pages.nextSection+'">...</a><li>';
+                htmlItems+= nextSection;
             }
 
-            if (pages.last) {//if there is last page
-
-                last = this.buildPageItem('last', pages.last);
-
-                if (last) {
-                    listContainer.append(last);
-                }
+            if(typeof pages.last !== 'undefined'){
+                var last = '<li><a data-pi="'+pages.last+'">'+(pages.last+1)+'</a><li>'; 
+                htmlItems+= last;
             }
+
+            var next= '<li><a data-pi="'+pages.next+'">下一页&gt;</a><li>';
+            htmlItems+= next;
+            listContainer.append(htmlItems);
+
+            $('a', listContainer).on('click', $.proxy(this.onPageIndexChange, this));
         },
+        getPageButtons: function () {
 
-        /**
-         *
-         * Creates a page item base on the type and page number given.
-         *
-         * @param page page number
-         * @param type type of the page, whether it is the first, prev, page, next, last
-         *
-         * @return Object the constructed page element
-         * */
-        buildPageItem: function (type, page) {
+            var totalRecords = this.settings.totalRecords;
+            var totalPages= this.totalPages;
 
-            var itemContainer = $('<li></li>'),//creates the item container
-                itemContent = $('<a></a>'),//creates the item content
-                text = '',
-                title = '',
-                itemContainerClass = this.itemContainerClass(type, page, this.pageIndex),
-                itemContentClass = this.getValueFromOption(this.settings.itemContentClass, type, page, this.pageIndex),
-                tooltipOpts = null;
-
-
-            switch (type) {
-
-            case 'first':
-                // if (!this.getValueFromOption(this.shouldShowPage, type, page, this.pageIndex)) { return; }
-                text = this.itemTexts(type, page, this.pageIndex);
-                title = this.tooltipTitles(type, page, this.pageIndex);
-                break;
-            case 'last':
-                // if (!this.getValueFromOption(this.shouldShowPage, type, page, this.pageIndex)) { return; }
-                text = this.itemTexts(type, page, this.pageIndex);
-                title = this.tooltipTitles(type, page, this.pageIndex);
-                break;
-            case 'prev':
-                // if (!this.getValueFromOption(this.shouldShowPage, type, page, this.pageIndex)) { return; }
-                text = this.itemTexts(type, page, this.pageIndex);
-                title = this.tooltipTitles(type, page, this.pageIndex);
-                break;
-            case 'next':
-                // if (!this.getValueFromOption(this.shouldShowPage, type, page, this.pageIndex)) { return; }
-                text = this.itemTexts(type, page, this.pageIndex);
-                title = this.tooltipTitles(type, page, this.pageIndex);
-                break;
-            case 'page':
-                // if (!this.getValueFromOption(this.shouldShowPage, type, page, this.pageIndex)) { return; }
-                text = this.itemTexts(type, page, this.pageIndex);
-                title = this.tooltipTitles(type, page, this.pageIndex);
-                break;
-            }
-
-            itemContainer.addClass(itemContainerClass).append(itemContent);
-
-            itemContent.addClass(itemContentClass).html(text).on('click', null, {type: type, page: page}, $.proxy(this.onPageItemClicked, this));
-
-            if (this.settings.pageUrl) {
-                itemContent.attr('href', this.getValueFromOption(this.settings.pageUrl, type, page, this.pageIndex));
-            }
-
-            // if (this.settings.useBootstrapTooltip) {
-            //     tooltipOpts = $.extend({}, this.settings.bootstrapTooltipOptions, {title: title});
-
-            //     itemContent.tooltip(tooltipOpts);
-            // } else {
-                itemContent.attr('title', title);
-            // }
-
-            return itemContainer;
-        },
-
-        setCurrPageIndex: function (pageIndex) {
-            if (pageIndex>this.totalPages || pageIndex<0) {// if the current page is out of range, throw exception.
-                throw 'Page out of range';
-            }
-
-            this.pageIndex = pageIndex;
-        },
-
-        getTotalPages: function () {
-
-            var totalRecords = this.settings.totalRecords,// get or calculate the total pages via the total records
-                pageStart = 
-                    (this.pageIndex % this.pageSize === 0) 
-                    ? 
-                    (parseInt(this.pageIndex / this.pageSize, 10) - 1) * this.pageSize + 1
-                    : 
-                    parseInt(this.pageIndex / this.pageSize, 10) * this.pageSize + 1, //calculates the start page.
-                    output = [],
-                    i = 0,
-                    counter = 0;
-
-            pageStart = pageStart < 1 ? 1 : pageStart;//check the range of the page start to see if its less than 1.
-
-            for (i = pageStart, counter = 0; counter < this.pageSize && i <= totalPages; i = i + 1, counter = counter + 1) {//fill the pages
+            var pageIndexStart= 0;
+            var halfItemsCount= Math.floor(this.settings.pageButtons / 2);
+            pageIndexStart= this.pageIndex - halfItemsCount;
+            // 上限
+            pageIndexStart= pageIndexStart < this.totalPages - this.settings.pageButtons ? pageIndexStart : this.totalPages - this.settings.pageButtons;
+            // 下限
+            pageIndexStart= pageIndexStart < 0 ? 0 : pageIndexStart;
+            
+            var output = [];
+            for (var i = pageIndexStart, counter = 0; counter < this.settings.pageButtons && i < totalPages; i = i + 1, counter = counter + 1) {//fill the pages
                 output.push(i);
             }
 
-            output.first = 1;//add the first when the current page leaves the 1st page.
-
-            if (this.pageIndex > 1) {// add the previous when the current page leaves the 1st page
-                output.prev = this.pageIndex - 1;
-            } else {
-                output.prev = 1;
+            // 首页
+            if(pageIndexStart>0){
+                output.first = 0;
             }
 
-            if (this.pageIndex < totalPages) {// add the next page when the current page doesn't reach the last page
-                output.next = this.pageIndex + 1;
-            } else {
-                output.next = totalPages;
+            // 上一段
+            if(this.pageIndex-halfItemsCount > 1){
+                output.prevSection=  this.pageIndex-halfItemsCount-1;
             }
 
-            output.last = totalPages;// add the last page when the current page doesn't reach the last page
+            // 上一页
+            if (this.pageIndex > 0) {
+                output.prev= this.pageIndex - 1;
+            } else {
+                output.prev= 0;
+            }
 
-            output.current = this.pageIndex;//mark the current page.
+            // 下一页
+            if (this.pageIndex < totalPages-1) {
+                output.next= this.pageIndex + 1;
+            } else {
+                output.next= totalPages-1;
+            }
 
-            output.total = totalPages;
+            // 下一段
+            if(this.pageIndex+halfItemsCount < this.totalPages-1){
+                output.nextSection= this.pageIndex+halfItemsCount+1;
+            }
 
-            output.pageSize = this.settings.pageSize;
+            // 尾页
+            if(pageIndexStart<totalPages-this.settings.pageButtons){
+                output.last= totalPages-1;
+            }
+
+            // output.current= this.pageIndex;//mark the current page.
+            // output.total= totalPages;
+            // output.pageButtons = this.settings.pageButtons;
 
             return output;
         },
 
-        getValueFromOption: function (value) {
-
-            var output = null,
-                args = Array.prototype.slice.call(arguments, 1);
-
-            if (typeof value === 'function') {
-                output = value.apply(this, args);
-            } else {
-                output = value;
-            }
-
-            return output;
-
-        },
-
-        itemContainerClass: function (type, page, current) {
-            return (page === current) ? 'active' : '';
-        },
-        itemContentClass: function (type, page, current) {
-            return '';
-        },        
-        pageUrl: function (type, page, current) {
-            return null;
-        },
         // 事件
         // onFooSelected: undefined,
         // onFooChange: function(e, data){}
         // onPageClicked: null,
-        onPageChanged: null,
-                
-        // useBootstrapTooltip: false,
-        shouldShowPage: function (type, page, current) {
-            var result = true;
-
-            switch (type) {
-            case 'first':
-                result = (current !== 1);
-                break;
-            case 'prev':
-                result = (current !== 1);
-                break;
-            case 'next':
-                result = (current !== this.totalPages);
-                break;
-            case 'last':
-                result = (current !== this.totalPages);
-                break;
-            case 'page':
-                result = true;
-                break;
+        // onPageChanged: null,
+        onPageIndexChange: function(e){
+            var pageIndex= parseInt($(e.target).attr('data-pi'), 10);
+            if(this.pageIndex == pageIndex){
+                return;
             }
-
-            return result;
-        },
-        itemTexts: function (type, page, current) {
-            switch (type) {
-            case 'first':
-                return '&lt;&lt;';
-            case 'prev':
-                return '&lt;';
-            case 'next':
-                return '&gt;';
-            case 'last':
-                return '&gt;&gt;';
-            case 'page':
-                return page;
-            }
-        },
-        tooltipTitles: function (type, page, current) {
-            switch (type) {
-            case 'first':
-                return '首页';
-            case 'prev':
-                return '上一页';
-            case 'next':
-                return '下一页';
-            case 'last':
-                return '尾页';
-            case 'page':
-                return (page === current) ? '当前是第 ' + page + ' 页': '跳转到第 ' + page + '页';
-            }
+            this.jumpTo(pageIndex);
         },
 
         // 事件处理
@@ -544,8 +333,25 @@
         destroy: function () {
             this.element.off('page-clicked');
             this.element.off('page-changed');
-            this.element.removeData('bootstrapPaginator');
+            // this.element.removeData('bootstrapPaginator');
             this.element.empty();
         }
     });
 });
+
+
+
+        // tooltipTitles: function (type, pageIndex, current) {
+        //     switch (type) {
+        //     case 'first':
+        //         return '首页';
+        //     case 'prev':
+        //         return '上一页';
+        //     case 'next':
+        //         return '下一页';
+        //     case 'last':
+        //         return '尾页';
+        //     case 'pageIndex':
+        //         return (pageIndex === current) ? '当前是第 ' + (pageIndex+1) + ' 页': '跳转到第 ' + (pageIndex+1) + '页';
+        //     }
+        // },

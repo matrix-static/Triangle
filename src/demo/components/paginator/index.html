@@ -7,16 +7,64 @@
         <p>示例示例</p>
 
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-12" ng-controller="paginatorController">
+                <label for="ctrlid">简单分页</label>
+                <form>
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <input type="button" value="查询" class="btn btn-primary">
+                        <input type="button" value="批量删除" class="btn btn-primary" ng-click="batchDelete()">
+                    </div>
+                </form>
+                <table id="tblListData" class="table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" ng-click="toggleCheckBoxes($event)"/></th>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Updated</th>
+                            <th>Operation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="entity in entities" ng-dblclick="edit(entity.id)">
+                            <th><input type="checkbox" value="{{entity.id}}"/></th>
+                            <td>{{entity.id}}</td>
+                            <td>{{entity.name}}</td>
+                            <td>{{entity.updated}}<td>
+                            <td><a href="#" ng-click="edit(entity.id)">修改</a> | <a href="#" ng-click="delete(entity.id)">删除</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!--
+                    data-t-total-records="223"
+                -->
+                <ul 
+                    paginator                    
+                    data-t-page-size="10"
+                    data-t-page-index="0"
+                    data-t-page-buttons="5"></ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
                 <label for="ctrlid">Label</label>
                 <br />
                 <ul 
                     paginator
-                    data-t-total-records="109"
+                    data-t-total-records="223"
                     data-t-page-size="5"
-                    data-t-page-index="3"></ul>
+                    data-t-page-index="13"
+                    data-t-page-buttons="5"></ul>
             </div>
-            <div class="col-md-7">
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
                 <pre class="prettyprint">
                 &lt; &quot; &quot; &gt;
                 </pre>

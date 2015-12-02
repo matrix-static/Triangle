@@ -47,6 +47,65 @@ angular.module('pnApp.controllers', [])
         $scope.spinnerValue= 55;
         $scope.typeaheadValue= 'Virginia';
         $scope.levelValue= '230000,230200,230227';	// 330000,330600,330682 浙江 / 绍兴 / 上虞
+    }])
+    .controller('paginatorController', ['$scope', '$rootScope', function ($scope, $rootScope){
+        $scope.entities= [];
+        for(var i=1; i<=10; i++){
+            $scope.entities.push({id: i, name: 'name-'+i, updated: new Date()});
+        }
+
+        $scope.query=function(){
+            ;
+        }
+
+        $scope.toggleCheckBoxes = function (event) {
+            var checkedAll = $(event.target).is(':checked');
+            $('#tblListData tbody :checkbox').prop('checked', checkedAll);
+        };
+
+        $scope.edit=function(id){
+            if(!confirm('你确定要修改id: '+id+' 吗？')){
+                return;
+            }
+        }
+
+        $scope.delete=function(id){
+            if(!confirm('你确定要删除id: '+id+' 吗？')){
+                return;
+            }
+        }
+
+        $scope.batchDelete=function(){
+            if (!confirm('确定要删除选定行么？')) {
+                return;
+            }
+
+            var selectedEntities = $('#tblListData tbody :checkbox:checked');
+            if (selectedEntities.length == 0) {
+                alert('请选择要删除的行！');
+                return;
+            }
+
+            function done(data) {
+                context.ajaxDone.call(context, data);
+            }
+
+            var ids=[];
+            selectedEntities.each(function (index) {
+                var id = $(this).val();
+                // context.options.restfulService.remove('/admin/' + context.options.entityName + '/remove', id, done);
+                ids.push(id);
+            });
+
+            alert('删除选中id: '+ids.join(','));
+        }
+        
+        // console.log('app controller');
+
+        // var treeOptions={
+        //     onNodeSelected: function(e, node){ alert( node.text + ': onNodeSelected') }//,
+        // };
+        // $scope.treeApi = treeOptions;
     }]);
 
         
