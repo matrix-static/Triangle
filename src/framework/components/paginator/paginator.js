@@ -74,7 +74,7 @@
             // this.value= this.element.val();
             // parseInt(this.settings.pageSize, 10)
 
-            // this.pageIndex = 0;
+            // this.settings.pageIndex = 0;
             // this.lastPageIndex = 0;
             this.updateOptions(this.settings);
 
@@ -156,16 +156,15 @@
         //     // this.element.bind('page-clicked', this.onPageClicked);
         //     this.element.on('page-clicked', $.proxy(this.onPageClicked, this));
         // },
-        // bindEventsInterface: function(){
-        //     var context= this;
-        //     var element= this.element;
-        //     if(this.settings.onFooSelected){
-        //         element.on('click.t.template', $.proxy(this.settings.onFooSelected, this));
-        //     }
-        // },
+        bindEventsInterface: function(){
+            var context= this;
+            var element= this.element;
+            if(this.settings.onFooSelected){
+                element.on('page.on.change', $.proxy(this.settings.onFooSelected, this));
+            }
+        },
 
         updateOptions: function (options) {
-
             this.settings = $.extend(true, {}, this.settings, options);
 
             // 总页数
@@ -181,29 +180,96 @@
             // 分页按钮数 必须为奇数 3, 5, 7 ,9 ....
             this.settings.pageButtons= this.settings.pageButtons%2 === 0 ? this.settings.pageButtons+1 : this.settings.pageButtons;     
 
-            this.jumpTo(this.settings.pageIndex);
+            this.refresh();
         },
         jumpTo: function (pageIndex) {
-            this.pageIndex = pageIndex < 0 ? 0 : pageIndex > this.totalPages-1 ? this.totalPages-1 : pageIndex;
-            this.render();
+            this.settings.pageIndex = pageIndex < 0 ? 0 : pageIndex > this.totalPages-1 ? this.totalPages-1 : pageIndex;
+            this.refresh();
+        },
+        // render: function () {},
+        _getPageButtons: function () {
 
-            // if (this.lastPageIndex !== this.pageIndex) {
-            //     this.element.trigger('page-changed', [this.lastPageIndex, this.pageIndex]);
-            // }
+            var totalRecords = this.settings.totalRecords;
+            var totalPages= this.totalPages;
+
+            var pageIndexStart= 0;
+            var halfItemsCount= Math.floor(this.settings.pageButtons / 2);
+            pageIndexStart= this.settings.pageIndex - halfItemsCount;
+            // 上限
+            pageIndexStart= pageIndexStart < this.totalPages - this.settings.pageButtons ? pageIndexStart : this.totalPages - this.settings.pageButtons;
+            // 下限
+            pageIndexStart= pageIndexStart < 0 ? 0 : pageIndexStart;
+            
+            var output = [];
+            for (var i = pageIndexStart, counter = 0; counter < this.settings.pageButtons && i < totalPages; i = i + 1, counter = counter + 1) {//fill the pages
+                output.push(i);
+            }
+
+            // 首页
+            if(pageIndexStart>0){
+                output.first = 0;
+            }
+
+            // 上一段
+            if(this.settings.pageIndex-halfItemsCount > 1){
+                output.prevSection=  this.settings.pageIndex-halfItemsCount-1;
+            }
+
+            // 上一页
+            if (this.settings.pageIndex > 0) {
+                output.prev= this.settings.pageIndex - 1;
+            } else {
+                output.prev= 0;
+            }
+
+            // 下一页
+            if (this.settings.pageIndex < totalPages-1) {
+                output.next= this.settings.pageIndex + 1;
+            } else {
+                output.next= totalPages-1;
+            }
+
+            // 下一段
+            if(this.settings.pageIndex+halfItemsCount < this.totalPages-2){
+                output.nextSection= this.settings.pageIndex+halfItemsCount+1;
+            }
+
+            // 尾页
+            if(pageIndexStart<totalPages-this.settings.pageButtons){
+                output.last= totalPages-1;
+            }
+
+            // output.current= this.settings.pageIndex;//mark the current page.
+            // output.total= totalPages;
+            // output.pageButtons = this.settings.pageButtons;
+
+            return output;
         },
-       
-        onPageItemClicked: function (event) {
-            var type = event.data.type,
-                page = event.data.page;
-            this.element.trigger('page-clicked', [event, type, page]);
-        },
-        onPageClicked: function (event, originalEvent, type, pageIndex) {
+
+        // 事件
+        // onFooSelected: undefined,
+        // onFooChange: function(e, data){}
+        // onPageClicked: null,
+        // onPageChanged: null,
+        onPageIndexChange: function(e){
+            var pageIndex= parseInt($(e.target).attr('data-pi'), 10);
+            if(this.settings.pageIndex == pageIndex){
+                return;
+            }
+
+            this.element.trigger('paginator.on.pageindexchange', pageIndex);
             this.jumpTo(pageIndex);
         },
-        render: function () {
 
+        // 事件处理
+        // onFooClick: function(e, data){
+        //     ;
+        // },
+
+        // API
+        refresh: function(){
             //fetch the container class and add them to the container
-            var pages = this.getPageButtons();
+            var pages = this._getPageButtons();
             var listContainer = this.element;
 
             // add class
@@ -228,7 +294,7 @@
             }
 
             for (var i = 0; i < pages.length; i = i + 1) {
-                var itemClass = (pages[i] === this.pageIndex) ? ' class="active"' : '';
+                var itemClass = (pages[i] === this.settings.pageIndex) ? ' class="active"' : '';
                 var item = '<li'+itemClass+'><a data-pi="'+pages[i]+'">'+(pages[i]+1)+'</a><li>';
                 htmlItems+= item;
             }
@@ -249,85 +315,6 @@
 
             $('a', listContainer).on('click', $.proxy(this.onPageIndexChange, this));
         },
-        getPageButtons: function () {
-
-            var totalRecords = this.settings.totalRecords;
-            var totalPages= this.totalPages;
-
-            var pageIndexStart= 0;
-            var halfItemsCount= Math.floor(this.settings.pageButtons / 2);
-            pageIndexStart= this.pageIndex - halfItemsCount;
-            // 上限
-            pageIndexStart= pageIndexStart < this.totalPages - this.settings.pageButtons ? pageIndexStart : this.totalPages - this.settings.pageButtons;
-            // 下限
-            pageIndexStart= pageIndexStart < 0 ? 0 : pageIndexStart;
-            
-            var output = [];
-            for (var i = pageIndexStart, counter = 0; counter < this.settings.pageButtons && i < totalPages; i = i + 1, counter = counter + 1) {//fill the pages
-                output.push(i);
-            }
-
-            // 首页
-            if(pageIndexStart>0){
-                output.first = 0;
-            }
-
-            // 上一段
-            if(this.pageIndex-halfItemsCount > 1){
-                output.prevSection=  this.pageIndex-halfItemsCount-1;
-            }
-
-            // 上一页
-            if (this.pageIndex > 0) {
-                output.prev= this.pageIndex - 1;
-            } else {
-                output.prev= 0;
-            }
-
-            // 下一页
-            if (this.pageIndex < totalPages-1) {
-                output.next= this.pageIndex + 1;
-            } else {
-                output.next= totalPages-1;
-            }
-
-            // 下一段
-            if(this.pageIndex+halfItemsCount < this.totalPages-1){
-                output.nextSection= this.pageIndex+halfItemsCount+1;
-            }
-
-            // 尾页
-            if(pageIndexStart<totalPages-this.settings.pageButtons){
-                output.last= totalPages-1;
-            }
-
-            // output.current= this.pageIndex;//mark the current page.
-            // output.total= totalPages;
-            // output.pageButtons = this.settings.pageButtons;
-
-            return output;
-        },
-
-        // 事件
-        // onFooSelected: undefined,
-        // onFooChange: function(e, data){}
-        // onPageClicked: null,
-        // onPageChanged: null,
-        onPageIndexChange: function(e){
-            var pageIndex= parseInt($(e.target).attr('data-pi'), 10);
-            if(this.pageIndex == pageIndex){
-                return;
-            }
-            this.jumpTo(pageIndex);
-        },
-
-        // 事件处理
-        // onFooClick: function(e, data){
-        //     ;
-        // },
-
-        // API
-        reflash: function(){},
         enable: function(){},
         disable: function(){},
         destroy: function () {

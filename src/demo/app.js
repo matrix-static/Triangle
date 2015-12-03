@@ -40,7 +40,7 @@ angular.module('pnApp.controllers', [])
             // onSearchComplete: function(e, node){ alert( node.text + ': onSearchComplete') },
             // onSearchCleared: function(e, node){ alert( node.text + ': onSearchCleared') }
         };
-        $scope.treeApi = treeOptions;
+        $scope.treeOptions = treeOptions;
     }])
 	.controller('bindController', ['$scope', '$rootScope', function ($scope, $rootScope){
         $scope.comboboxValue= 'CO';
@@ -49,13 +49,39 @@ angular.module('pnApp.controllers', [])
         $scope.levelValue= '230000,230200,230227';	// 330000,330600,330682 浙江 / 绍兴 / 上虞
     }])
     .controller('paginatorController', ['$scope', '$rootScope', function ($scope, $rootScope){
-        $scope.entities= [];
-        for(var i=1; i<=10; i++){
-            $scope.entities.push({id: i, name: 'name-'+i, updated: new Date()});
+        function reloadList(pageIndex){
+            var queryData={
+                name: $('#formQuery #name').val(),
+                pageSize: 10,
+                pageIndex: pageIndex,
+            };
+
+            $.ajax({
+                dataType: 'json',
+                url: '/demo/components/paginator/data.json',
+                data: queryData,
+                success: function(data){
+                    for(var i=0; i<data.entities.length; i++){
+                        data.entities[i].name += (pageIndex+1); // 模拟查询结果数据
+                    }
+
+                    $scope.pageRef.updateOptions({pageIndex: pageIndex, totalRecords: data.totalRecords});
+
+                    $scope.entities= data.entities;// $.extend(true, [], data);
+                    $scope.$apply();
+                },
+                error: function(xmlHttpRequest, status, error){
+                    alert('控件id：paginator，ajax获取数据失败!');
+                }
+            });
         }
 
+        $('#paginatorx').on('paginator.on.pageindexchange', function(e, pageIndex){
+            reloadList(pageIndex);
+        });
+
         $scope.query=function(){
-            ;
+            reloadList(0);
         }
 
         $scope.toggleCheckBoxes = function (event) {
@@ -63,28 +89,32 @@ angular.module('pnApp.controllers', [])
             $('#tblListData tbody :checkbox').prop('checked', checkedAll);
         };
 
-        $scope.edit=function(id){
+        $scope.edit=function(id, e){
+            e.preventDefault();
+
             if(!confirm('你确定要修改id: '+id+' 吗？')){
                 return;
             }
         }
 
-        $scope.delete=function(id){
+        $scope.delete=function(id, e){
+            e.preventDefault();
+
             if(!confirm('你确定要删除id: '+id+' 吗？')){
                 return;
             }
         }
 
         $scope.batchDelete=function(){
-            if (!confirm('确定要删除选定行么？')) {
-                return;
-            }
-
             var selectedEntities = $('#tblListData tbody :checkbox:checked');
-            if (selectedEntities.length == 0) {
+            if (selectedEntities.length === 0) {
                 alert('请选择要删除的行！');
                 return;
             }
+
+            if (!confirm('确定要删除选定行么？')) {
+                return;
+            }            
 
             function done(data) {
                 context.ajaxDone.call(context, data);
@@ -99,13 +129,13 @@ angular.module('pnApp.controllers', [])
 
             alert('删除选中id: '+ids.join(','));
         }
-        
-        // console.log('app controller');
 
-        // var treeOptions={
-        //     onNodeSelected: function(e, node){ alert( node.text + ': onNodeSelected') }//,
-        // };
-        // $scope.treeApi = treeOptions;
+        $scope.pageOptions={
+            pageSize: 20,       // 每页记录数
+            pageIndex: 0,       // 当前页
+            pageButtons: 7      // 分页按钮数 必须为奇数 3, 5, 7 ,9 ....
+        };
+        reloadList(0);
     }]);
 
         

@@ -65,6 +65,7 @@ Jx().package("T.UI.Controls", function(J){
                 '        </ul>'+
                 '    </div>'+
                 htmlContents +
+                '    <span class="t-level-close glyphicon glyphicon-remove"></span>'+
                 '</div>';
 
             this.container=$(htmlTemplate);
@@ -79,6 +80,7 @@ Jx().package("T.UI.Controls", function(J){
             this.elements={
                 tabs: $('.t-level-tabs li', this.container),
                 contents: $('.t-level-content', this.container),
+                close: $('.t-level-close', this.container),
                 getTab: function(levelIndex){
                     var tabSelector = '.t-level-tab-' + levelIndex;
                     return $(tabSelector, context.container);
@@ -134,6 +136,10 @@ Jx().package("T.UI.Controls", function(J){
 
                     e.preventDefault();
                 });
+
+            elements.close.on('click', function(e){
+                context.hide();
+            });
 
             var treePath = this.getPath();
             for(var i=0; i <= treePath.length; i++){

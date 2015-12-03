@@ -9,9 +9,9 @@ T.UI.ngControls
 
             var plugin= new T.UI.Controls.Level($element, {});
 
-            var ngModelValue=$element.attr('ng-model');
-            if(ngModelValue){
-                $scope.$parent.$watch(ngModelValue, function(newValue, oldValue) {
+            var ngModel= $element.attr('ng-model');
+            if(ngModel){
+                $scope.$parent.$watch(ngModel, function(newValue, oldValue) {
                     // plugin.setValue(newValue);
                     plugin.refresh();
                 }, true);

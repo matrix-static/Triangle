@@ -18,11 +18,18 @@ T.UI.ngControls
             // "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"];
 
             //var options = $.extend(true, {source:data}, $scope.typeaheadApi);
-            var options = $.extend(true, {}, $scope.typeaheadApi);
+            // var options = $.extend(true, {}, $scope.typeaheadApi);
 
-            $element.typeahead(options);
+            // $element.typeahead(options);
 
             //$element.typeahead({});
+
+            var plugin= new T.UI.Controls.Typeahead($element, {});
+
+            var ngModel= $element.attr('ng-model');
+            $scope.$parent.$watch(ngModel, function(newValue, oldValue){
+                plugin.refresh();
+            });
         }
 
         return {

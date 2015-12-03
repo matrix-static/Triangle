@@ -9,13 +9,13 @@
         <div class="row">
             <div class="col-md-12" ng-controller="paginatorController">
                 <label for="ctrlid">简单分页</label>
-                <form>
+                <form id="formQuery">
                     <div class="form-group">
                         <label>Name:</label>
-                        <input type="text" class="form-control" />
+                        <input id="name" type="text" name="name" class="form-control" />
                     </div>
                     <div class="form-group">
-                        <input type="button" value="查询" class="btn btn-primary">
+                        <input type="button" value="查询" class="btn btn-primary" ng-click="query()">
                         <input type="button" value="批量删除" class="btn btn-primary" ng-click="batchDelete()">
                     </div>
                 </form>
@@ -30,23 +30,25 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="entity in entities" ng-dblclick="edit(entity.id)">
+                        <tr ng-repeat="entity in entities" ng-dblclick="edit(entity.id, $event)">
                             <th><input type="checkbox" value="{{entity.id}}"/></th>
                             <td>{{entity.id}}</td>
                             <td>{{entity.name}}</td>
                             <td>{{entity.updated}}<td>
-                            <td><a href="#" ng-click="edit(entity.id)">修改</a> | <a href="#" ng-click="delete(entity.id)">删除</a></td>
+                            <td><a href="#" ng-click="edit(entity.id, $event)">修改</a> | <a href="#" ng-click="delete(entity.id, $event)">删除</a></td>
                         </tr>
                     </tbody>
                 </table>
                 <!--
                     data-t-total-records="223"
-                -->
-                <ul 
-                    paginator                    
                     data-t-page-size="10"
                     data-t-page-index="0"
-                    data-t-page-buttons="5"></ul>
+                    data-t-page-buttons="5"
+                -->
+                <ul 
+                    id="paginatorx"
+                    paginator='{"options":"pageOptions", "ref":"pageRef"}'
+                    ></ul>
             </div>
         </div>
 
