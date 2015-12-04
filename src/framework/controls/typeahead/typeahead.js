@@ -463,6 +463,19 @@ Jx().package("T.UI.Controls", function(J){
         mouseleave: function (e) {
             this.mousedover = false;
             if (!this.focused && this.shown) this.hide();
+        },
+
+        refresh: function(){
+            var value= this.element.val();
+            this.element.data('active', value);
+            if(this.autoSelect || value) {
+                var newValue = this.updater(value);
+                this.element
+                    .val(this.displayText(newValue) || newValue)
+                    .change();
+                this.afterSelect(newValue);
+            }
+            return this.hide();
         }
     });
 });

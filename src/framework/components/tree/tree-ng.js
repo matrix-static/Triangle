@@ -28,7 +28,7 @@ T.UI.ngComponents
 
             var ref= $scope.$parent[args.ref];
             if(!ref){
-                $scope.$parent[args.ref]=plugin;
+                $scope.$parent[args.ref]= plugin;
             }
 
             //$element.tree({});
