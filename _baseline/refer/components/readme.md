@@ -5,6 +5,9 @@ D3JS
 	
 jQuery Validation Plugin
 	表单验证方案
+    http://bassistance.de/
+    http://jqueryvalidation.org/
+    http://jqueryvalidation.org/files/demo/
 jQuery datatables Plugin
     复杂表格方案
 

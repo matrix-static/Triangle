@@ -35,8 +35,8 @@ gulp.task('default', ['demo'])
 	.task('www:exam',function(){
 		var bs=browserSync({
 			server:{
-				baseDir:'./build',
-				index:'examples/jQuery/index.html'
+				baseDir:'./build/examples/default',
+				index:'index.html'
 			}
 		});
 	})
