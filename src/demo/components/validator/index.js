@@ -1,7 +1,7 @@
-$("#commentFormx").validate({
+$("#commentFormx").validate2({
     rules: {
         name: {
-            required: true,
+            // required: true,
             minlength: 4
         },
         password: {
@@ -15,7 +15,10 @@ $("#commentFormx").validate({
             required: true,
             email: true
         },
-        agree: "required",
+        // agree: "required",
+        agree: {
+            required: true
+        },
         topic: {
             required: "#newsletter:checked",
             minlength: 2
@@ -40,7 +43,14 @@ $("#commentFormx").validate({
         },
         email: "请输入一个有效的邮箱地址",
         agree: "请接受我们的服务条款"
-    }
+    }//,
+    // errorContainer: '#ErrorsSummary, #ErrorsSummary2',
+    // errorLabelContainer: "#ErrorsSummary ul",
+    // wrapper: "li", 
+    // invalidHandler: function() {
+    //     $( "#ErrorsSummary" ).text( this.numberOfInvalids() + " field(s) are invalid" );
+    // },
+    // submitHandler: function() { alert("Submitted!") }
 });
 
 //code to hide topic selection, disable for demo

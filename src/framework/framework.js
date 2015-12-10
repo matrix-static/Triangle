@@ -3,7 +3,7 @@ Jx().package("T.Utilities", function(J){
     'use strict';
     
     String.format = function() {
-        if( arguments.length == 0 )
+        if( arguments.length === 0 )
             return null;
 
         var str = arguments[0]; 
