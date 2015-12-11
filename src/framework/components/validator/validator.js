@@ -378,28 +378,37 @@ Jx().package("T.UI.Components", function(J){
         buildHtml: function(){},
         initElements: function(){
             var context= this;
-            var rulesCache = {};
-            this.elements= function(){
+
+            this.elements= {
+                original: this.element,
+                currentElements: function(){
                 // 有可能中途disabled，插入元素等。
-                var currentElements= this.element
-                    .find( "input, select, textarea" )
-                    .not( ":submit, :reset, :image, :disabled" )
-                    .not( this.settings.ignore )
-                    .filter( function() {
-                        // add by matrix
-                        var data= context.settings.rules[ this.name ];
+                    var rulesCache = {};
+                    var currentElements= context.element
+                        .find( "input, select, textarea" )
+                        .not( ":submit, :reset, :image, :disabled" )
+                        .not( context.settings.ignore )
+                        .filter( function() {
+                            // add by matrix
+                            var data= context.settings.rules[ this.name ];
 
-                        // select only the first element for each name, and only those with rules specified
-                        // if ( this.name in rulesCache || !validator.objectLength( $( this ).rules() ) ) {
-                        if ( this.name in rulesCache || !objectLength( data ) ) {
-                            return false;
-                        }
+                            // select only the first element for each name, and only those with rules specified
+                            // if ( this.name in rulesCache || !validator.objectLength( $( this ).rules() ) ) {
+                            if ( this.name in rulesCache || !objectLength( data ) ) {
+                                return false;
+                            }
 
-                        rulesCache[ this.name ] = true;
-                        return true;
-                    });
+                            rulesCache[ this.name ] = true;
+                            return true;
+                        });
 
-                return currentElements;
+                    return currentElements;
+                }
+                // view: $('input[type=text]', this.container)
+                // getTab: function(levelIndex){
+                //     var tabSelector='.t-level-tab-'+levelIndex;
+                //     return $(tabSelector, context.container);
+                // }
             };
 
             // findByName
@@ -570,7 +579,8 @@ Jx().package("T.UI.Components", function(J){
 
         checkForm: function() {
             this.prepareForm();
-            for ( var i = 0, elements = ( this.currentElements = this.elements() ); elements[ i ]; i++ ) {
+            var elements= this.currentElements = this.elements.currentElements();
+            for ( var i = 0; elements[ i ]; i++ ) {
                 this.check( elements[ i ] );
             }
             return this.valid();
@@ -634,7 +644,7 @@ Jx().package("T.UI.Components", function(J){
             this.lastElement = null;
             this.prepareForm();
             this.hideErrors();
-            var i, elements = this.elements()
+            var i, elements = this.elements.currentElements()
                 .removeData( "previousValue" );
 
             for ( i = 0; elements[ i ]; i++ ) {

@@ -1,3 +1,5 @@
+// var submitted = false;
+
 $("#commentFormx").validate2({
     rules: {
         name: {
@@ -51,6 +53,19 @@ $("#commentFormx").validate2({
     //     $( "#ErrorsSummary" ).text( this.numberOfInvalids() + " field(s) are invalid" );
     // },
     // submitHandler: function() { alert("Submitted!") }
+
+    // showErrors: function(errorMap, errorList) {
+    //     if (submitted) {
+    //         var summary = "You have the following errors: \n";
+    //         $.each(errorList, function() { summary += " * " + this.message + "\n"; });
+    //         alert(summary);
+    //         submitted = false;
+    //     }
+    //     this.defaultShowErrors();
+    // },          
+    // invalidHandler: function(form, validator) {
+    //     submitted = true;
+    // }
 });
 
 //code to hide topic selection, disable for demo
