@@ -762,11 +762,6 @@ Jx().package("T.UI.Controls", function(J){
                 __initialized = true;
             });
 
-            // this.initialize(element.id, options);
-
-            // var _this = this;
-            // var context= this;
-
             this.id = 'AnyTime--'+element.id.replace(/[^-_.A-Za-z0-9]/g,'--AnyTime--');
 
             // var options = jQuery.extend(true,{},options||{});
@@ -774,6 +769,8 @@ Jx().package("T.UI.Controls", function(J){
 
 
             this.settings.utcParseOffsetCapture = true;
+
+            // 时间-字符串 转换器
             // this.conv = new AnyTime.Converter(this.settings);
             this.conv = new Converter(this.settings);
 
@@ -840,7 +837,7 @@ Jx().package("T.UI.Controls", function(J){
 
             this.inp = $(document.getElementById(element.id)); // avoids ID-vs-pseudo-selector probs like id="foo:bar"
             this.ro = this.inp.prop('readonly');
-            // // removed by matrix 2015-11-26
+            // removed by matrix 2015-11-26
             this.inp.prop('readonly',true);
             this.div = $( '<div class="AnyTime-win AnyTime-pkr ui-widget ui-widget-content ui-corner-all" id="' + this.id + '" aria-live="off"></div>' );
             this.inp.after(this.div);
@@ -1237,7 +1234,7 @@ Jx().package("T.UI.Controls", function(J){
         dO: null,           // offset (time zone) div
         earliest: null,     // earliest selectable date/time
         fBtn: null,         // button with current focus
-        fDOW: 0,            // index to use as first day-of-week
+        fDOW: 0,            // index to use as first day-of-week 星期的第一天
         hBlur: null,        // input handler
         hClick: null,       // input handler
         hFocus: null,       // input handler

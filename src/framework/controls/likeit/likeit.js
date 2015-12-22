@@ -50,7 +50,7 @@ Jx().package("T.UI.Controls", function(J){
             // 绑定事件接口
             // this.bindEventsInterface();
 
-            this.reflash();
+            this.refresh();
         },
         bindEvents: function(){
             this.element.on('click', $.proxy(this.toggle, this));
@@ -73,14 +73,14 @@ Jx().package("T.UI.Controls", function(J){
                 url: this.settings.dataUrl,
                 data: {},
                 success: function(data){
-                    context.reflash();
+                    context.refresh();
                 },
                 error: function(xmlHttpRequest, status, error){
                     alert('控件id: ' + context.element.attr('id') + ' , ajax发送数据失败！');
                 }
             });
         },
-        reflash: function(){
+        refresh: function(){
             this.element.text(this.value);
             if(this.settings.liked){
                 this.element.addClass("liked");

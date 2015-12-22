@@ -153,7 +153,7 @@ Jx().package("T.UI.Controls", function(J){
         },
 
         // API
-        reflash: function(){},
+        refresh: function(){},
         enable: function(){},
         disable: function(){},
         destroy: function(){}

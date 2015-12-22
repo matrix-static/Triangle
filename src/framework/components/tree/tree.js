@@ -117,7 +117,7 @@ Jx().package("T.UI.Components", function(J){
              .done(function(){
                 
                 context.setInitialStates({ nodes: context.data }, 0);
-                context.reflash();
+                context.refresh();
 
                 context.bindEvents();
             });
@@ -147,7 +147,7 @@ Jx().package("T.UI.Components", function(J){
 
             // this.initialized();
 
-            // this.reflash();
+            // this.refresh();
         },
 
         getData: function(){
@@ -162,7 +162,7 @@ Jx().package("T.UI.Components", function(J){
                 return d.promise();
 
                 // this.setInitialStates({ nodes: this.data }, 0);
-                // this.reflash();
+                // this.refresh();
 
                 // this.bindEvents();
             }
@@ -177,7 +177,7 @@ Jx().package("T.UI.Components", function(J){
                     context.data= $.extend(true, [], data);
 
                     // context.setInitialStates({ nodes: context.data }, 0);
-                    // context.reflash();
+                    // context.refresh();
 
                     // context.bindEvents();
 
@@ -467,7 +467,7 @@ Jx().package("T.UI.Components", function(J){
             }
         },
 
-        reflash: function () {
+        refresh: function () {
             this.element.addClass('t-tree');
             this.container = $(this.template.list);
             this.element.empty().append(this.container.empty());
@@ -492,14 +492,14 @@ Jx().package("T.UI.Components", function(J){
             var classList = target.attr('class') ? target.attr('class').split(' ') : [];
             if ((classList.indexOf('expand-icon') !== -1)) {
                 this.toggleExpandedState(node, nodeOptions);
-                this.reflash();
+                this.refresh();
 
                 return;
             }
 
             if ((classList.indexOf('check-icon') !== -1)) {                
                 this.toggleCheckedState(node, nodeOptions);
-                this.reflash();
+                this.refresh();
 
                 return;
             }
@@ -510,7 +510,7 @@ Jx().package("T.UI.Components", function(J){
                 this.toggleExpandedState(node, nodeOptions);
             }
 
-            this.reflash();
+            this.refresh();
         },
 
         // Looks up the DOM for the closest parent list item to retrieve the
@@ -757,7 +757,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setSelectedState(node, true, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -770,7 +770,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setSelectedState(node, false, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -783,7 +783,7 @@ Jx().package("T.UI.Components", function(J){
                 this.toggleSelectedState(node, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
 
@@ -797,7 +797,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setExpandedState(node, false, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -810,7 +810,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setExpandedState(node, false, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -830,7 +830,7 @@ Jx().package("T.UI.Components", function(J){
                 }, this));
             }
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -846,7 +846,7 @@ Jx().package("T.UI.Components", function(J){
                 }
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         expandLevels: function (nodes, level, options) {
@@ -874,7 +874,7 @@ Jx().package("T.UI.Components", function(J){
                 }
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -887,7 +887,7 @@ Jx().package("T.UI.Components", function(J){
                 this.toggleExpandedState(node, options);
             }, this));
             
-            this.reflash();
+            this.refresh();
         },
 
 
@@ -901,7 +901,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setCheckedState(node, true, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -914,7 +914,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setCheckedState(node, true, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -927,7 +927,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setCheckedState(node, false, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -940,7 +940,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setCheckedState(node, false, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -953,7 +953,7 @@ Jx().package("T.UI.Components", function(J){
                 this.toggleCheckedState(node, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
 
@@ -967,7 +967,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setDisabledState(node, true, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -980,7 +980,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setDisabledState(node, true, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -993,7 +993,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setDisabledState(node, false, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -1006,7 +1006,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setDisabledState(node, false, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
         /**
@@ -1019,7 +1019,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setDisabledState(node, !node.state.disabled, options);
             }, this));
 
-            this.reflash();
+            this.refresh();
         },
 
 
@@ -1087,7 +1087,7 @@ Jx().package("T.UI.Components", function(J){
                 this.revealNode(results);
             }
             else {
-                this.reflash();
+                this.refresh();
             }
 
             this.element.trigger('searchComplete', $.extend(true, {}, results));
@@ -1107,7 +1107,7 @@ Jx().package("T.UI.Components", function(J){
             });
 
             if (options.render) {
-                this.reflash();  
+                this.refresh();  
             }
             
             this.element.trigger('searchCleared', $.extend(true, {}, results));

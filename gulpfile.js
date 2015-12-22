@@ -112,6 +112,7 @@ gulp.task('default', ['demo'])
 		gulp.src( [
 				'src/framework/modules/core.js', 
 				'src/framework/modules/base.js', 
+                'src/framework/modules/datetime.js', 
 				'src/framework/framework.js', 
 				'src/framework/controls/**/*.js', 
 				'src/framework/components/**/*.js', 

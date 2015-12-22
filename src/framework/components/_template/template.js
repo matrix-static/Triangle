@@ -122,7 +122,7 @@ Jx().package("T.UI.Components", function(J){
         // },
 
         // API
-        reflash: function(){},
+        refresh: function(){},
         enable: function(){},
         disable: function(){},
         destroy: function(){}

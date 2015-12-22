@@ -47,6 +47,7 @@ angular.module('pnApp.controllers', [])
         $scope.spinnerValue= 55;
         $scope.typeaheadValue= 'Virginia';
         $scope.levelValue= '230000,230200,230227';	// 330000,330600,330682 浙江 / 绍兴 / 上虞
+        $scope.dtpickerValue= '2001-11-11 11:11:11';
     }])
     .controller('paginatorController', ['$scope', '$rootScope', function ($scope, $rootScope){
         function reloadList(pageIndex){

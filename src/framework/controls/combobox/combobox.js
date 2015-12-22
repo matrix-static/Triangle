@@ -108,15 +108,12 @@ Jx().package("T.UI.Controls", function(J){
         },
         select: function() {
             var val = this.elements.menu.find('.active').attr('data-value');
-            this.elements.input.val(this.updater(val)).trigger('change');
+            this.elements.input.val(val).trigger('change');
             // this.elements.target.val(this.map[val]).trigger('change');
             this.element.val(this.map[val]).trigger('change');
             this.container.addClass('combobox-selected');
             this.selected = true;
             return this.hide();
-        },
-        updater: function(item) {
-            return item;
         },
         show: function() {
             var pos = $.extend({},
@@ -508,7 +505,8 @@ Jx().package("T.UI.Controls", function(J){
         // API
         refresh: function() {
             var value= this.elements.original.val();
-            this.elements.input.val(this.updater(value));//.trigger('change');
+            var text= this.elements.original.find('option:selected').text();
+            this.elements.input.val(text);//.trigger('change');
             // this.elements.target.val(this.map[value]);//.trigger('change');
             // this.element.val(this.map[value]);//.trigger('change');
             this.container.addClass('combobox-selected');

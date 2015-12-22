@@ -168,7 +168,7 @@ Jx().package("T.UI.Components", function(J){
 
             // this.initialized();
 
-            // this.reflash();
+            // this.refresh();
 
             if (this.settings.keepRenderingSort) {
 
@@ -190,7 +190,7 @@ Jx().package("T.UI.Components", function(J){
             //  .done(function(){
                 
             //     context.setInitialStates({ nodes: context.tree }, 0);
-            //     context.reflash();
+            //     context.refresh();
 
             //     context.bindEvents();
             //     context.initialized();

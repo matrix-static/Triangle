@@ -119,7 +119,7 @@ Jx().package("T.UI", function(J){
         unbindEvents: function () {
             this.element.off();
         },
-        reflash: function(){
+        refresh: function(){
             ;
         },
         actionOne: function(){

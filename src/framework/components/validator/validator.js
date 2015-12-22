@@ -138,6 +138,7 @@ Jx().package("T.UI.Components", function(J){
                     // }
                     mismatch= param( element );
                     break;
+                    
                 }
                 default:{
                     mismatch= true;
@@ -381,6 +382,8 @@ Jx().package("T.UI.Components", function(J){
 
             this.elements= {
                 original: this.element,
+                submitButton: $('input:submit:not("save"), button:submit:not("save")', this.container),
+                saveButton: $('input.save:submit, button.save:submit', this.container),
                 currentElements: function(){
                 // 有可能中途disabled，插入元素等。
                     var rulesCache = {};
@@ -1035,7 +1038,7 @@ Jx().package("T.UI.Components", function(J){
         },
 
         // API
-        reflash: function(){},
+        refresh: function(){},
         enable: function(){},
         disable: function(){},
         // cleans up all forms and elements, removes validator-specific events
