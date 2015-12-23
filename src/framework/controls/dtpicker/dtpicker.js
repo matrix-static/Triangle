@@ -20,7 +20,7 @@ Jx().package("T.UI.Controls", function(J){
         minDate: false,
         maxDate: false,
         useCurrent: true,
-        collapse: true,
+        // collapse: true,
         // locale: moment.locale(),
         defaultDate: false,
         disabledDates: false,
@@ -64,19 +64,19 @@ Jx().package("T.UI.Controls", function(J){
             selectTime: '选择时间'
         },
         useStrict: false,
-        sideBySide: false,
+        // sideBySide: false,
         daysOfWeekDisabled: false,
         calendarWeeks: false,
         viewMode: 'days',
-        toolbarPlacement: 'default',
+        // toolbarPlacement: 'default',
         showTodayButton: false,
         showClear: false,
         showClose: false,
-        widgetPositioning: {
-            horizontal: 'auto',
-            vertical: 'auto'
-        },
-        widgetParent: null,
+        // widgetPositioning: {
+        //     horizontal: 'auto',
+        //     vertical: 'auto'
+        // },
+        // widgetParent: null,
         ignoreReadonly: false,
         keepOpen: false,
         focusOnShow: true,
@@ -149,10 +149,10 @@ Jx().package("T.UI.Controls", function(J){
         }
     }
     function hasTime(format) {
-        return (this.isEnabled(format, 'h') || this.isEnabled(format, 'm') || this.isEnabled(format, 's'));
+        return (isEnabled(format, 'h') || isEnabled(format, 'm') || isEnabled(format, 's'));
     }
     function hasDate(format) {
-        return (this.isEnabled(format, 'y') || this.isEnabled(format, 'M') || this.isEnabled(format, 'd'));
+        return (isEnabled(format, 'y') || isEnabled(format, 'M') || isEnabled(format, 'd'));
     }
 
     var Widget=new J.Class({
@@ -176,14 +176,227 @@ Jx().package("T.UI.Controls", function(J){
             // this.initSettings(options);
             // // this.value= this.element.val();
 
-            // this.buildHtml();
-            // this.initElements();
+            this.buildHtml();
+            this.initElements();
 
             // this.bindEvents();
             // this.bindEventsInterface();
         },
 
-        buildHtml: function(){},
+        buildHtml: function(){
+
+            var dateView = ''+
+                '<div class="datepicker">'+
+                '   <div class="datepicker-days">'+
+                '       <table class="table-condensed">'+
+                '           <thead>'+
+                '               <tr>'+
+                '                   <th class="prev" data-action="previous"><span class="'+this.settings.icons.previous+'"></span></th>'+
+                '                   <th class="picker-switch" data-action="pickerSwitch" colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'"></th>'+
+                '                   <th class="prev" data-action="next"><span class="'+this.settings.icons.next+'"></span></th>'+
+                '               </tr>'+
+                '           </thead>'+
+                '           <tbody>'+
+                '           </tbody>'+
+                '       <table/>'+
+                '   </div>'+
+                '   <div class="datepicker-months">'+
+                '       <table class="table-condensed">'+
+                '           <thead>'+
+                '               <tr>'+
+                '                   <th class="prev" data-action="previous"><span class="'+this.settings.icons.previous+'"></span></th>'+
+                '                   <th class="picker-switch" data-action="pickerSwitch" colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'"></th>'+
+                '                   <th class="prev" data-action="next"><span class="'+this.settings.icons.next+'"></span></th>'+
+                '               </tr>'+
+                '           </thead>'+
+                '           <tbody>'+
+                '               <tr><td colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'"><td/></tr>'+
+                '           </tbody>'+
+                '       <table/>'+
+                '   </div>'+
+                '   <div class="datepicker-years">'+
+                '       <table class="table-condensed">'+
+                '           <thead>'+
+                '               <tr>'+
+                '                   <th class="prev" data-action="previous"><span class="'+this.settings.icons.previous+'"></span></th>'+
+                '                   <th class="picker-switch" data-action="pickerSwitch" colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'"></th>'+
+                '                   <th class="prev" data-action="next"><span class="'+this.settings.icons.next+'"></span></th>'+
+                '               </tr>'+
+                '           </thead>'+
+                '           <tbody>'+
+                '               <tr><td colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'"><td/></tr>'+
+                '           </tbody>'+
+                '       <table/>'+
+                '   </div>'+
+                '   <div class="datepicker-decades">'+
+                '       <table class="table-condensed">'+
+                '           <thead>'+
+                '               <tr>'+
+                '                   <th class="prev" data-action="previous"><span class="'+this.settings.icons.previous+'"></span></th>'+
+                '                   <th class="picker-switch" data-action="pickerSwitch" colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'"></th>'+
+                '                   <th class="prev" data-action="next"><span class="'+this.settings.icons.next+'"></span></th>'+
+                '               </tr>'+
+                '           </thead>'+
+                '           <tbody>'+
+                '               <tr><td colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'"><td/></tr>'+
+                '           </tbody>'+
+                '       <table/>'+
+                '   </div>'+
+                '</div>';
+
+            var timeView = ''+
+                '<div class="timepicker">'+
+                '   <div class="timepicker-picker">'+
+                '       <table class="table-condensed">'+
+                '           <tr>'+
+                (isEnabled(this.settings.format, 'h') ? 
+                '               <td>'+
+                '                   <a href="#" class="btn" data-action="incrementHours" tabindex="-1" title="'+this.settings.tooltips.incrementHour+'">'+
+                '                       <span class="'+this.settings.icons.up+'"></span>'+
+                '                   </a>'+
+                '               </td>' : '')+
+                (isEnabled(this.settings.format, 'm') ? 
+                ((isEnabled(this.settings.format, 'h') ?
+                '               <td class="separator"></td>' : '')+
+                '               <td>'+
+                '                   <a href="#" class="btn" data-action="incrementMinutes" tabindex="-1" title="'+this.settings.tooltips.incrementMinute+'">'+
+                '                       <span class="'+this.settings.icons.up+'"></span>'+
+                '                   </a>'+
+                '               </td>') : '')+
+                (isEnabled(this.settings.format, 's') ? 
+                ((isEnabled(this.settings.format, 'm') ?
+                '               <td class="separator"></td>' : '')+
+                '               <td>'+
+                '                   <a href="#" class="btn" data-action="incrementSeconds" tabindex="-1" title="'+this.settings.tooltips.incrementSecond+'">'+
+                '                       <span class="'+this.settings.icons.up+'"></span>'+
+                '                   </a>'+
+                '               </td>') : '')+
+                (!this.use24Hours ? 
+                '               <td class="separator"></td>' : '')+
+                '           </tr>'+
+                '           <tr>'+ 
+                (isEnabled(this.settings.format, 'h') ?
+                '               <td>'+
+                '                   <span class="timepicker-hour" data-action="showHours" data-time-component="hours" title="'+this.settings.tooltips.pickHour+'"></span>'+
+                '               </td>' : '')+
+                (isEnabled(this.settings.format, 'm') ?
+                ((isEnabled(this.settings.format, 'h') ?
+                '               <td class="separator"></td>' : '')+
+                '               <td>'+
+                '                   <span class="timepicker-hour" data-action="showMinutes" data-time-component="minutes" title="'+this.settings.tooltips.pickMinute+'"></span>'+
+                '               </td>') : '')+
+                (isEnabled(this.settings.format, 's') ?
+                ((isEnabled(this.settings.format, 'm') ?
+                '               <td class="separator"></td>' : '')+
+                '               <td>'+
+                '                   <span class="timepicker-hour" data-action="showSeconds" data-time-component="seconds" title="'+this.settings.tooltips.pickSecond+'"></span>'+
+                '               </td>') : '')+
+                '           </tr>'+
+                (!this.use24Hours ? 
+                '               <td class="separator">'+
+                '                   <button class="btn btn-primary" data-action="togglePeriod" tabindex="-1" title="'+this.settings.tooltips.togglePeriod+'"></button>'+
+                '               </td>' : '')+
+                '           <tr>'+
+                (isEnabled(this.settings.format, 'h') ? 
+                '               <td class="separator"></td>' : '')+
+                '               <td>'+
+                '                   <a href="#" class="btn" data-action="decrementHours" tabindex="-1" title="'+this.settings.tooltips.decrementHour+'">'+
+                '                       <span class="'+this.settings.icons.down+'"></span>'+
+                '                   </a>'+
+                '               </td>'+
+                (isEnabled(this.settings.format, 'm') ? 
+                ((isEnabled(this.settings.format, 'h') ?
+                '               <td class="separator"></td>' : '')+
+                '               <td>'+
+                '                   <a href="#" class="btn" data-action="decrementMinutes" tabindex="-1" title="'+this.settings.tooltips.decrementMinute+'">'+
+                '                       <span class="'+this.settings.icons.down+'"></span>'+
+                '                   </a>'+
+                '               </td>') : '')+
+                (isEnabled(this.settings.format, 's') ? 
+                ((isEnabled(this.settings.format, 'm') ?
+                '               <td class="separator"></td>' : '')+
+                '               <td>'+
+                '                   <a href="#" class="btn" data-action="decrementSeconds" tabindex="-1" title="'+this.settings.tooltips.decrementSecond+'">'+
+                '                       <span class="'+this.settings.icons.down+'"></span>'+
+                '                   </a>'+
+                '               </td>') : '')+
+                (!this.use24Hours ? 
+                '               <td class="separator"></td>' : '')+
+                '           </tr>'+
+                '       </table>'+
+                '   </div>'+
+                (isEnabled(this.settings.format, 'h') ? 
+                '   <div class="timepicker-hours">'+
+                '       <table class="table-condensed"></table>'+
+                '   </div>' : '')+
+                (isEnabled(this.settings.format, 'm') ? 
+                '   <div class="timepicker-minutes">'+
+                '       <table class="table-condensed"></table>'+
+                '   </div>' : '')+
+                (isEnabled(this.settings.format, 's') ? 
+                '   <div class="timepicker-seconds">'+
+                '       <table class="table-condensed"></table>'+
+                '   </div>' : '')+
+                '</div>';
+
+            var toolbar2 = ''+
+                '<table class="table-condensed">'+
+                '   <tbody>'+
+                '       <tr>'+
+                (this.settings.showTodayButton ?
+                '           <td><a data-action="today" title="'+this.settings.tooltips.today+'"><span class="'+this.settings.icons.today+'"></span></a></td>' : '')+
+                // ((!this.settings.sideBySide && hasDate(this.settings.format) && hasTime(this.settings.format))?
+                // '           <td><a data-action="togglePicker" title="'+this.settings.tooltips.selectTime+'"><span class="'+this.settings.icons.time+'"></span></a></td>' : '')+
+                (this.settings.showClear ?
+                '           <td><a data-action="clear" title="'+this.settings.tooltips.clear+'"><span class="'+this.settings.icons.clear+'"></span></a></td>' : '')+
+                (this.settings.showClose ?
+                '           <td><a data-action="close" title="'+this.settings.tooltips.close+'"><span class="'+this.settings.icons.close+'"></span></a></td>' : '')+
+                '       </tr>'+
+                '   </tbody>'+
+                '</table>';
+            
+            // var toolbar = '<li class="'+'picker-switch' + (this.settings.collapse ? ' accordion-toggle' : '')+'">'+toolbar2+'<li>';
+            var toolbar = '<li class="picker-switch">'+toolbar2+'<li>';
+
+            var templateCssClass= 't-dtpicker-widget';
+            if (!this.settings.inline) {
+                templateCssClass += ' dropdown-menu';
+            }
+            if (this.use24Hours) {
+                templateCssClass += ' usetwentyfour';
+            }
+            if (isEnabled(this.settings.format, 's') && !this.use24Hours) {
+                templateCssClass += ' wider';
+            }
+
+            var htmlTemplate = '';
+            if (hasDate(this.settings.format) && hasTime(this.settings.format)) {
+                htmlTemplate = ''+
+                    '<div class="'+templateCssClass+' timepicker-sbs">'+
+                    '   <div class="row">'+
+                    dateView+
+                    timeView+
+                    toolbar+
+                    '   </div>'+
+                    '</div>';
+            }
+            else{
+                htmlTemplate = ''+
+                    '<div class="'+templateCssClass+'">'+
+                    '   <ul class="list-unstyled">'+
+                    (hasDate(this.settings.format) ? 
+                    '       <li>'+dateView+'</li>' : '')+   // '+(this.settings.collapse && hasTime(this.settings.format) ? ' class="collapse in"' : '')+'
+                    (hasTime(this.settings.format) ? 
+                    '       <li>'+dateView+'</li>' : '')+   // '+(this.settings.collapse && hasTime(this.settings.format) ? ' class="collapse in"' : '')+'
+                    '       <li>'+toolbar+'</li>'+
+                    '   </ul>'+
+                    '</div>';
+            }
+
+            this.container= $(htmlTemplate);
+            // this.inputElements.widgetContainer.append(this.container);
+            this.inputElements.view.after(this.container);
+        },
         initElements: function(){
             // var context= this;
             this.elements={
@@ -307,37 +520,37 @@ Jx().package("T.UI.Controls", function(J){
                 togglePeriod: function () {
                     setValue(date.clone().add((date.hours() >= 12) ? -12 : 12, 'h'));
                 },
-                togglePicker: function (e) {
-                    var $this = $(e.target),
-                        $parent = $this.closest('ul'),
-                        expanded = $parent.find('.in'),
-                        closed = $parent.find('.collapse:not(.in)'),
-                        collapseData;
+                // togglePicker: function (e) {
+                //     var $this = $(e.target),
+                //         $parent = $this.closest('ul'),
+                //         expanded = $parent.find('.in'),
+                //         closed = $parent.find('.collapse:not(.in)'),
+                //         collapseData;
 
-                    if (expanded && expanded.length) {
-                        collapseData = expanded.data('collapse');
-                        if (collapseData && collapseData.transitioning) {
-                            return;
-                        }
-                        if (expanded.collapse) { // if collapse plugin is available through bootstrap.js then use it
-                            expanded.collapse('hide');
-                            closed.collapse('show');
-                        } else { // otherwise just toggle in class on the two views
-                            expanded.removeClass('in');
-                            closed.addClass('in');
-                        }
-                        if ($this.is('span')) {
-                            $this.toggleClass(this.settings.icons.time + ' ' + this.settings.icons.date);
-                        } else {
-                            $this.find('span').toggleClass(this.settings.icons.time + ' ' + this.settings.icons.date);
-                        }
+                //     if (expanded && expanded.length) {
+                //         collapseData = expanded.data('collapse');
+                //         if (collapseData && collapseData.transitioning) {
+                //             return;
+                //         }
+                //         if (expanded.collapse) { // if collapse plugin is available through bootstrap.js then use it
+                //             expanded.collapse('hide');
+                //             closed.collapse('show');
+                //         } else { // otherwise just toggle in class on the two views
+                //             expanded.removeClass('in');
+                //             closed.addClass('in');
+                //         }
+                //         if ($this.is('span')) {
+                //             $this.toggleClass(this.settings.icons.time + ' ' + this.settings.icons.date);
+                //         } else {
+                //             $this.find('span').toggleClass(this.settings.icons.time + ' ' + this.settings.icons.date);
+                //         }
 
-                        // NOTE: uncomment if toggled state will be restored in show()
-                        //if (component) {
-                        //    component.find('span').toggleClass(this.settings.icons.time + ' ' + this.settings.icons.date);
-                        //}
-                    }
-                },
+                //         // NOTE: uncomment if toggled state will be restored in show()
+                //         //if (component) {
+                //         //    component.find('span').toggleClass(this.settings.icons.time + ' ' + this.settings.icons.date);
+                //         //}
+                //     }
+                // },
                 showPicker: function () {
                     widget.find('.timepicker > div:not(.timepicker-picker)').hide();
                     widget.find('.timepicker .timepicker-picker').show();
@@ -519,190 +732,6 @@ Jx().package("T.UI.Controls", function(J){
         //     ;
         // },
         
-        getDatePickerTemplate: function () {
-            var headTemplate = $('<thead>')
-                    .append($('<tr>')
-                        .append($('<th>').addClass('prev').attr('data-action', 'previous')
-                            .append($('<span>').addClass(this.settings.icons.previous))
-                            )
-                        .append($('<th>').addClass('picker-switch').attr('data-action', 'pickerSwitch').attr('colspan', (this.settings.calendarWeeks ? '6' : '5')))
-                        .append($('<th>').addClass('next').attr('data-action', 'next')
-                            .append($('<span>').addClass(this.settings.icons.next))
-                            )
-                        ),
-                contTemplate = $('<tbody>')
-                    .append($('<tr>')
-                        .append($('<td>').attr('colspan', (this.settings.calendarWeeks ? '8' : '7')))
-                        );
-
-            return [
-                $('<div>').addClass('datepicker-days')
-                    .append($('<table>').addClass('table-condensed')
-                        .append(headTemplate)
-                        .append($('<tbody>'))
-                        ),
-                $('<div>').addClass('datepicker-months')
-                    .append($('<table>').addClass('table-condensed')
-                        .append(headTemplate.clone())
-                        .append(contTemplate.clone())
-                        ),
-                $('<div>').addClass('datepicker-years')
-                    .append($('<table>').addClass('table-condensed')
-                        .append(headTemplate.clone())
-                        .append(contTemplate.clone())
-                        ),
-                $('<div>').addClass('datepicker-decades')
-                    .append($('<table>').addClass('table-condensed')
-                        .append(headTemplate.clone())
-                        .append(contTemplate.clone())
-                        )
-            ];
-        },
-        getTimePickerMainTemplate: function () {
-            var topRow = $('<tr>'),
-                middleRow = $('<tr>'),
-                bottomRow = $('<tr>');
-
-            if (this.isEnabled(this.settings.format, 'h')) {
-                topRow.append($('<td>')
-                    .append($('<a>').attr({href: '#', tabindex: '-1', 'title': this.settings.tooltips.incrementHour}).addClass('btn').attr('data-action', 'incrementHours')
-                        .append($('<span>').addClass(this.settings.icons.up))));
-                middleRow.append($('<td>')
-                    .append($('<span>').addClass('timepicker-hour').attr({'data-time-component':'hours', 'title': this.settings.tooltips.pickHour}).attr('data-action', 'showHours')));
-                bottomRow.append($('<td>')
-                    .append($('<a>').attr({href: '#', tabindex: '-1', 'title': this.settings.tooltips.decrementHour}).addClass('btn').attr('data-action', 'decrementHours')
-                        .append($('<span>').addClass(this.settings.icons.down))));
-            }
-            if (this.isEnabled(this.settings.format, 'm')) {
-                if (this.isEnabled(this.settings.format, 'h')) {
-                    topRow.append($('<td>').addClass('separator'));
-                    middleRow.append($('<td>').addClass('separator').html(':'));
-                    bottomRow.append($('<td>').addClass('separator'));
-                }
-                topRow.append($('<td>')
-                    .append($('<a>').attr({href: '#', tabindex: '-1', 'title': this.settings.tooltips.incrementMinute}).addClass('btn').attr('data-action', 'incrementMinutes')
-                        .append($('<span>').addClass(this.settings.icons.up))));
-                middleRow.append($('<td>')
-                    .append($('<span>').addClass('timepicker-minute').attr({'data-time-component': 'minutes', 'title': this.settings.tooltips.pickMinute}).attr('data-action', 'showMinutes')));
-                bottomRow.append($('<td>')
-                    .append($('<a>').attr({href: '#', tabindex: '-1', 'title': this.settings.tooltips.decrementMinute}).addClass('btn').attr('data-action', 'decrementMinutes')
-                        .append($('<span>').addClass(this.settings.icons.down))));
-            }
-            if (this.isEnabled(this.settings.format, 's')) {
-                if (this.isEnabled(this.settings.format, 'm')) {
-                    topRow.append($('<td>').addClass('separator'));
-                    middleRow.append($('<td>').addClass('separator').html(':'));
-                    bottomRow.append($('<td>').addClass('separator'));
-                }
-                topRow.append($('<td>')
-                    .append($('<a>').attr({href: '#', tabindex: '-1', 'title': this.settings.tooltips.incrementSecond}).addClass('btn').attr('data-action', 'incrementSeconds')
-                        .append($('<span>').addClass(this.settings.icons.up))));
-                middleRow.append($('<td>')
-                    .append($('<span>').addClass('timepicker-second').attr({'data-time-component': 'seconds', 'title': this.settings.tooltips.pickSecond}).attr('data-action', 'showSeconds')));
-                bottomRow.append($('<td>')
-                    .append($('<a>').attr({href: '#', tabindex: '-1', 'title': this.settings.tooltips.decrementSecond}).addClass('btn').attr('data-action', 'decrementSeconds')
-                        .append($('<span>').addClass(this.settings.icons.down))));
-            }
-
-            if (!this.use24Hours) {
-                topRow.append($('<td>').addClass('separator'));
-                middleRow.append($('<td>')
-                    .append($('<button>').addClass('btn btn-primary').attr({'data-action': 'togglePeriod', tabindex: '-1', 'title': this.settings.tooltips.togglePeriod})));
-                bottomRow.append($('<td>').addClass('separator'));
-            }
-
-            return $('<div>').addClass('timepicker-picker')
-                .append($('<table>').addClass('table-condensed')
-                    .append([topRow, middleRow, bottomRow]));
-        },
-        getTimePickerTemplate: function () {
-            var hoursView = $('<div>').addClass('timepicker-hours')
-                    .append($('<table>').addClass('table-condensed')),
-                minutesView = $('<div>').addClass('timepicker-minutes')
-                    .append($('<table>').addClass('table-condensed')),
-                secondsView = $('<div>').addClass('timepicker-seconds')
-                    .append($('<table>').addClass('table-condensed')),
-                ret = [getTimePickerMainTemplate()];
-
-            if (this.isEnabled(this.settings.format, 'h')) {
-                ret.push(hoursView);
-            }
-            if (this.isEnabled(this.settings.format, 'm')) {
-                ret.push(minutesView);
-            }
-            if (this.isEnabled(this.settings.format, 's')) {
-                ret.push(secondsView);
-            }
-
-            return ret;
-        },
-        getToolbar: function () {
-            var row = [];
-            if (this.settings.showTodayButton) {
-                row.push($('<td>').append($('<a>').attr({'data-action':'today', 'title': this.settings.tooltips.today}).append($('<span>').addClass(this.settings.icons.today))));
-            }
-            if (!this.settings.sideBySide && hasDate(this.settings.format) && hasTime(this.settings.format)) {
-                row.push($('<td>').append($('<a>').attr({'data-action':'togglePicker', 'title': this.settings.tooltips.selectTime}).append($('<span>').addClass(this.settings.icons.time))));
-            }
-            if (this.settings.showClear) {
-                row.push($('<td>').append($('<a>').attr({'data-action':'clear', 'title': this.settings.tooltips.clear}).append($('<span>').addClass(this.settings.icons.clear))));
-            }
-            if (this.settings.showClose) {
-                row.push($('<td>').append($('<a>').attr({'data-action':'close', 'title': this.settings.tooltips.close}).append($('<span>').addClass(this.settings.icons.close))));
-            }
-            return $('<table>').addClass('table-condensed').append($('<tbody>').append($('<tr>').append(row)));
-        },
-        getTemplate: function () {
-            var template = $('<div>').addClass('t-dtpicker-widget dropdown-menu'),
-                dateView = $('<div>').addClass('datepicker').append(getDatePickerTemplate()),
-                timeView = $('<div>').addClass('timepicker').append(getTimePickerTemplate()),
-                content = $('<ul>').addClass('list-unstyled'),
-                toolbar = $('<li>').addClass('picker-switch' + (this.settings.collapse ? ' accordion-toggle' : '')).append(getToolbar());
-
-            if (this.settings.inline) {
-                template.removeClass('dropdown-menu');
-            }
-
-            if (this.use24Hours) {
-                template.addClass('usetwentyfour');
-            }
-            if (this.isEnabled(this.settings.format, 's') && !this.use24Hours) {
-                template.addClass('wider');
-            }
-
-            if (this.settings.sideBySide && hasDate(this.settings.format) && hasTime(this.settings.format)) {
-                template.addClass('timepicker-sbs');
-                if (this.settings.toolbarPlacement === 'top') {
-                    template.append(toolbar);
-                }
-                template.append(
-                    $('<div>').addClass('row')
-                        .append(dateView.addClass('col-md-6'))
-                        .append(timeView.addClass('col-md-6'))
-                );
-                if (this.settings.toolbarPlacement === 'bottom') {
-                    template.append(toolbar);
-                }
-                return template;
-            }
-
-            if (this.settings.toolbarPlacement === 'top') {
-                content.append(toolbar);
-            }
-            if (hasDate(this.settings.format)) {
-                content.append($('<li>').addClass((this.settings.collapse && hasTime(this.settings.format) ? 'collapse in' : '')).append(dateView));
-            }
-            if (this.settings.toolbarPlacement === 'default') {
-                content.append(toolbar);
-            }
-            if (hasTime(this.settings.format)) {
-                content.append($('<li>').addClass((this.settings.collapse && hasDate(this.settings.format) ? 'collapse' : '')).append(timeView));
-            }
-            if (this.settings.toolbarPlacement === 'bottom') {
-                content.append(toolbar);
-            }
-            return template.append(content);
-        },
         // dataToOptions: function () {
         //     var eData,
         //         dataOptions = {};
@@ -728,41 +757,41 @@ Jx().package("T.UI.Controls", function(J){
         place: function () {
             var position = (component || element).position(),
                 offset = (component || element).offset(),
-                vertical = this.settings.widgetPositioning.vertical,
-                horizontal = this.settings.widgetPositioning.horizontal,
+                // vertical = this.settings.widgetPositioning.vertical,
+                // horizontal = this.settings.widgetPositioning.horizontal,
                 parent;
 
-            if (this.settings.widgetParent) {
-                parent = this.settings.widgetParent.append(widget);
-            } else if (element.is('input')) {
+            // if (this.settings.widgetParent) {
+            //     parent = this.settings.widgetParent.append(widget);
+            // } else if (element.is('input')) {
                 parent = element.after(widget).parent();
-            } else if (this.settings.inline) {
-                parent = element.append(widget);
-                return;
-            } else {
-                parent = element;
-                element.children().first().after(widget);
-            }
+            // } else if (this.settings.inline) {
+            //     parent = element.append(widget);
+            //     return;
+            // } else {
+            //     parent = element;
+            //     element.children().first().after(widget);
+            // }
 
             // Top and bottom logic
-            if (vertical === 'auto') {
+            // if (vertical === 'auto') {
                 if (offset.top + widget.height() * 1.5 >= $(window).height() + $(window).scrollTop() &&
                     widget.height() + element.outerHeight() < offset.top) {
                     vertical = 'top';
                 } else {
                     vertical = 'bottom';
                 }
-            }
+            // }
 
-            // Left and right logic
-            if (horizontal === 'auto') {
+            // // Left and right logic
+            // if (horizontal === 'auto') {
                 if (parent.width() < offset.left + widget.outerWidth() / 2 &&
                     offset.left + widget.outerWidth() > $(window).width()) {
                     horizontal = 'right';
                 } else {
                     horizontal = 'left';
                 }
-            }
+            // }
 
             if (vertical === 'top') {
                 widget.addClass('top').removeClass('bottom');
@@ -783,9 +812,9 @@ Jx().package("T.UI.Controls", function(J){
                 }).first();
             }
 
-            if (parent.length === 0) {
-                throw new Error('datetimepicker component should be placed within a relative positioned container');
-            }
+            // if (parent.length === 0) {
+            //     throw new Error('datetimepicker component should be placed within a relative positioned container');
+            // }
 
             widget.css({
                 top: vertical === 'top' ? 'auto' : position.top + element.outerHeight(),
@@ -810,10 +839,8 @@ Jx().package("T.UI.Controls", function(J){
                 viewDate: viewDate.clone()
             });
         },
+        // dir 方向 加一或减一
         showMode: function (dir) {
-            if (!widget) {
-                return;
-            }
             if (dir) {
                 this.currentViewMode = Math.max(this.minViewModeNumber, Math.min(3, this.currentViewMode + dir));
             }
@@ -1097,13 +1124,13 @@ Jx().package("T.UI.Controls", function(J){
             fillMinutes();
             fillSeconds();
         },
-        update: function () {
-            if (!widget) {
-                return;
-            }
-            fillDate();
-            fillTime();
-        },
+        // update: function () {
+        //     if (!widget) {
+        //         return;
+        //     }
+        //     fillDate();
+        //     fillTime();
+        // },
         // setValue: function (targetMoment) {
         //     var oldDate = unset ? null : date;
 
@@ -1241,7 +1268,7 @@ Jx().package("T.UI.Controls", function(J){
             //     setValue(currentMoment);
             // }
 
-            widget = getTemplate();
+            // widget = getTemplate();
 
             fillDow();
             fillMonths();
@@ -1250,7 +1277,7 @@ Jx().package("T.UI.Controls", function(J){
             widget.find('.timepicker-minutes').hide();
             widget.find('.timepicker-seconds').hide();
 
-            update();
+            // update();
             showMode();
 
             $(window).on('resize', place);
@@ -1361,7 +1388,9 @@ Jx().package("T.UI.Controls", function(J){
         },
 
         // API
-        refresh: function(){},
+        refresh: function(){
+            
+        },
         enable: function(){},
         disable: function(){},
         destroy: function(){}
@@ -1509,16 +1538,17 @@ Jx().package("T.UI.Controls", function(J){
                 '<div class="t-dtpicker-container input-group">' + 
                 '    <input type="text" class="form-control" data-toggle="dropdown">' + 
                 '    <div class="input-group-btn">' + 
-                '        <button type="button" class="btn btn-default">' +     //  data-toggle="modal" data-target="#myModal">
+                '        <button type="button" class="btn btn-default" data-toggle="dropdown">' +     //  data-toggle="modal" data-target="#myModal">
                 '            <span class="glyphicon glyphicon-calendar"></span>' + 
                 '        </button>' + 
                 '    </div>' + 
-                // '    <div class="t-dtpicker-dropdown dropdown-menu">'+
+                // '    <div class="t-dtpicker-widget-container">'+    //  dropdown-menu
                 // '    </div>'+
                 '</div>';
                 
             this.container = $(htmlTemplate);
             this.element.before(this.container);
+            // this.element.after(this.container);
         },
         initElements: function(){
             // var context= this;
@@ -1548,7 +1578,7 @@ Jx().package("T.UI.Controls", function(J){
                 original: this.element,
                 view: $('input[type=text]', this.container),
                 button: $('button', this.container),
-                widget: $('.t-dtpicker-widget', this.container)//,                
+                widgetContainer: $('.t-dtpicker-widget-container', this.container)//,                
                 // getTab: function(levelIndex){
                 //     var tabSelector='.t-level-tab-'+levelIndex;
                 //     return $(tabSelector, context.container);
