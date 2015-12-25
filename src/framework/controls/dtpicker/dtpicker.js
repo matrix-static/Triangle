@@ -270,7 +270,7 @@ Jx().package("T.UI.Controls", function(J){
 
             this.buildHtml();
             this.initElements();
-
+            this.buildObservers();
             this.bindEvents();
             // this.bindEventsInterface();
 
@@ -911,7 +911,7 @@ Jx().package("T.UI.Controls", function(J){
             this.inputElements.button.on('click', $.proxy(this.show, this));
 
             // $(window).on('resize', place);
-            this.container.on('click', '[data-action]', this.doAction); // this handles clicks on the widget
+            this.container.on('click', '[data-action]', $.proxy(this.doAction, this)); // this handles clicks on the widget
             this.container.on('mousedown', false);
 
             // element.on('click', $.proxy(this.onFooClick, this));
@@ -1159,10 +1159,12 @@ Jx().package("T.UI.Controls", function(J){
          ********************************************************************************/        
 
         doAction: function (e) {
-            if ($(e.currentTarget).is('.disabled')) {
+            var jqTarget= $(e.currentTarget);
+            if (jqTarget.is('.disabled')) {
                 return false;
             }
-            actions[$(e.currentTarget).data('action')].apply(picker, arguments);
+            var action= jqTarget.data('action');
+            this.observers[action].apply(this, arguments);
             return false;
         },
 
