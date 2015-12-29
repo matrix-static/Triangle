@@ -22,6 +22,23 @@ Jx().package("T.UI", function(J){
     // 全局变量、函数、对象
     var _currentPluginId = 0;
 
+    // 获取属性值
+    function parseAttributes(element, attributeMap) {
+        var data = {};
+
+        for(var p in attributeMap){
+            var value = attributeMap[p]
+            var attrName = 't-' + value + '';
+            // if (element.is('[data-' + attrName + ']')){
+            //     data[p] = element.data(attrName);
+            // }
+            var d = element.data(attrName);
+            data[p] = d || undefined;
+        }
+
+        return data;
+    }
+
 	this.BaseControl = new J.Class({
 
         /*
@@ -37,7 +54,7 @@ Jx().package("T.UI", function(J){
         // 构造函数
         init: function(){},
         // 初始化设置
-		initSettings: function(options){
+		initSettings: function(element, options){
             /*
                 (BaseControl)t-plugin-id 和 ($.toc)t-plugin-ref 属于控件的内部属性
                 保存在 element.data 中，不能在 defalut 中暴露给外界
@@ -45,29 +62,21 @@ Jx().package("T.UI", function(J){
             */
             // 区分一个页面中存在多个控件实例
             _currentPluginId += 1;
-            this.element.data('t-plugin-id', _currentPluginId);
+            // element.data('t-plugin-id', _currentPluginId);
+            this.pluginId = _currentPluginId;
 
-            var attributes = this.parseAttributes();
-			this.settings = $.extend({}, this.defaults, attributes, options);
-		},
-        // 获取属性值
-		parseAttributes: function () {
-			var data = {};
-
-            for(var p in this.attributeMap){
-                var value = this.attributeMap[p]
-                var attrName = 't-' + value + '';
-                // if (this.element.is('[data-' + attrName + ']')){
-                //     data[p] = this.element.data(attrName);
-                // }
-                var d=this.element.data(attrName);
-                data[p] = d || undefined;
+            // TODO: 临时向前兼容方案，dtpicker完成后要移除
+            if(typeof element.data === 'undefined'){
+                options=element;
+                element=this.element;
             }
 
-			return data;
+            var attributes = parseAttributes(element, this.attributeMap);
+			this.settings = $.extend({}, this.defaults, attributes, options);
 		},
-        // 初始化值
-        initValue: function(){},
+        
+        // 初始化字符串值，对象/数组值，状态值等
+        initStates: function(){},
         
         bindEvents: function(){},
         unbindEvents: function(){},
@@ -81,7 +90,7 @@ Jx().package("T.UI", function(J){
             // Switch off events
             this.unbindEvents();
 
-            this.element.data('t-plugin-id').remove();
+            // this.elements.original.data('t-plugin-id').remove();
         }//,
 
         /*

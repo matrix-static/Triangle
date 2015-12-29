@@ -98,7 +98,7 @@ angular.module('pnApp.controllers', [])
             }
         }
 
-        $scope.delete=function(id, e){
+        $scope.deleteEntity=function(id, e){
             e.preventDefault();
 
             if(!confirm('你确定要删除id: '+id+' 吗？')){

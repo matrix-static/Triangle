@@ -95,6 +95,7 @@ Jx().package("T.UI.Controls", function(J){
         format: 'format'
     };
 
+    // 常量
     var viewModes = ['days', 'months', 'years', 'decades'],
         keyMap = {
             'up': 38,
@@ -240,14 +241,25 @@ Jx().package("T.UI.Controls", function(J){
         return true;
     }
 
+    // notifyEvent: function (e) {
+    //     if (e.type === 'dp.change' && ((e.date && e.date.isSame(e.oldDate)) || (!e.date && !e.oldDate))) {
+    //         return;
+    //     }
+    //     element.trigger(e);
+    // },
+
     var Widget=new J.Class({
         defaults: defaults,
         attributeMap: attributeMap,
 
         settings: {},
-        value: '',
-        data: {},
-        templates: {},
+        value: null,
+        // data: {},
+        // templates: {},
+
+        use24Hours: false,
+        minViewModeNumber: 0,   // 最小视图模式，选到这个模式以后关闭弹出窗口。
+        currentViewMode: 0,
 
         // 构造函数
         init: function(elements, options){
@@ -257,9 +269,10 @@ Jx().package("T.UI.Controls", function(J){
             // 直接使用容器类实例的设置
             this.settings=options;
 
-            // TODO:临时措施
-            this.use24Hours= false;
-            this.currentViewMode= 0;
+            // // TODO:临时措施
+            // this.use24Hours= false;
+            // this.currentViewMode= 0;
+            this.initFormatting();
 
 
             // this.initSettings(options);
@@ -276,7 +289,48 @@ Jx().package("T.UI.Controls", function(J){
 
             this.refresh();
         },
+        initFormatting: function () {
+            // Time    LT  8:30 PM
+            // Time with seconds   LTS 8:30:25 PM
+            // Month numeral, day of month, year   L   09/04/1986
+            // l   9/4/1986
+            // Month name, day of month, year  LL  September 4 1986
+            // ll  Sep 4 1986
+            // Month name, day of month, year, time    LLL September 4 1986 8:30 PM
+            // lll Sep 4 1986 8:30 PM
+            // Month name, day of month, day of week, year, time   LLLL    Thursday, September 4 1986 8:30 PM
+            // llll    Thu, Sep 4 1986 8:30 PM
+            // var format= this.settings.format || 'L LT';
+            // var context= this;
+            // this.actualFormat = format.replace(/(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g, function (formatInput) {
+            //     var value= context.getValue();
+            //     var newinput = value.localeData().longDateFormat(formatInput) || formatInput;
+            //     return newinput.replace(/(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g, function (formatInput2) { //temp fix for #740
+            //         return value.localeData().longDateFormat(formatInput2) || formatInput2;
+            //     });
+            // });
 
+            // parseFormats = this.settings.extraFormats ? this.settings.extraFormats.slice() : [];
+            // parseFormats = [];
+            // if (parseFormats.indexOf(format) < 0 && parseFormats.indexOf(this.actualFormat) < 0) {
+            //     parseFormats.push(this.actualFormat);
+            // }
+
+            // this.use24Hours = (this.actualFormat.toLowerCase().indexOf('a') < 1 && this.actualFormat.replace(/\[.*?\]/g, '').indexOf('h') < 1);
+            this.use24Hours = (this.settings.format.toLowerCase().indexOf('a') < 1 && this.settings.format.replace(/\[.*?\]/g, '').indexOf('h') < 1);
+
+            if (isEnabled(this.settings.format, 'y')) {
+                this.minViewModeNumber = 2;
+            }
+            if (isEnabled(this.settings.format, 'M')) {
+                this.minViewModeNumber = 1;
+            }
+            if (isEnabled(this.settings.format, 'd')) {
+                this.minViewModeNumber = 0;
+            }
+
+            this.currentViewMode = Math.max(this.minViewModeNumber, this.currentViewMode);
+        },
         buildHtml: function(){
             // 星期表头
             var currentDate= this.viewValue.clone().startOf('w').startOf('d');
@@ -322,7 +376,7 @@ Jx().package("T.UI.Controls", function(J){
                 '               </tr>'+
                 '           </thead>'+
                 '           <tbody>'+
-                '               <tr><td colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'">'+htmlMonths+'<td/></tr>'+
+                '               <tr><td colspan="'+(this.settings.calendarWeeks ? '8' : '7')+'">'+htmlMonths+'</td></tr>'+
                 '           </tbody>'+
                 '       <table/>'+
                 '   </div>'+
@@ -336,7 +390,7 @@ Jx().package("T.UI.Controls", function(J){
                 '               </tr>'+
                 '           </thead>'+
                 '           <tbody>'+
-                '               <tr><td colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'"><td/></tr>'+
+                '               <tr><td colspan="'+(this.settings.calendarWeeks ? '8' : '7')+'"></td></tr>'+
                 '           </tbody>'+
                 '       <table/>'+
                 '   </div>'+
@@ -350,7 +404,7 @@ Jx().package("T.UI.Controls", function(J){
                 '               </tr>'+
                 '           </thead>'+
                 '           <tbody>'+
-                '               <tr><td colspan="'+(this.settings.calendarWeeks ? '6' : '5')+'"><td/></tr>'+
+                '               <tr><td colspan="'+(this.settings.calendarWeeks ? '8' : '7')+'"></td></tr>'+
                 '           </tbody>'+
                 '       <table/>'+
                 '   </div>'+
@@ -569,8 +623,8 @@ Jx().package("T.UI.Controls", function(J){
             }
 
             this.container= $(htmlTemplate);
+            this.inputElements.view.after(this.container);
             // this.inputElements.widgetContainer.append(this.container);
-            // this.inputElements.view.after(this.container);
         },
         initElements: function(){
             // var context= this;
@@ -601,65 +655,88 @@ Jx().package("T.UI.Controls", function(J){
             this.elements.minutes.hide();
             this.elements.seconds.hide();
         },
-        transferAttributes: function(){},
         buildObservers: function(){
+            var context= this;
+            var datePickerModes= [
+                {
+                    navFnc: 'M',
+                    navStep: 1
+                },
+                {
+                    navFnc: 'y',
+                    navStep: 1
+                },
+                {
+                    navFnc: 'y',
+                    navStep: 10
+                },
+                {
+                    navFnc: 'y',
+                    navStep: 100
+                }
+            ];
             this.observers= {
                 next: function () {
+                    var navStep = datePickerModes[this.currentViewMode].navStep;
                     var navFnc = datePickerModes[this.currentViewMode].navFnc;
-                    this.viewValue.add(datePickerModes[this.currentViewMode].navStep, navFnc);
-                    fillDate();
-                    viewUpdate(navFnc);
+                    this.viewValue.add(navStep, navFnc);
+                    // TODO: with ViewMode
+                    this.refreshDate(); 
+                    // viewUpdate(navFnc);
                 },
                 previous: function () {
                     var navFnc = datePickerModes[this.currentViewMode].navFnc;
-                    this.viewValue.subtract(datePickerModes[this.currentViewMode].navStep, navFnc);
-                    fillDate();
-                    viewUpdate(navFnc);
+                    var navStep = datePickerModes[this.currentViewMode].navStep;
+                    this.viewValue.subtract(navStep, navFnc);
+                    // TODO: with ViewMode
+                    this.refreshDate();
+                    // viewUpdate(navFnc);
                 },
                 pickerSwitch: function () {
-                    showMode(1);
+                    this.showMode(1);
                 },
                 selectMonth: function (e) {
                     var month = $(e.target).closest('tbody').find('span').index($(e.target));
                     this.viewValue.month(month);
                     if (this.currentViewMode === this.minViewModeNumber) {
-                        setValue(this.value.clone().year(this.viewValue.year()).month(this.viewValue.month()));
+                        this.setValue(this.value.clone().year(this.viewValue.year()).month(this.viewValue.month()));
                         if (!this.settings.inline) {
-                            hide();
+                            this.hide();
                         }
                     } else {
-                        showMode(-1);
-                        fillDate();
+                        this.showMode(-1);
+                        // fillDate();
+                        this.refreshDays();
                     }
-                    viewUpdate('M');
+                    // viewUpdate('M');
                 },
                 selectYear: function (e) {
                     var year = parseInt($(e.target).text(), 10) || 0;
                     this.viewValue.year(year);
                     if (this.currentViewMode === this.minViewModeNumber) {
-                        setValue(this.value.clone().year(this.viewValue.year()));
+                        this.setValue(this.value.clone().year(this.viewValue.year()));
                         if (!this.settings.inline) {
-                            hide();
+                            this.hide();
                         }
                     } else {
-                        showMode(-1);
-                        fillDate();
+                        this.showMode(-1);
+                        this.refreshMonths();
                     }
-                    viewUpdate('YYYY');
+                    // viewUpdate('YYYY');
                 },
                 selectDecade: function (e) {
                     var year = parseInt($(e.target).data('selection'), 10) || 0;
                     this.viewValue.year(year);
                     if (this.currentViewMode === this.minViewModeNumber) {
-                        setValue(this.value.clone().year(this.viewValue.year()));
+                        this.setValue(this.value.clone().year(this.viewValue.year()));
                         if (!this.settings.inline) {
-                            hide();
+                            this.hide();
                         }
                     } else {
-                        showMode(-1);
-                        fillDate();
+                        this.showMode(-1);
+                        this.refreshYears();
                     }
-                    viewUpdate('YYYY');
+                    // viewUpdate('YYYY');
                 },
                 selectDay: function (e) {
                     var day = this.viewValue.clone();
@@ -669,49 +746,49 @@ Jx().package("T.UI.Controls", function(J){
                     if ($(e.target).is('.new')) {
                         day.add(1, 'M');
                     }
-                    setValue(day.this.value(parseInt($(e.target).text(), 10)));
+                    this.setValue(day.date(parseInt($(e.target).text(), 10)));
                     if (!hasTime(this.settings.format) && !this.settings.keepOpen && !this.settings.inline) {
-                        hide();
+                        this.hide();
                     }
                 },
                 incrementHours: function () {
                     var newDate = this.value.clone().add(1, 'h');
                     if (isValid(this.settings,newDate, 'h')) {
-                        setValue(newDate);
+                        this.setValue(newDate);
                     }
                 },
                 incrementMinutes: function () {
                     var newDate = this.value.clone().add(this.settings.stepping, 'm');
                     if (isValid(this.settings,newDate, 'm')) {
-                        setValue(newDate);
+                        this.setValue(newDate);
                     }
                 },
                 incrementSeconds: function () {
                     var newDate = this.value.clone().add(1, 's');
                     if (isValid(this.settings,newDate, 's')) {
-                        setValue(newDate);
+                        this.setValue(newDate);
                     }
                 },
                 decrementHours: function () {
                     var newDate = this.value.clone().subtract(1, 'h');
                     if (isValid(this.settings,newDate, 'h')) {
-                        setValue(newDate);
+                        this.setValue(newDate);
                     }
                 },
                 decrementMinutes: function () {
                     var newDate = this.value.clone().subtract(this.settings.stepping, 'm');
                     if (isValid(this.settings,newDate, 'm')) {
-                        setValue(newDate);
+                        this.setValue(newDate);
                     }
                 },
                 decrementSeconds: function () {
                     var newDate = this.value.clone().subtract(1, 's');
                     if (isValid(this.settings,newDate, 's')) {
-                        setValue(newDate);
+                        this.setValue(newDate);
                     }
                 },
                 togglePeriod: function () {
-                    setValue(this.value.clone().add((this.value.hours() >= 12) ? -12 : 12, 'h'));
+                    this.setValue(this.value.clone().add((this.value.hours() >= 12) ? -12 : 12, 'h'));
                 },
                 // togglePicker: function (e) {
                 //     var $this = $(e.target),
@@ -745,20 +822,20 @@ Jx().package("T.UI.Controls", function(J){
                 //     }
                 // },
                 showPicker: function () {
-                    this.container.find('.timepicker > div:not(.timepicker-picker)').hide();
-                    this.container.find('.timepicker .timepicker-picker').show();
+                    context.container.find('.timepicker > div:not(.timepicker-picker)').hide();
+                    context.container.find('.timepicker .timepicker-picker').show();
                 },
                 showHours: function () {
-                    this.container.find('.timepicker .timepicker-picker').hide();
-                    this.container.find('.timepicker .timepicker-hours').show();
+                    context.container.find('.timepicker .timepicker-picker').hide();
+                    context.container.find('.timepicker .timepicker-hours').show();
                 },
                 showMinutes: function () {
-                    this.container.find('.timepicker .timepicker-picker').hide();
-                    this.container.find('.timepicker .timepicker-minutes').show();
+                    context.container.find('.timepicker .timepicker-picker').hide();
+                    context.container.find('.timepicker .timepicker-minutes').show();
                 },
                 showSeconds: function () {
-                    this.container.find('.timepicker .timepicker-picker').hide();
-                    this.container.find('.timepicker .timepicker-seconds').show();
+                    context.container.find('.timepicker .timepicker-picker').hide();
+                    context.container.find('.timepicker .timepicker-seconds').show();
                 },
                 selectHour: function (e) {
                     var hour = parseInt($(e.target).text(), 10);
@@ -774,16 +851,16 @@ Jx().package("T.UI.Controls", function(J){
                             }
                         }
                     }
-                    setValue(this.value.clone().hours(hour));
-                    actions.showPicker.call(picker);
+                    this.setValue(this.value.clone().hours(hour));
+                    this.observers.showPicker.call(this);
                 },
                 selectMinute: function (e) {
-                    setValue(this.value.clone().minutes(parseInt($(e.target).text(), 10)));
-                    actions.showPicker.call(picker);
+                    this.setValue(this.value.clone().minutes(parseInt($(e.target).text(), 10)));
+                    this.observers.showPicker();
                 },
                 selectSecond: function (e) {
-                    setValue(this.value.clone().seconds(parseInt($(e.target).text(), 10)));
-                    actions.showPicker.call(picker);
+                    this.setValue(this.value.clone().seconds(parseInt($(e.target).text(), 10)));
+                    this.observers.showPicker();
                 },
                 clear: function(){
                     this.clear();
@@ -791,7 +868,7 @@ Jx().package("T.UI.Controls", function(J){
                 today: function () {
                     var todaysDate = getMoment();
                     if (isValid(this.settings,todaysDate, 'd')) {
-                        setValue(todaysDate);
+                        this.setValue(todaysDate);
                     }
                 },
                 close: function(){
@@ -909,10 +986,10 @@ Jx().package("T.UI.Controls", function(J){
             var element= this.element;
 
             this.inputElements.button.on('click', $.proxy(this.show, this));
-
-            // $(window).on('resize', place);
             this.container.on('click', '[data-action]', $.proxy(this.doAction, this)); // this handles clicks on the widget
             this.container.on('mousedown', false);
+
+            $(window).on('resize', $.proxy(this.place, this));
 
             // element.on('click', $.proxy(this.onFooClick, this));
         },
@@ -930,29 +1007,6 @@ Jx().package("T.UI.Controls", function(J){
         // onFooClick: function(e, data){
         //     ;
         // },
-        
-        // dataToOptions: function () {
-        //     var eData,
-        //         dataOptions = {};
-
-        //     if (element.is('input') || this.settings.inline) {
-        //         eData = element.data();
-        //     } else {
-        //         eData = element.find('input').data();
-        //     }
-
-        //     if (eData.dateOptions && eData.dateOptions instanceof Object) {
-        //         dataOptions = $.extend(true, dataOptions, eData.dateOptions);
-        //     }
-
-        //     $.each(this.settings, function (key) {
-        //         var attributeName = 'date' + key.charAt(0).toUpperCase() + key.slice(1);
-        //         if (eData[attributeName] !== undefined) {
-        //             dataOptions[key] = eData[attributeName];
-        //         }
-        //     });
-        //     return dataOptions;
-        // },
         place: function () {
             // var position = (component || element).position(),
             // offset = (component || element).offset(),
@@ -967,7 +1021,7 @@ Jx().package("T.UI.Controls", function(J){
             // if (this.settings.widgetParent) {
             //     parent = this.settings.widgetParent.append(widget);
             // } else if (element.is('input')) {
-                parent = this.inputElements.view.after(this.container).parent();
+            //     parent = this.inputElements.view.after(this.container).parent();
             // } else if (this.settings.inline) {
             //     parent = this.inputElements.view.append(widget);
             //     return;
@@ -975,6 +1029,7 @@ Jx().package("T.UI.Controls", function(J){
             //     parent = this.inputElements.view;
             //     this.inputElements.view.children().first().after(widget);
             // }
+            parent = this.inputElements.view.parent();
 
             // Top and bottom logic
             // if (vertical === 'auto') {
@@ -1026,22 +1081,17 @@ Jx().package("T.UI.Controls", function(J){
                 right: horizontal === 'left' ? 'auto' : parent.outerWidth() - this.inputElements.view.outerWidth() - (parent === this.inputElements.view ? 0 : position.left)
             });
         },
-        notifyEvent: function (e) {
-            if (e.type === 'dp.change' && ((e.date && e.date.isSame(e.oldDate)) || (!e.date && !e.oldDate))) {
-                return;
-            }
-            element.trigger(e);
-        },
-        viewUpdate: function (e) {
-            if (e === 'y') {
-                e = 'YYYY';
-            }
-            notifyEvent({
-                type: 'dp.update',
-                change: e,
-                viewValue: this.viewValue.clone()
-            });
-        },
+        
+        // viewUpdate: function (e) {
+        //     if (e === 'y') {
+        //         e = 'YYYY';
+        //     }
+        //     // notifyEvent({
+        //     //     type: 'dp.update',
+        //     //     change: e,
+        //     //     viewValue: this.viewValue.clone()
+        //     // });
+        // },
         // dir 方向 加一或减一
         showMode: function (dir) {
             if (dir) {
@@ -1111,45 +1161,48 @@ Jx().package("T.UI.Controls", function(J){
         // },
         hide: function () {
             ///<summary>Hides the widget. Possibly will emit dp.hide</summary>
-            var transitioning = false;
-            if (!widget) {
-                return picker;
-            }
+            // var transitioning = false;
+            // if (!widget) {
+            //     return picker;
+            // }
             // Ignore event if in the middle of a picker transition
-            widget.find('.collapse').each(function () {
-                var collapseData = $(this).data('collapse');
-                if (collapseData && collapseData.transitioning) {
-                    transitioning = true;
-                    return false;
-                }
-                return true;
-            });
-            if (transitioning) {
-                return picker;
-            }
-            if (component && component.hasClass('btn')) {
-                component.toggleClass('active');
-            }
-            widget.hide();
+            // this.container.find('.collapse').each(function () {
+            //     var collapseData = $(this).data('collapse');
+            //     if (collapseData && collapseData.transitioning) {
+            //         transitioning = true;
+            //         return false;
+            //     }
+            //     return true;
+            // });
+            // if (transitioning) {
+            //     return;// picker;
+            // }
+            // if (component && component.hasClass('btn')) {
+            //     component.toggleClass('active');
+            this.inputElements.button.toggleClass('active');
+            // }
+            
+            this.container.hide();
 
-            $(window).off('resize', place);
-            widget.off('click', '[data-action]');
-            widget.off('mousedown', false);
+            $(window).off('resize', this.place);
+            this.container.off('click', '[data-action]');
+            this.container.off('mousedown', false);
 
-            widget.remove();
-            widget = false;
+            // this.container.remove();
+            // widget = false;
 
-            notifyEvent({
-                type: 'dp.hide',
-                date: this.value.clone()
-            });
+            // notifyEvent({
+            //     type: 'dp.hide',
+            //     date: this.value.clone()
+            // });
 
             this.inputElements.view.blur();
 
             // return picker;
         },
         clear: function () {
-            setValue(null);
+            this.setValue(null);
+            this.viewValue= getMoment(this.settings.format);
         },
 
         /********************************************************************************
@@ -1514,6 +1567,19 @@ Jx().package("T.UI.Controls", function(J){
             var currentSecond = this.viewValue.clone().startOf('m');
             this.elements.second.text(currentSecond.format('ss'));
         },
+        setValue: function(value){
+            // var oValue= this.parseInputDate(value);
+            if(!value || !isValid(this.settings,value)){
+                this.inputElements.original.val('');
+                this.inputElements.view.val('');
+                this.value=null;
+            }
+            else{
+                this.inputElements.original.val(value.format(this.settings.format));
+                this.inputElements.view.val(value.format(this.settings.format));
+                this.value=value;
+            }
+        },
         enable: function(){},
         disable: function(){},
         destroy: function(){}
@@ -1526,10 +1592,13 @@ Jx().package("T.UI.Controls", function(J){
         settings: {},
         templates: {},
 
-        minViewModeNumber: 0,
-        currentViewMode: 0,
+        elements: {},
+
+        // minViewModeNumber: 0,   // 最小视图模式，选到这个模式以后关闭弹出窗口。
+        // currentViewMode: 0,
         // use24Hours: true,
         // viewValue: false,
+
         // widget: false,
         
 
@@ -1568,7 +1637,8 @@ Jx().package("T.UI.Controls", function(J){
 
         // 构造函数
         init: function(element, options){
-            this.element=$(element);
+            var jqElement=$(element);
+            // this.elements.original= $(element);
 
             // // 防止多次初始化
             // if (this.isInitialized()) { 
@@ -1578,10 +1648,10 @@ Jx().package("T.UI.Controls", function(J){
 
             // $.extend(true, options, dataToOptions());
             // picker.options(options);
-            this.initSettings(options);
-            this.initStates();
+            this.initSettings(jqElement, options);
+            this.initStates(jqElement);
 
-            this.buildHtml();
+            this.buildHtml(jqElement);
             this.initElements();
             this.buildObservers();
             this.bindEvents();
@@ -1595,66 +1665,34 @@ Jx().package("T.UI.Controls", function(J){
                 this.show();
             }
         },
-        initStates: function(){
+        initStates: function(element){
             // this.value= this.element.val();
             // Set defaults for date here now instead of in var declaration
-            var now = getMoment(this.settings.format);
-            this.viewValue = now.clone();
-            this.initFormatting();
+            
+            // this.initFormatting();
             // if (input.is('input') && input.val().trim().length !== 0) {
             //     this.setValue(this.parseInputDate(input.val().trim()));
             // }
             // else if (this.settings.defaultDate && input.attr('placeholder') === undefined) {
             //     this.setValue(this.settings.defaultDate);
             // }
-            this.setValue(this.parseInputDate(this.element.val().trim()));
+            // this.setValue(this.parseInputDate(this.element.val().trim()));
+
+            // this.setValue(this.parseInputDate(element.val().trim()));
+
+            var value= this.parseInputDate(element.val().trim());
+            if(!value || !isValid(this.settings,value)){
+                element.val('');
+            }
+            else{
+                element.val(value.format(this.settings.format));
+            }
         },
-        initFormatting: function () {
-            // Time    LT  8:30 PM
-            // Time with seconds   LTS 8:30:25 PM
-            // Month numeral, day of month, year   L   09/04/1986
-            // l   9/4/1986
-            // Month name, day of month, year  LL  September 4 1986
-            // ll  Sep 4 1986
-            // Month name, day of month, year, time    LLL September 4 1986 8:30 PM
-            // lll Sep 4 1986 8:30 PM
-            // Month name, day of month, day of week, year, time   LLLL    Thursday, September 4 1986 8:30 PM
-            // llll    Thu, Sep 4 1986 8:30 PM
-            // var format= this.settings.format || 'L LT';
-            // var context= this;
-            // this.actualFormat = format.replace(/(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g, function (formatInput) {
-            //     var value= context.getValue();
-            //     var newinput = value.localeData().longDateFormat(formatInput) || formatInput;
-            //     return newinput.replace(/(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g, function (formatInput2) { //temp fix for #740
-            //         return value.localeData().longDateFormat(formatInput2) || formatInput2;
-            //     });
-            // });
-
-            // parseFormats = this.settings.extraFormats ? this.settings.extraFormats.slice() : [];
-            // parseFormats = [];
-            // if (parseFormats.indexOf(format) < 0 && parseFormats.indexOf(this.actualFormat) < 0) {
-            //     parseFormats.push(this.actualFormat);
-            // }
-
-            // this.use24Hours = (this.actualFormat.toLowerCase().indexOf('a') < 1 && this.actualFormat.replace(/\[.*?\]/g, '').indexOf('h') < 1);
-            this.use24Hours = (this.settings.format.toLowerCase().indexOf('a') < 1 && this.settings.format.replace(/\[.*?\]/g, '').indexOf('h') < 1);
-
-            if (isEnabled(this.settings.format, 'y')) {
-                this.minViewModeNumber = 2;
-            }
-            if (isEnabled(this.settings.format, 'M')) {
-                this.minViewModeNumber = 1;
-            }
-            if (isEnabled(this.settings.format, 'd')) {
-                this.minViewModeNumber = 0;
-            }
-
-            this.currentViewMode = Math.max(this.minViewModeNumber, this.currentViewMode);
-        },
-        buildHtml: function(){
+        
+        buildHtml: function(element){
             var htmlTemplate = ''+ 
                 '<div class="t-dtpicker-container input-group">' + 
-                '    <input type="text" class="form-control" data-toggle="dropdown">' + 
+                '    <input type="text" class="form-control">' +    //  data-toggle="dropdown"
                 '    <div class="input-group-btn">' + 
                 '        <button type="button" class="btn btn-default">' +     //  data-toggle="modal" data-target="#myModal">
                 '            <span class="glyphicon glyphicon-calendar"></span>' + 
@@ -1664,8 +1702,22 @@ Jx().package("T.UI.Controls", function(J){
                 // '    </div>'+
                 '</div>';
                 
-            this.container = $(htmlTemplate);
-            this.element.before(this.container);
+
+            var container = $(htmlTemplate);
+
+            this.elements={
+                original: element,
+                container: container,
+                view: $('input[type=text]', container),
+                button: $('button', container)//,
+                // widgetContainer: $('.t-dtpicker-widget-container', container)//,                
+                // getTab: function(levelIndex){
+                //     var tabSelector='.t-level-tab-'+levelIndex;
+                //     return $(tabSelector, context.container);
+                // }
+            };
+
+            
             // this.element.after(this.container);
         },
         initElements: function(){
@@ -1692,20 +1744,23 @@ Jx().package("T.UI.Controls", function(J){
             //     }
             // }
 
-            this.elements={
-                original: this.element,
-                view: $('input[type=text]', this.container),
-                button: $('button', this.container),
-                widgetContainer: $('.t-dtpicker-widget-container', this.container)//,                
-                // getTab: function(levelIndex){
-                //     var tabSelector='.t-level-tab-'+levelIndex;
-                //     return $(tabSelector, context.container);
-                // }
-            };
+            // var elements={
+            //     // original: this.element,
+            //     view: $('input[type=text]', this.container),
+            //     button: $('button', this.container),
+            //     widgetContainer: $('.t-dtpicker-widget-container', this.container)//,                
+            //     // getTab: function(levelIndex){
+            //     //     var tabSelector='.t-level-tab-'+levelIndex;
+            //     //     return $(tabSelector, context.container);
+            //     // }
+            // };
+            // this.elements= $.extend(true, {}, this.elements, elements);
 
+            this.elements.original.before(this.elements.container);
             this.elements.original.hide();
+            this.elements.view.val(this.elements.original.val());
 
-            if (this.element.prop('disabled')) {
+            if (this.elements.original.prop('disabled')) {
                 this.disable();
             }
 
@@ -1714,23 +1769,23 @@ Jx().package("T.UI.Controls", function(J){
         transferAttributes: function(){
             //this.settings.placeholder = this.$source.attr('data-placeholder') || this.settings.placeholder
             //this.$element.attr('placeholder', this.settings.placeholder)
-            // this.elements.target.attr('name', this.element.attr('name'))
-            // this.elements.target.val(this.element.val())
-            // this.element.removeAttr('name')  // Remove from source otherwise form will pass parameter twice.
-            this.elements.view.attr('required', this.element.attr('required'))
-            this.elements.view.attr('rel', this.element.attr('rel'))
-            this.elements.view.attr('title', this.element.attr('title'))
-            this.elements.view.attr('class', this.element.attr('class'))
-            this.elements.view.attr('tabindex', this.element.attr('tabindex'))
+            // this.elements.target.attr('name', this.elements.original.attr('name'))
+            // this.elements.target.val(this.elements.original.val())
+            // this.elements.original.removeAttr('name')  // Remove from source otherwise form will pass parameter twice.
+            this.elements.view.attr('required', this.elements.original.attr('required'))
+            this.elements.view.attr('rel', this.elements.original.attr('rel'))
+            this.elements.view.attr('title', this.elements.original.attr('title'))
+            this.elements.view.attr('class', this.elements.original.attr('class'))
+            this.elements.view.attr('tabindex', this.elements.original.attr('tabindex'))
             this.elements.original.removeAttr('tabindex')
-            if (this.element.attr('disabled')!==undefined){
+            if (this.elements.original.attr('disabled')!==undefined){
                this.disable();
             }
         },
         buildObservers: function(){},
         bindEvents: function(){
             var context= this;
-            var element= this.element;
+            var element= this.elements.original;
 
             this.elements.view.on({
                 'change': $.proxy(this.change, this),
@@ -1743,7 +1798,7 @@ Jx().package("T.UI.Controls", function(J){
                 'click': $.proxy(this.widget.show, this.widget)
             });
 
-            // if (this.element.is('input')) {
+            // if (this.elements.original.is('input')) {
             //     input.on({
             //         'focus': show
             //     });
@@ -1756,7 +1811,7 @@ Jx().package("T.UI.Controls", function(J){
         },
         // bindEventsInterface: function(){
         //     var context= this;
-        //     var element= this.element;
+        //     var element= this.elements.original;
 
         //     if(this.settings.onFooSelected){
         //         element.on('click.t.template', $.proxy(this.settings.onFooSelected, this));
@@ -1775,7 +1830,7 @@ Jx().package("T.UI.Controls", function(J){
                 if (moment.isMoment(inputDate) || inputDate instanceof Date) {
                     inputDate = moment(inputDate);
                 } else {
-                    inputDate = getMoment(this.settings.format,inputDate);
+                    inputDate = getMoment(this.settings.format, inputDate);
                 }
             } else {
                 inputDate = this.settings.parseInputDate(inputDate);
@@ -1786,36 +1841,32 @@ Jx().package("T.UI.Controls", function(J){
         
         // API
         getValue: function(){
-            var sValue= this.element.val();
+            var sValue= this.elements.original.val();
             var oValue= this.parseInputDate(sValue);
             return oValue;
         },
         setValue: function(value){
             // var oValue= this.parseInputDate(value);
             if(!value || !isValid(this.settings,value)){
-                this.element.val('');
+                this.elements.original.val('');
             }
             else{
-                this.element.val(value.format(this.settings.format));
+                this.elements.original.val(value.format(this.settings.format));
             }
         },
         refresh: function(){},
         enable: function(){
-            // if (component && component.hasClass('btn')) {
-            //     component.removeClass('disabled');
-            // }
-            this.element.prop('disabled', false);
+            this.elements.original.prop('disabled', false);
+            this.elements.button.removeClass('disabled');
         },
         disable: function(){
             this.hide();
-            // if (component && component.hasClass('btn')) {
-            //     component.addClass('disabled');
-            // }
-            this.element.prop('disabled', true);
+            this.elements.original.prop('disabled', true);
+            this.elements.button.addClass('disabled');
         },
         destroy: function(){
             this.hide();
-            this.element.off({
+            this.elements.original.off({
                 'change': change,
                 'blur': blur,
                 'keydown': keydown,
@@ -1823,7 +1874,7 @@ Jx().package("T.UI.Controls", function(J){
                 'focus': this.settings.allowInputToggle ? hide : ''
             });
 
-            // if (this.element.is('input')) {
+            // if (this.elements.original.is('input')) {
             //     input.off({
             //         'focus': show
             //     });
@@ -1831,8 +1882,8 @@ Jx().package("T.UI.Controls", function(J){
             //     component.off('click', toggle);
             //     component.off('mousedown', false);
             // }
-            // this.element.removeData('DateTimePicker');
-            // this.element.removeData('date');
+            // this.elements.original.removeData('DateTimePicker');
+            // this.elements.original.removeData('date');
         }
     });
 });

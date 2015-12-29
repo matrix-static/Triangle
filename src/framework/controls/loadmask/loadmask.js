@@ -337,7 +337,7 @@ Jx().package("T.UI.Controls", function(J){
         defaults = {
             position: "right",        // right | inside | overlay
             text: "",                 // Text to display next to the loader
-            class: "icon-refresh",    // loader CSS class
+            className: "icon-refresh",    // loader CSS class
             // tpl: '<span class="isloading-wrapper %wrapper%">%text%<i class="%class% icon-spin"></i></span>',    // loader base Tag
             // new Spinner(options.spinner).spin().el
             tpl: '<span class="isloading-wrapper %wrapper%">%text%</span>' + (new Spinner()).spin().el.outerHTML,    // loader base Tag
@@ -384,7 +384,7 @@ Jx().package("T.UI.Controls", function(J){
 
             var self = this,
                 tpl = self.options.tpl.replace( '%wrapper%', ' isloading-show ' + ' isloading-' + self.options.position );
-            tpl = tpl.replace( '%class%', self.options['class'] );
+            tpl = tpl.replace( '%class%', self.options['className'] );
             tpl = tpl.replace( '%text%', ( self.options.text !== "" ) ? self.options.text + ' ' : '' );
             self._loader = $( tpl );
             

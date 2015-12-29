@@ -27,7 +27,8 @@ Jx().package("T.UI.Components", function(J){
 
         // 构造函数
         init: function(element, options){
-            this.element=$(element);
+            // this.element=$(element);
+            var jqElement=$(element);
 
             // // 防止多次初始化
             // if (this.isInitialized()) { 
@@ -35,7 +36,7 @@ Jx().package("T.UI.Components", function(J){
             // }
             // this.initialize(element);
 
-            this.initSettings(options);
+            this.initSettings(jqElement, options);
             // this.value= this.element.val();
 
             this.buildHtml();
