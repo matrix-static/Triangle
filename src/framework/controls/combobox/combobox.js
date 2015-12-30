@@ -58,9 +58,9 @@ Jx().package("T.UI.Controls", function(J){
 
             this.initSettings(options);
             // this.value= this.element.val();
-            this.matcher = this.settings.matcher || this.matcher;
-            this.sorter = this.settings.sorter || this.sorter;
-            this.highlighter = this.settings.highlighter || this.highlighter;
+            // this.matcher = this.settings.matcher || this.matcher;
+            // this.sorter = this.settings.sorter || this.sorter;
+            // this.highlighter = this.settings.highlighter || this.highlighter;
             this.shown = false;
             this.selected = false;
 
@@ -405,14 +405,16 @@ Jx().package("T.UI.Controls", function(J){
             var template= ''+
                 '<div class="combobox-container"> '+
                 // '    <input type="hidden" /> '+
-                '    <div class="input-group"> '+
-                '       <input type="text" autocomplete="off" /> '+
-                '       <span class="input-group-addon dropdown-toggle" data-dropdown="dropdown"> '+
-                '       <span class="caret" /> '+
-                '       <span class="glyphicon glyphicon-remove" /> </span> '+
+                '    <div class="input-group">'+
+                '       <input type="text" autocomplete="off" />'+
+                '       <span class="input-group-addon dropdown-toggle" data-dropdown="dropdown">'+
+                '           <span class="caret" /> '+
+                '           <span class="glyphicon glyphicon-remove" />'+
+                '       </span> '+
                 '    </div> '+
                 '</div>';
             this.container= $(template);
+            this.element.before(this.container);
 
             // menu: '<ul class="typeahead typeahead-long dropdown-menu"></ul>',
             // item: '<li><a href="#"></a></li>'
@@ -425,7 +427,6 @@ Jx().package("T.UI.Controls", function(J){
             // var context= this;
 
             var menuTemplate= '<ul class="typeahead typeahead-long dropdown-menu"></ul>';
-            // $(this.settings.menu).appendTo('body')
             var jqMenu= $(menuTemplate).appendTo('body');
 
             this.elements={
@@ -441,9 +442,6 @@ Jx().package("T.UI.Controls", function(J){
                 // }
             };
 
-            // this.$element = this.container.find('input[type=text]');
-
-            this.element.before(this.container);
             this.element.hide();
         },
         bindEvents: function(){
@@ -462,6 +460,7 @@ Jx().package("T.UI.Controls", function(J){
             }
 
             this.elements.menu
+                .on('mousedown', false)
                 .on('click', $.proxy(this.click, this))
                 .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
                 .on('mouseleave', 'li', $.proxy(this.mouseleave, this));
