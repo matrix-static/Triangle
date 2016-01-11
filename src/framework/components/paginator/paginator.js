@@ -67,7 +67,9 @@
             // this.initialize(element);
 
             // this.options = $.extend({}, (this.options || $.fn.bootstrapPaginator.defaults), options);
-            this.initSettings(options);
+            // this.initSettings(options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
 
 
             // var id = this.element.attr('id');

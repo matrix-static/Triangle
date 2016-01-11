@@ -38,7 +38,9 @@ Jx().package("T.UI.Controls", function(J){
             // }
             // this.initialize(element);
 
-            this.initSettings(options);
+            // this.initSettings(options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
             // this.value= this.element.val();
 
             this.initElements();

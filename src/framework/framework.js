@@ -32,8 +32,8 @@ Jx().package("T.UI", function(J){
             // if (element.is('[data-' + attrName + ']')){
             //     data[p] = element.data(attrName);
             // }
-            var d = element.data(attrName);
-            data[p] = d || undefined;
+            var value = element.data(attrName);
+            data[p] = value || undefined;
         }
 
         return data;
@@ -64,12 +64,6 @@ Jx().package("T.UI", function(J){
             _currentPluginId += 1;
             // element.data('t-plugin-id', _currentPluginId);
             this.pluginId = _currentPluginId;
-
-            // TODO: 临时向前兼容方案，dtpicker完成后要移除
-            if(typeof element.data === 'undefined'){
-                options=element;
-                element=this.element;
-            }
 
             var attributes = parseAttributes(element, this.attributeMap);
 			this.settings = $.extend({}, this.defaults, attributes, options);

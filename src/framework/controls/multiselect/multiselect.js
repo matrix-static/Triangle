@@ -157,7 +157,9 @@ Jx().package("T.UI.Controls", function(J){
             // this.value = this.element.val();
 
             // 初始化选项
-            this.initSettings(options);
+            // this.initSettings(options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
             // // Placeholder via data attributes
             // if (this.element.attr("data-placeholder")) {
             //     this.settings.placeholder = this.element.data("placeholder");

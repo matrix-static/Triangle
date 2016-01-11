@@ -138,7 +138,10 @@ Jx().package("T.UI.Components", function(J){
             // this.value = this.element.val();   
 
             // 初始化选项
-            this.initSettings(options);
+            // this.initSettings(options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
+            
             // 初始化默认相关控件id
             var id = this.element.prop('id');
             this.settings.left= this.settings.left.length ? this.settings.left : '#' + id + '_leftSelect';

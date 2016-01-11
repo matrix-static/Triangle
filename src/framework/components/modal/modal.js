@@ -348,7 +348,10 @@ Jx().package("T.UI.Components", function(J){
             // this.value = this.element.val();
 
             // 初始化选项
-            this.initSettings(options);
+            // this.initSettings(options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
+
             var href= this.element.attr('href');
             this.settings.remote= !/#/.test(href) && href;
 

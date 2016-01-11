@@ -582,7 +582,9 @@ Jx().package("T.UI.Components", function(J){
             this.element.data('plugin-id', _currentPluginId);
 
             // 初始化选项
-            this.initSettings(options);
+            // this.initSettings(options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
 
             // 初始化数据
             this.getData();

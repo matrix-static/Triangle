@@ -30,8 +30,6 @@ Jx().package("T.UI.Components", function(J){
 
     // 全局变量、函数、对象
     var defaults = {
-        // injectStyle: true,
-
         levels: 2,
         dataUrl: '',
 
@@ -60,9 +58,9 @@ Jx().package("T.UI.Components", function(J){
         onNodeExpanded: undefined,
         onNodeSelected: undefined,
         onNodeUnchecked: undefined,
-        onNodeUnselected: undefined,
-        onSearchComplete: undefined,
-        onSearchCleared: undefined
+        onNodeUnselected: undefined//,
+        // onSearchComplete: undefined,
+        // onSearchCleared: undefined
     };
     var attributeMap = {
         showTags: 'show-tags',
@@ -76,38 +74,42 @@ Jx().package("T.UI.Components", function(J){
         ignoreChildren: false
     };
 
-    var searchOptions = {
-        ignoreCase: true,
-        exactMatch: false,
-        revealResults: true
-    };
+    
 
     this.Tree = new J.Class({extend : T.UI.BaseControl}, {
         defaults : defaults,
         attributeMap : attributeMap,
 
-        template: {
-            list: '<ul class="list-group"></ul>',
-            item: '<li class="list-group-item"></li>',
-            indent: '<span class="indent"></span>',
-            icon: '<span class="icon"></span>',
-            link: '<a href="#" style="color:inherit;"></a>',
-            badge: '<span class="badge"></span>'
-        },
+        
 
         // 构造函数
         init: function(element, options){
-            this.element = $(element);
+            // this.element = $(element);
 
-            //this.settings,
+            // this.settings,
             // this.container,
             // this.elements,
 
-            // this.value = this.element.val();            
-
+            // -----------------------------------------------
+            // options
+            // -----------------------------------------------
             // 初始化选项
-            this.initSettings(options);
+            // this.initSettings(this.element, options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
+            if (typeof (this.settings.parseData) === 'function') {
+                this.parseData = this.settings.parseData;
+                delete this.settings.parseData;
+            }
 
+            // -----------------------------------------------
+            // value
+            // -----------------------------------------------
+            // this.value = this.element.val();
+
+            // -----------------------------------------------
+            // data
+            // -----------------------------------------------
             this.data = [];
             this.nodes = [];
 
@@ -116,13 +118,27 @@ Jx().package("T.UI.Components", function(J){
             $.when(this.getData())
              .done(function(){
                 
+                // -----------------------------------------------
+                // states
+                // -----------------------------------------------
+                // this.initStates(jqElement);
                 context.setInitialStates({ nodes: context.data }, 0);
+                // -----------------------------------------------
+                // html
+                // -----------------------------------------------
+                context.buildHtml(jqElement);
+                context.initElements(jqElement);
                 context.refresh();
 
                 context.bindEvents();
             });
 
-            // this.destroy();
+            
+            // -----------------------------------------------
+            // events
+            // -----------------------------------------------
+            // this.buildObservers();
+            // this.bindEvents();
 
             // 构建html DOM
             // this.buildHtml();
@@ -158,13 +174,7 @@ Jx().package("T.UI.Components", function(J){
                 delete this.settings.data;
 
                 d.resolve();
-
                 return d.promise();
-
-                // this.setInitialStates({ nodes: this.data }, 0);
-                // this.refresh();
-
-                // this.bindEvents();
             }
 
             var context = this;
@@ -173,20 +183,14 @@ Jx().package("T.UI.Components", function(J){
                 url: context.settings.dataUrl,
                 data: {},
                 success: function(data){
-                    //context.createMenu(data);
-                    context.data= $.extend(true, [], data);
-
-                    // context.setInitialStates({ nodes: context.data }, 0);
-                    // context.refresh();
-
-                    // context.bindEvents();
-
+                    var innerData= context.parseData(data);
+                    context.data= $.extend(true, [], innerData);
                     d.resolve();
                 },
                 error: function(xmlHttpRequest, status, error){
                     alert('控件id：' + context.element.attr('id')+'，ajax获取数据失败!');
 
-                     d.resolve();
+                    d.resolve();
                 }
             });
 
@@ -197,281 +201,189 @@ Jx().package("T.UI.Components", function(J){
             return data;
         },
 
-        remove: function () {
-            this.destroy();
-            $.removeData(this, 'tree');
-        },
-
-        destroy: function () {
-
-            if (!this.initialized) return;
-
-            this.container.remove();
-            this.container = null;
-
-            // Switch off events
-            this.unsubscribeEvents();
-
-            // Reset this.initialized flag
-            this.initialized = false;
-        },
-        // 取消事件监听
-        unbindEvents: function () {
-            this.element.off('click');
-            this.element.off('nodeChecked');
-            this.element.off('nodeCollapsed');
-            this.element.off('nodeDisabled');
-            this.element.off('nodeEnabled');
-            this.element.off('nodeExpanded');
-            this.element.off('nodeSelected');
-            this.element.off('nodeUnchecked');
-            this.element.off('nodeUnselected');
-            this.element.off('searchComplete');
-            this.element.off('searchCleared');
-        },
-        // 监听事件
-        bindEvents: function () {
-
-            this.unbindEvents();
-
-            this.element.on('click', $.proxy(this.clickHandler, this));
-            // 节点勾选
-            if (typeof (this.settings.onNodeChecked) === 'function') {
-                this.element.on('nodeChecked', this.settings.onNodeChecked);
-            }
-            // 节点收起
-            if (typeof (this.settings.onNodeCollapsed) === 'function') {
-                this.element.on('nodeCollapsed', this.settings.onNodeCollapsed);
-            }
-            // 节点禁用
-            if (typeof (this.settings.onNodeDisabled) === 'function') {
-                this.element.on('nodeDisabled', this.settings.onNodeDisabled);
-            }
-            // 节点启用
-            if (typeof (this.settings.onNodeEnabled) === 'function') {
-                this.element.on('nodeEnabled', this.settings.onNodeEnabled);
-            }
-            // 节点展开
-            if (typeof (this.settings.onNodeExpanded) === 'function') {
-                this.element.on('nodeExpanded', this.settings.onNodeExpanded);
-            }
-            // 节点选中
-            if (typeof (this.settings.onNodeSelected) === 'function') {
-                this.element.on('nodeSelected', this.settings.onNodeSelected);
-            }
-            // 节点取消勾选
-            if (typeof (this.settings.onNodeUnchecked) === 'function') {
-                this.element.on('nodeUnchecked', this.settings.onNodeUnchecked);
-            }
-            // 节点取消选中
-            if (typeof (this.settings.onNodeUnselected) === 'function') {
-                this.element.on('nodeUnselected', this.settings.onNodeUnselected);
-            }
-            // 搜索完成
-            if (typeof (this.settings.onSearchComplete) === 'function') {
-                this.element.on('searchComplete', this.settings.onSearchComplete);
-            }
-            // 搜索结果清除
-            if (typeof (this.settings.onSearchCleared) === 'function') {
-                this.element.on('searchCleared', this.settings.onSearchCleared);
-            }
-        },
-
-        /*
-            Recurse the tree structure and ensure all nodes have
-            valid initial states.  User defined states will be preserved.
-            For performance we also take this opportunity to
-            index nodes in a flattened structure
-
-            设置初始化状态
-        */
         setInitialStates: function (node, level) {
-
             if (!node.nodes) return;
             level += 1;
 
-            var parent = node;
-            var context = this;
-            $.each(node.nodes, function checkStates(index, node) {
+            // $.each(node.nodes, function checkStates(index, node) {
+            for(var i=0; i<node.nodes.length; i++){
+                var child=node.nodes[i];
 
                 // nodeId : unique, incremental identifier
-                node.nodeId = context.nodes.length;
-
-                // parentId : transversing up the tree
-                node.parentId = parent.nodeId;
+                child.nodeId = this.nodes.length;
+                child.parentId = node.nodeId;
+                child.path = (node.path || 'r') + '-' + child.nodeId;
 
                 // if not provided set selectable default value
-                if (!node.hasOwnProperty('selectable')) {
-                    node.selectable = true;
+                if (!child.hasOwnProperty('selectable')) {
+                    child.selectable = true;
                 }
 
                 // where provided we should preserve states
-                node.state = node.state || {};
+                child.state = child.state || {};
 
                 // set checked state; unless set always false
-                if (!node.state.hasOwnProperty('checked')) {
-                    node.state.checked = false;
+                if (!child.state.hasOwnProperty('checked')) {
+                    child.state.checked = false;
                 }
 
                 // set enabled state; unless set always false
-                if (!node.state.hasOwnProperty('disabled')) {
-                    node.state.disabled = false;
+                if (!child.state.hasOwnProperty('disabled')) {
+                    child.state.disabled = false;
                 }
 
                 // set expanded state; if not provided based on levels
-                if (!node.state.hasOwnProperty('expanded')) {
-                    if (!node.state.disabled &&
-                            (level < context.settings.levels) &&
-                            (node.nodes && node.nodes.length > 0)) {
-                        node.state.expanded = true;
+                if (!child.state.hasOwnProperty('expanded')) {
+                    if (!child.state.disabled && (level < this.settings.levels) && (child.nodes && child.nodes.length > 0)) {
+                        child.state.expanded = true;
                     }
                     else {
-                        node.state.expanded = false;
+                        child.state.expanded = false;
                     }
                 }
 
                 // set selected state; unless set always false
-                if (!node.state.hasOwnProperty('selected')) {
-                    node.state.selected = false;
+                if (!child.state.hasOwnProperty('selected')) {
+                    child.state.selected = false;
                 }
 
                 // index nodes in a flattened structure for use later
-                context.nodes.push(node);
+                this.nodes.push(child);
 
                 // recurse child nodes and transverse the tree
-                if (node.nodes) {
-                    context.setInitialStates(node, level);
+                if (child.nodes) {
+                    this.setInitialStates(child, level);
                 }
-            });
+            }
+        },
+
+        buildHtml: function(element){
+            element.addClass('t-tree');
+            this.container = $('<ul class="list-group"></ul>'); // list
+            element.empty().append(this.container);
+        },
+        initElements: function(element){
+            var context= this;
+
+            this.elements={
+                original: element,
+                allNodes: $('li', this.container),
+                getSelectedNodes: function(){
+                    var selectedNodes = $('li.node-selected', this.container);
+                    return selectedNodes;
+                },
+                getNode: function(nodeId){
+                    var child= $('li[data-nodeid="'+nodeId+'"]', this.container);
+                    return child;
+                },
+                getChildNodes: function(nodeId){
+                    var node= context.getNode(nodeId);
+                    var children= $('li[data-nodepath^="'+node.path+'-"]', this.container);
+                    return children;
+                }
+            };
         },
 
         // Starting from the root node, and recursing down the
         // structure we build the tree one node at a time
         buildTree: function (nodes, level) {
-
             if (!nodes) return;
             level += 1;
 
             for(var i=0; i<nodes.length; i++){
                 var node=nodes[i];
 
-                var treeItem = $(this.template.item)
-                    //.addClass('node-' + this.elementId)
-                    .addClass(node.state.checked ? 'node-checked' : '')
-                    .addClass(node.state.disabled ? 'node-disabled': '')
-                    .addClass(node.state.selected ? 'node-selected' : '')
-                    .addClass(node.searchResult ? 'search-result' : '') 
-                    .attr('data-nodeid', node.nodeId)
-                    //.attr('style', this.buildStyleOverride(node));
-
-                // Add indent/spacer to mimic tree structure
-                for (var j = 0; j < (level - 1); j++) {
-                    treeItem.append(this.template.indent);
-                }
-
-                // Add expand, collapse or empty spacer icons
-                var classList = [];
-                if (node.nodes) {
-                    classList.push('expand-icon');
-                    if (node.state.expanded) {
-                        classList.push(this.settings.collapseIcon);
-                    }
-                    else {
-                        classList.push(this.settings.expandIcon);
-                    }
-                }
-                else {
-                    classList.push(this.settings.emptyIcon);
-                }
-
-                treeItem
-                    .append($(this.template.icon)
-                        .addClass(classList.join(' '))
-                    );
-
-
-                // Add node icon
-                if (this.settings.showIcon) {
-                    
-                    var classList = ['node-icon'];
-
-                    classList.push(node.icon || this.settings.nodeIcon);
-                    if (node.state.selected) {
-                        classList.pop();
-                        classList.push(node.selectedIcon || this.settings.selectedIcon || 
-                                        node.icon || this.settings.nodeIcon);
-                    }
-
-                    treeItem
-                        .append($(this.template.icon)
-                            .addClass(classList.join(' '))
-                        );
-                }
-
-                // Add check / unchecked icon
-                if (this.settings.showCheckbox) {
-
-                    var classList = ['check-icon'];
-                    if (node.state.checked) {
-                        classList.push(this.settings.checkedIcon); 
-                    }
-                    else {
-                        classList.push(this.settings.uncheckedIcon);
-                    }
-
-                    treeItem
-                        .append($(this.template.icon)
-                            .addClass(classList.join(' '))
-                        );
-                }
-
-                // Add text
-                if (this.settings.enableLinks) {
-                    // Add hyperlink
-                    treeItem
-                        .append($(this.template.link)
-                            .attr('href', node.href)
-                            .append(node.text)
-                        );
-                }
-                else {
-                    // otherwise just text
-                    treeItem
-                        .append(node.text);
-                }
-
-                if(this.settings.enableTitle){
-                    treeItem.attr('title', node.text);
-                }
-
-                // Add tags as badges
-                if (this.settings.showTags && node.tags) {
-                    for(var k=0; k<node.tags.length; k++){
-                        var tag=node.tags[k];
-
-                        treeItem
-                            .append($(this.template.badge)
-                                .append(tag)
-                            );
-                    }
-                }
+                var item= this.buildItem(node, level);
 
                 // Add item to the tree
-                this.container.append(treeItem);
+                this.container.append(item);
 
                 // Recursively add child ndoes
                 if (node.nodes && node.state.expanded && !node.state.disabled) {
-                    //return this.buildTree(node.nodes, level);
                     this.buildTree(node.nodes, level);
                 }
             }
         },
 
+        buildItem: function(node, level){
+            // indent
+            var indent= '';
+            for (var j = 0; j < (level - 1); j++) {
+                indent+='<span class="indent"></span>';
+            }
+
+            // icon
+            var cssClassIcon= 'icon';
+            if (node.nodes) {
+                cssClassIcon += node.state.expanded ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
+            }
+            else {
+                cssClassIcon += ' ' + this.settings.emptyIcon;
+            }
+            var icon= '<span class="'+cssClassIcon+'"></span>';
+
+            // node icon
+            var nodeIcon= '';
+            if (this.settings.showIcon) {
+                var cssClassNodeIcon= 'icon node-icon ';
+                if (node.state.selected) {
+                    cssClassNodeIcon += (node.selectedIcon || this.settings.selectedIcon || node.icon || this.settings.nodeIcon);
+                }
+                else{
+                    cssClassNodeIcon += (node.icon || this.settings.nodeIcon);
+                }
+                nodeIcon= '<span class="'+cssClassNodeIcon+'"></span>'; // icon
+            }
+
+            // Add check / unchecked icon
+            var check= '';
+            if (this.settings.showCheckbox) {
+                var cssClassCheck= 'icon check-icon ';
+                if (node.state.checked) {
+                    cssClassCheck += this.settings.checkedIcon; 
+                }
+                else {
+                    cssClassCheck += this.settings.uncheckedIcon;
+                }
+                check= '<span class="'+ cssClassCheck +'"></span>';
+            }
+
+            // tags as badges
+            var badge= '';
+            if (this.settings.showTags && node.tags) {
+                for(var k=0; k<node.tags.length; k++){
+                    var tag=node.tags[k];
+                    badge += '<span class="badge">'+tag+'</span>';  // badge
+                }
+            }
+
+            // item
+            var cssClass= 'list-group-item';
+            cssClass += node.state.checked ? ' node-checked' : '';
+            cssClass += node.state.disabled ? ' node-disabled' : '';
+            cssClass += node.state.selected ? ' node-selected' : '';
+            // cssClass += node.searchResult ? ' search-result' : '';
+            var item= ''+
+                '<li '+
+                '   class="' + cssClass + '" '+
+                (this.settings.enableTitle ? 
+                '   title="'+node.text+'"' : '')+
+                '   data-nodeid="'+node.nodeId+'"'+
+                '   data-nodepath="'+node.path+'">'+
+                indent +
+                icon +
+                nodeIcon +
+                check +
+                (this.settings.enableLinks ? 
+                '   <a href="'+node.href+'" style="color:inherit;">'+node.text+'</a>' : node.text) +
+                badge +
+                '</li>';
+
+            return item;
+        },
+
         refresh: function () {
-            this.element.addClass('t-tree');
-            this.container = $(this.template.list);
-            this.element.empty().append(this.container.empty());
-            this.nodeCount= 0;
+            this.container.empty();
             // Build tree
             this.buildTree(this.data, 0);
         },
@@ -510,7 +422,7 @@ Jx().package("T.UI.Components", function(J){
                 this.toggleExpandedState(node, nodeOptions);
             }
 
-            this.refresh();
+            // this.refresh();
         },
 
         // Looks up the DOM for the closest parent list item to retrieve the
@@ -539,7 +451,7 @@ Jx().package("T.UI.Components", function(J){
                 // Expand a node
                 node.state.expanded = true;
                 if (!options.silent) {
-                    this.element.trigger('nodeExpanded', $.extend(true, {}, node));
+                    this.elements.original.trigger('nodeExpanded', $.extend(true, {}, node));
                 }
             }
             else if (!state) {
@@ -547,7 +459,7 @@ Jx().package("T.UI.Components", function(J){
                 // Collapse a node
                 node.state.expanded = false;
                 if (!options.silent) {
-                    this.element.trigger('nodeCollapsed', $.extend(true, {}, node));
+                    this.elements.original.trigger('nodeCollapsed', $.extend(true, {}, node));
                 }
 
                 // Collapse child nodes
@@ -572,23 +484,26 @@ Jx().package("T.UI.Components", function(J){
 
                 // If multiSelect false, unselect previously selected
                 if (!this.settings.multiSelect) {
-                    $.each(this.findNodes('true', 'g', 'state.selected'), $.proxy(function (index, node) {
-                        this.setSelectedState(node, false, options);
-                    }, this));
+                    // $.each(this.findNodes('true', 'g', 'state.selected'), $.proxy(function (index, node) {
+                    //     this.setSelectedState(node, false, options);
+                    // }, this));
+                    this.elements.getSelectedNodes().removeClass('node-selected');
                 }
 
                 // Continue selecting node
-                node.state.selected = true;
+                // node.state.selected = true;
+                this.elements.getNode(node.nodeId).addClass('node-selected');
                 if (!options.silent) {
-                    this.element.trigger('nodeSelected', $.extend(true, {}, node));
+                    this.elements.original.trigger('nodeSelected', $.extend(true, {}, node));
                 }
             }
             else {
 
                 // Unselect node
-                node.state.selected = false;
+                // node.state.selected = false;
+                this.elements.getNode(node.nodeId).removeClass('node-selected');
                 if (!options.silent) {
-                    this.element.trigger('nodeUnselected', $.extend(true, {}, node));
+                    this.elements.original.trigger('nodeUnselected', $.extend(true, {}, node));
                 }
             }
         },
@@ -608,7 +523,7 @@ Jx().package("T.UI.Components", function(J){
                 node.state.checked = true;
 
                 if (!options.silent) {
-                    this.element.trigger('nodeChecked', $.extend(true, {}, node));
+                    this.elements.original.trigger('nodeChecked', $.extend(true, {}, node));
                 }
             }
             else {
@@ -616,7 +531,7 @@ Jx().package("T.UI.Components", function(J){
                 // Uncheck node
                 node.state.checked = false;
                 if (!options.silent) {
-                    this.element.trigger('nodeUnchecked', $.extend(true, {}, node));
+                    this.elements.original.trigger('nodeUnchecked', $.extend(true, {}, node));
                 }
             }
         },
@@ -636,7 +551,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setCheckedState(node, false, options);
 
                 if (!options.silent) {
-                    this.element.trigger('nodeDisabled', $.extend(true, {}, node));
+                    this.elements.original.trigger('nodeDisabled', $.extend(true, {}, node));
                 }
             }
             else {
@@ -644,43 +559,38 @@ Jx().package("T.UI.Components", function(J){
                 // Enabled node
                 node.state.disabled = false;
                 if (!options.silent) {
-                    this.element.trigger('nodeEnabled', $.extend(true, {}, node));
+                    this.elements.original.trigger('nodeEnabled', $.extend(true, {}, node));
                 }
             }
         },      
 
-        /**
-            Returns a single node object that matches the given node id.
-            @param {Number} nodeId - A node's unique identifier
-            @return {Object} node - Matching node
-        */
         getNode: function (nodeId) {
             return this.nodes[nodeId];
         },
 
-        /**
-            Returns the parent node of a given node, if valid otherwise returns undefined.
-            @param {Object|Number} identifier - A valid node or node id
-            @returns {Object} node - The parent node
-        */
-        getParent: function (identifier) {
-            var node = this.identifyNode(identifier);
-            return this.nodes[node.parentId];
-        },
+        // /**
+        //     Returns the parent node of a given node, if valid otherwise returns undefined.
+        //     @param {Object|Number} identifier - A valid node or node id
+        //     @returns {Object} node - The parent node
+        // */
+        // getParent: function (identifier) {
+        //     var node = this.identifyNode(identifier);
+        //     return this.nodes[node.parentId];
+        // },
 
-        /**
-            Returns an array of sibling nodes for a given node, if valid otherwise returns undefined.
-            @param {Object|Number} identifier - A valid node or node id
-            @returns {Array} nodes - Sibling nodes
-        */
-        getSiblings: function (identifier) {
-            var node = this.identifyNode(identifier);
-            var parent = this.getParent(node);
-            var nodes = parent ? parent.nodes : this.data;
-            return nodes.filter(function (obj) {
-                    return obj.nodeId !== node.nodeId;
-                });
-        },
+        // /**
+        //     Returns an array of sibling nodes for a given node, if valid otherwise returns undefined.
+        //     @param {Object|Number} identifier - A valid node or node id
+        //     @returns {Array} nodes - Sibling nodes
+        // */
+        // getSiblings: function (identifier) {
+        //     var node = this.identifyNode(identifier);
+        //     var parent = this.getParent(node);
+        //     var nodes = parent ? parent.nodes : this.data;
+        //     return nodes.filter(function (obj) {
+        //             return obj.nodeId !== node.nodeId;
+        //         });
+        // },
 
         /**
             Returns an array of selected nodes.
@@ -757,7 +667,7 @@ Jx().package("T.UI.Components", function(J){
                 this.setSelectedState(node, true, options);
             }, this));
 
-            this.refresh();
+            // this.refresh();
         },
 
         /**
@@ -768,6 +678,19 @@ Jx().package("T.UI.Components", function(J){
         unselectNode: function (identifiers, options) {
             this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
                 this.setSelectedState(node, false, options);
+            }, this));
+
+            this.refresh();
+        },
+
+        /**
+            Collapse a given tree node
+            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
+            @param {optional Object} options
+        */
+        collapseNode: function (identifiers, options) {
+            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+                this.setExpandedState(node, false, options);
             }, this));
 
             this.refresh();
@@ -786,7 +709,6 @@ Jx().package("T.UI.Components", function(J){
             this.refresh();
         },
 
-
         /**
             Collapse all tree nodes
             @param {optional Object} options
@@ -800,17 +722,61 @@ Jx().package("T.UI.Components", function(J){
             this.refresh();
         },
 
+        // /**
+        //     Reveals a given tree node, expanding the tree from node to root.
+        //     @param {Object|Number|Array} identifiers - A valid node, node id or array of node identifiers
+        //     @param {optional Object} options
+        // */
+        // revealNode: function (identifiers, options) {
+        //     this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+        //         var parentNode = this.getParent(node);
+        //         while (parentNode) {
+        //             this.setExpandedState(parentNode, true, options);
+        //             parentNode = this.getParent(parentNode);
+        //         }
+        //     }, this));
+
+        //     this.refresh();
+        // },
+
         /**
-            Collapse a given tree node
+            Expand a given tree node
             @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
             @param {optional Object} options
         */
-        collapseNode: function (identifiers, options) {
+        expandNode: function (identifiers, options) {
             this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setExpandedState(node, false, options);
+                this.setExpandedState(node, true, options);
+                if (node.nodes && (options && options.levels)) {
+                    this.expandLevels(node.nodes, options.levels-1, options);
+                }
             }, this));
 
             this.refresh();
+        },
+
+        /**
+            Toggles a nodes expanded state; collapsing if expanded, expanding if collapsed.
+            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
+            @param {optional Object} options
+        */
+        toggleNodeExpanded: function (identifiers, options) {
+            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+                this.toggleExpandedState(node, options);
+            }, this));
+            
+            this.refresh();
+        },
+
+        expandLevels: function (nodes, level, options) {
+            options = $.extend({}, nodeOptions, options);
+
+            $.each(nodes, $.proxy(function (index, node) {
+                this.setExpandedState(node, (level > 0) ? true : false, options);
+                if (node.nodes) {
+                    this.expandLevels(node.nodes, level-1, options);
+                }
+            }, this));
         },
 
         /**
@@ -834,77 +800,6 @@ Jx().package("T.UI.Components", function(J){
         },
 
         /**
-            Expand a given tree node
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        expandNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setExpandedState(node, true, options);
-                if (node.nodes && (options && options.levels)) {
-                    this.expandLevels(node.nodes, options.levels-1, options);
-                }
-            }, this));
-
-            this.refresh();
-        },
-
-        expandLevels: function (nodes, level, options) {
-            options = $.extend({}, nodeOptions, options);
-
-            $.each(nodes, $.proxy(function (index, node) {
-                this.setExpandedState(node, (level > 0) ? true : false, options);
-                if (node.nodes) {
-                    this.expandLevels(node.nodes, level-1, options);
-                }
-            }, this));
-        },
-
-        /**
-            Reveals a given tree node, expanding the tree from node to root.
-            @param {Object|Number|Array} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        revealNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                var parentNode = this.getParent(node);
-                while (parentNode) {
-                    this.setExpandedState(parentNode, true, options);
-                    parentNode = this.getParent(parentNode);
-                }
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Toggles a nodes expanded state; collapsing if expanded, expanding if collapsed.
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        toggleNodeExpanded: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.toggleExpandedState(node, options);
-            }, this));
-            
-            this.refresh();
-        },
-
-
-        /**
-            Check all tree nodes
-            @param {optional Object} options
-        */
-        checkAll: function (options) {
-            var identifiers = this.findNodes('false', 'g', 'state.checked');
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setCheckedState(node, true, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
             Check a given tree node
             @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
             @param {optional Object} options
@@ -912,19 +807,6 @@ Jx().package("T.UI.Components", function(J){
         checkNode: function (identifiers, options) {
             this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
                 this.setCheckedState(node, true, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Uncheck all tree nodes
-            @param {optional Object} options
-        */
-        uncheckAll: function (options) {
-            var identifiers = this.findNodes('true', 'g', 'state.checked');
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setCheckedState(node, false, options);
             }, this));
 
             this.refresh();
@@ -956,41 +838,27 @@ Jx().package("T.UI.Components", function(J){
             this.refresh();
         },
 
-
         /**
-            Disable all tree nodes
+            Check all tree nodes
             @param {optional Object} options
         */
-        disableAll: function (options) {
-            var identifiers = this.findNodes('false', 'g', 'state.disabled');
+        checkAll: function (options) {
+            var identifiers = this.findNodes('false', 'g', 'state.checked');
             this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setDisabledState(node, true, options);
+                this.setCheckedState(node, true, options);
             }, this));
 
             this.refresh();
         },
 
         /**
-            Disable a given tree node
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
+            Uncheck all tree nodes
             @param {optional Object} options
         */
-        disableNode: function (identifiers, options) {
+        uncheckAll: function (options) {
+            var identifiers = this.findNodes('true', 'g', 'state.checked');
             this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setDisabledState(node, true, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Enable all tree nodes
-            @param {optional Object} options
-        */
-        enableAll: function (options) {
-            var identifiers = this.findNodes('true', 'g', 'state.disabled');
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setDisabledState(node, false, options);
+                this.setCheckedState(node, false, options);
             }, this));
 
             this.refresh();
@@ -1010,6 +878,19 @@ Jx().package("T.UI.Components", function(J){
         },
 
         /**
+            Disable a given tree node
+            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
+            @param {optional Object} options
+        */
+        disableNode: function (identifiers, options) {
+            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+                this.setDisabledState(node, true, options);
+            }, this));
+
+            this.refresh();
+        },
+
+        /**
             Toggles a nodes disabled state; disabling is enabled, enabling if disabled.
             @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
             @param {optional Object} options
@@ -1022,6 +903,33 @@ Jx().package("T.UI.Components", function(J){
             this.refresh();
         },
 
+        /**
+            Enable all tree nodes
+            @param {optional Object} options
+        */
+        enableAll: function (options) {
+            var identifiers = this.findNodes('true', 'g', 'state.disabled');
+            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+                this.setDisabledState(node, false, options);
+            }, this));
+
+            this.refresh();
+        },
+
+        /**
+            Disable all tree nodes
+            @param {optional Object} options
+        */
+        disableAll: function (options) {
+            var identifiers = this.findNodes('false', 'g', 'state.disabled');
+            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+                this.setDisabledState(node, true, options);
+            }, this));
+
+            this.refresh();
+        },
+
+        
 
         /**
             Common code for processing multiple identifiers
@@ -1043,75 +951,79 @@ Jx().package("T.UI.Components", function(J){
             Identifies a node from either a node id or object
         */
         identifyNode: function (identifier) {
-            return ((typeof identifier) === 'number') ?
-                            this.nodes[identifier] :
-                            identifier;
+            return ((typeof identifier) === 'number') ? this.nodes[identifier] : identifier;
         },
 
-        /**
-            Searches the tree for nodes (text) that match given criteria
-            @param {String} pattern - A given string to match against
-            @param {optional Object} options - Search criteria options
-            @return {Array} nodes - Matching nodes
-        */
-        search: function (pattern, options) {
-            options = $.extend({}, searchOptions, options);
+        // /**
+        //     Searches the tree for nodes (text) that match given criteria
+        //     @param {String} pattern - A given string to match against
+        //     @param {optional Object} options - Search criteria options
+        //     @return {Array} nodes - Matching nodes
+        // */
+        // search: function (pattern, options) {
+        //     var searchOptions = {
+        //         ignoreCase: true,
+        //         exactMatch: false,
+        //         revealResults: true
+        //     };
 
-            this.clearSearch({ render: false });
+        //     options = $.extend({}, searchOptions, options);
 
-            var results = [];
-            if (pattern && pattern.length > 0) {
+        //     this.clearSearch({ render: false });
 
-                if (options.exactMatch) {
-                    pattern = '^' + pattern + '$';
-                }
+        //     var results = [];
+        //     if (pattern && pattern.length > 0) {
 
-                var modifier = 'g';
-                if (options.ignoreCase) {
-                    modifier += 'i';
-                }
+        //         if (options.exactMatch) {
+        //             pattern = '^' + pattern + '$';
+        //         }
 
-                results = this.findNodes(pattern, modifier);
+        //         var modifier = 'g';
+        //         if (options.ignoreCase) {
+        //             modifier += 'i';
+        //         }
 
-                // Add searchResult property to all matching nodes
-                // This will be used to apply custom styles
-                // and when identifying result to be cleared
-                $.each(results, function (index, node) {
-                    node.searchResult = true;
-                })
-            }
+        //         results = this.findNodes(pattern, modifier);
 
-            // If revealResults, then render is triggered from revealNode
-            // otherwise we just call render.
-            if (options.revealResults) {
-                this.revealNode(results);
-            }
-            else {
-                this.refresh();
-            }
+        //         // Add searchResult property to all matching nodes
+        //         // This will be used to apply custom styles
+        //         // and when identifying result to be cleared
+        //         $.each(results, function (index, node) {
+        //             node.searchResult = true;
+        //         })
+        //     }
 
-            this.element.trigger('searchComplete', $.extend(true, {}, results));
+        //     // If revealResults, then render is triggered from revealNode
+        //     // otherwise we just call render.
+        //     if (options.revealResults) {
+        //         this.revealNode(results);
+        //     }
+        //     else {
+        //         this.refresh();
+        //     }
 
-            return results;
-        },
+        //     this.elements.original.trigger('searchComplete', $.extend(true, {}, results));
 
-        /**
-            Clears previous search results
-        */
-        clearSearch: function (options) {
+        //     return results;
+        // },
 
-            options = $.extend({}, { render: true }, options);
+        // /**
+        //     Clears previous search results
+        // */
+        // clearSearch: function (options) {
 
-            var results = $.each(this.findNodes('true', 'g', 'searchResult'), function (index, node) {
-                node.searchResult = false;
-            });
+        //     options = $.extend({}, { render: true }, options);
 
-            if (options.render) {
-                this.refresh();  
-            }
+        //     var results = $.each(this.findNodes('true', 'g', 'searchResult'), function (index, node) {
+        //         node.searchResult = false;
+        //     });
+
+        //     if (options.render) {
+        //         this.refresh();  
+        //     }
             
-            this.element.trigger('searchCleared', $.extend(true, {}, results));
-        },
+        //     this.elements.original.trigger('searchCleared', $.extend(true, {}, results));
+        // },
 
         /**
             Find nodes that match a given criteria
@@ -1156,6 +1068,85 @@ Jx().package("T.UI.Components", function(J){
                     return undefined;
                 }
             }
+        },
+
+        // remove: function () {
+        //     this.destroy();
+        //     $.removeData(this, 'tree');
+        // },
+
+        destroy: function () {
+            if (!this.initialized) return;
+
+            this.container.remove();
+            this.container = null;
+
+            // Switch off events
+            this.unsubscribeEvents();
+
+            // Reset this.initialized flag
+            this.initialized = false;
+        },
+        // 取消事件监听
+        unbindEvents: function () {
+            this.elements.original.off('click');
+            this.elements.original.off('nodeChecked');
+            this.elements.original.off('nodeCollapsed');
+            this.elements.original.off('nodeDisabled');
+            this.elements.original.off('nodeEnabled');
+            this.elements.original.off('nodeExpanded');
+            this.elements.original.off('nodeSelected');
+            this.elements.original.off('nodeUnchecked');
+            this.elements.original.off('nodeUnselected');
+            // this.elements.original.off('searchComplete');
+            // this.elements.original.off('searchCleared');
+        },
+        // 监听事件
+        bindEvents: function () {
+
+            this.unbindEvents();
+
+            this.elements.original.on('click', $.proxy(this.clickHandler, this));
+            // 节点勾选
+            if (typeof (this.settings.onNodeChecked) === 'function') {
+                this.elements.original.on('nodeChecked', this.settings.onNodeChecked);
+            }
+            // 节点收起
+            if (typeof (this.settings.onNodeCollapsed) === 'function') {
+                this.elements.original.on('nodeCollapsed', this.settings.onNodeCollapsed);
+            }
+            // 节点禁用
+            if (typeof (this.settings.onNodeDisabled) === 'function') {
+                this.elements.original.on('nodeDisabled', this.settings.onNodeDisabled);
+            }
+            // 节点启用
+            if (typeof (this.settings.onNodeEnabled) === 'function') {
+                this.elements.original.on('nodeEnabled', this.settings.onNodeEnabled);
+            }
+            // 节点展开
+            if (typeof (this.settings.onNodeExpanded) === 'function') {
+                this.elements.original.on('nodeExpanded', this.settings.onNodeExpanded);
+            }
+            // 节点选中
+            if (typeof (this.settings.onNodeSelected) === 'function') {
+                this.elements.original.on('nodeSelected', this.settings.onNodeSelected);
+            }
+            // 节点取消勾选
+            if (typeof (this.settings.onNodeUnchecked) === 'function') {
+                this.elements.original.on('nodeUnchecked', this.settings.onNodeUnchecked);
+            }
+            // 节点取消选中
+            if (typeof (this.settings.onNodeUnselected) === 'function') {
+                this.elements.original.on('nodeUnselected', this.settings.onNodeUnselected);
+            }
+            // // 搜索完成
+            // if (typeof (this.settings.onSearchComplete) === 'function') {
+            //     this.elements.original.on('searchComplete', this.settings.onSearchComplete);
+            // }
+            // // 搜索结果清除
+            // if (typeof (this.settings.onSearchCleared) === 'function') {
+            //     this.elements.original.on('searchCleared', this.settings.onSearchCleared);
+            // }
         }
     });
 });

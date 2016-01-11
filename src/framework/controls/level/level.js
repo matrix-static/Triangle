@@ -316,7 +316,9 @@ Jx().package("T.UI.Controls", function(J){
             this.value = this.element.val();
 
             // 初始化选项
-            this.initSettings(options);
+            // this.initSettings(options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
 
             // // 初始化数据
             // this.getData();

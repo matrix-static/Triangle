@@ -87,7 +87,10 @@ Jx().package("T.UI.Controls", function(J){
             }
 
             // 初始化选项
-            this.initSettings(options);
+            // this.initSettings(options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
+            
             // 设置初始值
             if (this.settings.initval !== '' && this.element.val() === '') {
                 this.element.val(this.settings.initval);

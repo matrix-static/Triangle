@@ -765,7 +765,9 @@ Jx().package("T.UI.Controls", function(J){
             this.id = 'AnyTime--'+element.id.replace(/[^-_.A-Za-z0-9]/g,'--AnyTime--');
 
             // var options = jQuery.extend(true,{},options||{});
-            this.initSettings(options);
+            // this.initSettings(options);
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
 
 
             this.settings.utcParseOffsetCapture = true;

@@ -16,7 +16,7 @@ T.UI.ngComponents
                 args= JSON.parse(sArgs);
             }
 
-            var options= args.options ? $scope.$parent[args.options] : {};            
+            var options= args.options ? $scope.$parent[args.options] : {};
             var plugin= new T.UI.Components.Paginator($element, options);
 
             var ref= $scope.$parent[args.ref];
