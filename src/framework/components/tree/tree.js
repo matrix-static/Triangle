@@ -50,6 +50,10 @@ Jx().package("T.UI.Components", function(J){
         showTags: false,
         multiSelect: false,
 
+        // nodeOptions
+        silent: false,
+        ignoreChildren: false,
+
         // Event handlers
         onNodeChecked: undefined,
         onNodeCollapsed: undefined,
@@ -69,18 +73,24 @@ Jx().package("T.UI.Components", function(J){
         dataUrl: 'data-url'
     };
 
-    var nodeOptions = {
-        silent: false,
-        ignoreChildren: false
-    };
-
-    
+    // var state= jqNode.find('.expand-icon').hasClass(this.settings.expandIcon);
+    // fix for multi class in this.settings.expandIcon, like: 'glyphicon glyphicon-chevron-right'
+    function hasClasses(jqElement, classes){
+        var arrClass= classes.split(' ');
+        var has= true;
+        for(var i=0; i< arrClass.length; i++){
+            if(!jqElement.hasClass(arrClass[i])){
+                has= false;
+                break;
+            }
+        }
+        return has;
+    }
 
     this.Tree = new J.Class({extend : T.UI.BaseControl}, {
         defaults : defaults,
         attributeMap : attributeMap,
 
-        
 
         // 构造函数
         init: function(element, options){
@@ -214,10 +224,10 @@ Jx().package("T.UI.Components", function(J){
                 child.parentId = node.nodeId;
                 child.path = (node.path || 'r') + '-' + child.nodeId;
 
-                // if not provided set selectable default value
-                if (!child.hasOwnProperty('selectable')) {
-                    child.selectable = true;
-                }
+                // // if not provided set selectable default value
+                // if (!child.hasOwnProperty('selectable')) {
+                //     child.selectable = true;
+                // }
 
                 // where provided we should preserve states
                 child.state = child.state || {};
@@ -260,32 +270,57 @@ Jx().package("T.UI.Components", function(J){
         buildHtml: function(element){
             element.addClass('t-tree');
             this.container = $('<ul class="list-group"></ul>'); // list
-            element.empty().append(this.container);
+            element
+                .empty()
+                .append(this.container);
         },
+
         initElements: function(element){
             var context= this;
 
             this.elements={
                 original: element,
-                allNodes: $('li', this.container),
-                getSelectedNodes: function(){
-                    var selectedNodes = $('li.node-selected', this.container);
-                    return selectedNodes;
+                getAllNodes: function(){
+                    var allNodes= $('li', context.container);
+                    return allNodes;
                 },
                 getNode: function(nodeId){
-                    var child= $('li[data-nodeid="'+nodeId+'"]', this.container);
+                    var child= $('li[data-id="'+nodeId+'"]', context.container);
                     return child;
                 },
                 getChildNodes: function(nodeId){
-                    var node= context.getNode(nodeId);
-                    var children= $('li[data-nodepath^="'+node.path+'-"]', this.container);
+                    var jqNode= this.getNode(nodeId);
+                    var path= jqNode.data('path');
+                    var children= $('li[data-path^="'+path+'-"]', context.container);
                     return children;
+                },
+                getLevelNodes: function(level){
+                    var child= $('li[data-level="'+level+'"]', context.container);
+                    return child;
+                },
+                getSelectedNodes: function(unselected){
+                    var nodeSelector= unselected ? 'li:not(.node-selected)' : 'li.node-selected';
+                    var selectedNodes = $(nodeSelector, context.container);
+                    return selectedNodes;
+                },
+                getCheckedNodes: function(unchecked){
+                    var nodeSelector= unchecked ? 'li:not(.node-checked)' : 'li.node-checked';
+                    var checkedNodes= $(nodeSelector, context.container);
+                    return checkedNodes;
+                },
+                getDisabledNodes: function(disabled){
+                    var nodeSelector= disabled ? 'li:not(.node-disabled)' : 'li.node-disabled';
+                    var checkedNodes= $(nodeSelector, context.container);
+                    return checkedNodes;
+                },
+                getSearchResultNodes: function(notResult){
+                    var nodeSelector= notResult ? 'li:not(.search-result)' : 'li.search-result';
+                    var checkedNodes= $(nodeSelector, context.container);
+                    return checkedNodes;
                 }
             };
         },
 
-        // Starting from the root node, and recursing down the
-        // structure we build the tree one node at a time
         buildTree: function (nodes, level) {
             if (!nodes) return;
             level += 1;
@@ -299,10 +334,12 @@ Jx().package("T.UI.Components", function(J){
                 this.container.append(item);
 
                 // Recursively add child ndoes
-                if (node.nodes && node.state.expanded && !node.state.disabled) {
+                if (node.nodes && !node.state.disabled) {   // && node.state.expanded TODO:移除原有expanded机制，改为显示/隐藏模式
                     this.buildTree(node.nodes, level);
                 }
             }
+
+            // TODO:隐藏应该折叠的nodes
         },
 
         buildItem: function(node, level){
@@ -368,8 +405,9 @@ Jx().package("T.UI.Components", function(J){
                 '   class="' + cssClass + '" '+
                 (this.settings.enableTitle ? 
                 '   title="'+node.text+'"' : '')+
-                '   data-nodeid="'+node.nodeId+'"'+
-                '   data-nodepath="'+node.path+'">'+
+                '   data-id="'+node.nodeId+'"'+
+                '   data-level="'+level+'"'+
+                '   data-path="'+node.path+'">'+
                 indent +
                 icon +
                 nodeIcon +
@@ -396,177 +434,381 @@ Jx().package("T.UI.Components", function(J){
             }
 
             var target = $(event.target);
-            var node = this.findNode(target);
-            if (!node || node.state.disabled) {
+            var jqNode = target.closest('li.list-group-item');
+            if (jqNode.hasClass('node-disabled')) {
                 return;
             }
             
+            var nodeId = jqNode.attr('data-id');
+
             var classList = target.attr('class') ? target.attr('class').split(' ') : [];
             if ((classList.indexOf('expand-icon') !== -1)) {
-                this.toggleExpandedState(node, nodeOptions);
-                this.refresh();
-
+                this.toggleExpandedState(nodeId, this.settings.silent, this.settings.ignoreChildren);
                 return;
             }
 
             if ((classList.indexOf('check-icon') !== -1)) {                
-                this.toggleCheckedState(node, nodeOptions);
-                this.refresh();
-
+                this.toggleCheckedState(nodeId, this.settings.silent);
                 return;
             }
 
-            if (node.selectable) {
-                this.toggleSelectedState(node, nodeOptions);
+            // if (node.selectable) {
+            this.toggleSelectedState(nodeId, this.settings.silent);
+            // } else {
+            //     this.toggleExpandedState(nodeId, this.settings.silent);
+            // }
+        },
+
+        // -------------------------------------------------------------------
+        // 展开 / 折叠
+        // -------------------------------------------------------------------
+
+        setExpandedState: function (nodeId, state, silent, ignoreChildren) {
+            var jqNode= this.elements.getNode(nodeId);
+            var jqChildren= this.elements.getChildNodes(nodeId);
+
+            if (jqChildren.length>0 && !ignoreChildren) {
+                var context= this;
+                jqChildren.each(function(){
+                    var nodeId= $(this).data('id');
+                    context.setExpandedState(nodeId, state, silent, ignoreChildren);
+                });
+            }
+
+            if (state) {
+                jqNode.find('.expand-icon').removeClass(this.settings.expandIcon).addClass(this.settings.collapseIcon);                
+                jqChildren.show();
+
+                if (!silent) {
+                    this.elements.original.trigger('nodeExpanded', nodeId);
+                }
             } else {
-                this.toggleExpandedState(node, nodeOptions);
-            }
+                jqNode.find('.expand-icon').removeClass(this.settings.collapseIcon).addClass(this.settings.expandIcon);
+                jqChildren.hide();
 
-            // this.refresh();
-        },
-
-        // Looks up the DOM for the closest parent list item to retrieve the
-        // data attribute nodeid, which is used to lookup the node in the flattened structure.
-        findNode: function (target) {
-            var nodeId = target.closest('li.list-group-item').attr('data-nodeid');
-            var node = this.nodes[nodeId];
-
-            if (!node) {
-                console.log('Error: node does not exist');
-            }
-            return node;
-        },
-
-        toggleExpandedState: function (node, options) {
-            if (!node) return;
-            this.setExpandedState(node, !node.state.expanded, options);
-        },
-
-        setExpandedState: function (node, state, options) {
-
-            if (state === node.state.expanded) return;
-
-            if (state && node.nodes) {
-
-                // Expand a node
-                node.state.expanded = true;
-                if (!options.silent) {
-                    this.elements.original.trigger('nodeExpanded', $.extend(true, {}, node));
-                }
-            }
-            else if (!state) {
-
-                // Collapse a node
-                node.state.expanded = false;
-                if (!options.silent) {
-                    this.elements.original.trigger('nodeCollapsed', $.extend(true, {}, node));
-                }
-
-                // Collapse child nodes
-                if (node.nodes && !options.ignoreChildren) {
-                    $.each(node.nodes, $.proxy(function (index, node) {
-                        this.setExpandedState(node, false, options);
-                    }, this));
+                if (!silent) {
+                    this.elements.original.trigger('nodeCollapsed', nodeId);
                 }
             }
         },
 
-        toggleSelectedState: function (node, options) {
-            if (!node) return;
-            this.setSelectedState(node, !node.state.selected, options);
+        collapseNode: function (nodeIds, silent, ignoreChildren) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.setExpandedState(nodeIds[i], false, silent, ignoreChildren);
+            }
         },
 
-        setSelectedState: function (node, state, options) {
+        expandNode: function (nodeIds, silent, ignoreChildren) {
+            // this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+            //     this.setExpandedState(node, true, options);
+            //     if (node.nodes && (options && options.levels)) {
+            //         this.expandLevels(node.nodes, options.levels-1, options);
+            //     }
+            // }, this));
 
-            if (state === node.state.selected) return;
+            for(var i=0; i<nodeIds.length; i++){
+                this.setExpandedState(nodeIds[i], true, silent, ignoreChildren);
+            }
+        },
 
+        toggleExpandedState: function (nodeId, silent, ignoreChildren) {
+            var jqNode= this.elements.getNode(nodeId);
+            var jqExpand= jqNode.find('.expand-icon');
+
+            var state= hasClasses(jqExpand, this.settings.collapseIcon);
+
+            this.setExpandedState(nodeId, !state, silent, ignoreChildren);
+        },
+
+        toggleNodeExpanded: function (nodeIds, silent, ignoreChildren) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.toggleExpandedState(nodeIds[i], silent, ignoreChildren);
+            }
+        },
+
+        // expandLevels: function (nodes, level, silent, ignoreChildren) {
+        //     options = $.extend({}, nodeOptions, options);
+
+        //     $.each(nodes, $.proxy(function (index, node) {
+        //         this.setExpandedState(node, (level > 0) ? true : false, options);
+        //         if (node.nodes) {
+        //             this.expandLevels(node.nodes, level-1, options);
+        //         }
+        //     }, this));
+        // },
+
+        expandAll: function (silent, ignoreChildren) {
+            // options = $.extend({}, nodeOptions, options);
+
+            // if (options && options.levels) {
+            //     his.expandLevels(this.data, options.levels, options);
+            // }
+            // else {
+            //     var identifiers = this.findNodes('false', 'g', 'state.expanded');
+            //     this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+            //         this.setExpandedState(node, true, options);
+            //     }, this));
+            // }
+
+            var nodes= this.elements.getLevelNodes(1);
+            var context= this;
+            nodes.each(function(){
+                var nodeId= $(this).data('id');
+                context.setExpandedState(nodeId, true, silent, ignoreChildren);
+            });
+        },
+
+        collapseAll: function (silent, ignoreChildren) {
+            var nodes= this.elements.getLevelNodes(1);
+            var context= this;
+            nodes.each(function(){
+                var nodeId= $(this).data('id');
+                context.setExpandedState(nodeId, false, silent, ignoreChildren);
+            });
+        },        
+
+        // -------------------------------------------------------------------
+        // 选中
+        // -------------------------------------------------------------------
+
+        setSelectedState: function (nodeId, state, silent) {
             if (state) {
-
-                // If multiSelect false, unselect previously selected
                 if (!this.settings.multiSelect) {
-                    // $.each(this.findNodes('true', 'g', 'state.selected'), $.proxy(function (index, node) {
-                    //     this.setSelectedState(node, false, options);
-                    // }, this));
-                    this.elements.getSelectedNodes().removeClass('node-selected');
+                    this.elements.getSelectedNodes(false).removeClass('node-selected');
                 }
 
-                // Continue selecting node
-                // node.state.selected = true;
-                this.elements.getNode(node.nodeId).addClass('node-selected');
-                if (!options.silent) {
-                    this.elements.original.trigger('nodeSelected', $.extend(true, {}, node));
+                this.elements.getNode(nodeId).addClass('node-selected');
+                if (!silent) {
+                    this.elements.original.trigger('nodeSelected', nodeId);
                 }
             }
             else {
-
-                // Unselect node
-                // node.state.selected = false;
-                this.elements.getNode(node.nodeId).removeClass('node-selected');
-                if (!options.silent) {
-                    this.elements.original.trigger('nodeUnselected', $.extend(true, {}, node));
+                this.elements.getNode(nodeId).removeClass('node-selected');
+                if (!silent) {
+                    this.elements.original.trigger('nodeUnselected', nodeId);
                 }
             }
         },
 
-        toggleCheckedState: function (node, options) {
-            if (!node) return;
-            this.setCheckedState(node, !node.state.checked, options);
+        selectNode: function (nodeIds, silent) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.setSelectedState(nodeIds[i], true, silent);
+            }
         },
 
-        setCheckedState: function (node, state, options) {
+        unselectNode: function (nodeIds, silent) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.setSelectedState(nodeIds[i], false, silent);
+            }
+        },
 
-            if (state === node.state.checked) return;
+        toggleSelectedState: function (nodeId, silent) {
+            var jqNode= this.elements.getNode(nodeId);
+            var state= jqNode.hasClass('node-selected');
 
-            if (state) {
+            this.setSelectedState(nodeId, !state, silent);
+        },
 
-                // Check node
-                node.state.checked = true;
+        toggleNodeSelected: function (nodeIds, silent) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.toggleSelectedState(nodeIds[i], silent);
+            }
+        },
 
-                if (!options.silent) {
-                    this.elements.original.trigger('nodeChecked', $.extend(true, {}, node));
+        // -------------------------------------------------------------------
+        // checkbox
+        // -------------------------------------------------------------------
+
+        setCheckedState: function(nodeId, state, silent){
+            var jqNode= this.elements.getNode(nodeId);
+            var jqCheck= jqNode.find('.check-icon');
+
+            if (state) {   
+                jqNode.addClass('node-checked');
+                jqCheck.removeClass(this.settings.uncheckedIcon).addClass(this.settings.checkedIcon);
+
+                if (!silent) {
+                    // this.elements.original.trigger('nodeChecked', $.extend(true, {}, node));
+                    this.elements.original.trigger('nodeChecked', nodeId);
                 }
             }
             else {
+                jqNode.removeClass('node-checked');
+                jqCheck.removeClass(this.settings.checkedIcon).addClass(this.settings.uncheckedIcon);
 
-                // Uncheck node
-                node.state.checked = false;
-                if (!options.silent) {
-                    this.elements.original.trigger('nodeUnchecked', $.extend(true, {}, node));
+                if (!silent) {
+                    this.elements.original.trigger('nodeUnchecked', nodeId);
                 }
             }
         },
 
-        setDisabledState: function (node, state, options) {
+        checkNode: function (nodeIds, silent) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.setCheckedState(nodeIds[i], true, silent);
+            }
+        },
 
-            if (state === node.state.disabled) return;
+        uncheckNode: function (nodeIds, silent) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.setCheckedState(nodeIds[i], false, silent);
+            }
+        },
+
+        toggleCheckedState: function (nodeId, silent) {
+            var jqNode= this.elements.getNode(nodeId);
+            var jqCheck= jqNode.find('.check-icon');
+
+            var state= hasClasses(jqExpand, this.settings.checkedIcon);
+
+            this.setCheckedState(node.nodeId, !state, silent);
+        },
+
+        toggleNodeChecked: function (nodeIds, silent) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.toggleCheckedState(nodeIds[i], silent);
+            }
+        },
+
+        checkAll: function (silent) {
+            var checkedNodes= this.elements.getCheckedNodes(true);
+            var jqCheck= checkedNodes.find('.check-icon');
+
+            checkedNodes.addClass('node-checked');
+            jqCheck.removeClass(this.settings.uncheckedIcon).addClass(this.settings.checkedIcon);
+
+            if (!silent) {
+                var context= this;
+                checkedNodes.each(function(){
+                    var nodeId= $(this).data('id');
+                    context.elements.original.trigger('nodeChecked', nodeId);
+                });
+            }
+        },
+
+        uncheckAll: function (silent) {
+            var uncheckedNodes= this.elements.getCheckedNodes(false);
+            var jqCheck= uncheckedNodes.find('.check-icon');
+
+            uncheckedNodes.removeClass('node-checked');            
+            jqCheck.removeClass(this.settings.checkedIcon).addClass(this.settings.uncheckedIcon);
+
+            if (!silent) {
+                var context= this;
+                uncheckedNodes.each(function(){
+                    var nodeId= $(this).data('id');
+                    context.elements.original.trigger('nodeUnchecked', nodeId);
+                });
+            }
+        },
+
+        // -------------------------------------------------------------------
+        // 启用 / 禁用
+        // -------------------------------------------------------------------
+
+        setDisabledState: function (nodeId, state, silent, ignoreChildren) {
+            var jqNode= this.elements.getNode(nodeId);
 
             if (state) {
-
-                // Disable node
-                node.state.disabled = true;
+                jqNode.addClass('node-disabled');
 
                 // Disable all other states
-                this.setExpandedState(node, false, options);
-                this.setSelectedState(node, false, options);
-                this.setCheckedState(node, false, options);
+                this.setExpandedState(nodeId, false, silent, ignoreChildren);
+                this.setSelectedState(nodeId, false, silent);
+                this.setCheckedState(nodeId, false, silent);
 
-                if (!options.silent) {
-                    this.elements.original.trigger('nodeDisabled', $.extend(true, {}, node));
+                if (!silent) {
+                    this.elements.original.trigger('nodeDisabled', nodeId);
                 }
             }
             else {
+                jqNode.removeClass('node-disabled');
 
-                // Enabled node
-                node.state.disabled = false;
-                if (!options.silent) {
-                    this.elements.original.trigger('nodeEnabled', $.extend(true, {}, node));
+                if (!silent) {
+                    this.elements.original.trigger('nodeEnabled', nodeId);
                 }
             }
-        },      
-
-        getNode: function (nodeId) {
-            return this.nodes[nodeId];
         },
+
+        enableNode: function (nodeIds, silent) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.setDisabledState(nodeIds[i], false, silent);
+            }
+        },
+
+        disableNode: function (nodeIds, silent) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.setDisabledState(nodeIds[i], true, silent);
+            }
+        },
+
+        toggleDisabledState: function (nodeId, silent) {
+            var jqNode= this.elements.getNode(nodeId);
+            var state= jqNode.hasClass('node-disabled');
+
+            this.setDisabledState(nodeId, !state, silent);
+        },
+
+        toggleNodeDisabled: function (nodeIds, silent) {
+            for(var i=0; i<nodeIds.length; i++){
+                this.toggleDisabledState(nodeIds[i], silent);
+            }
+        },
+
+        disableAll: function (silent, ignoreChildren) {
+            // var identifiers = this.findNodes('false', 'g', 'state.disabled');
+            // this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+            //     this.setDisabledState(node, true, options);
+            // }, this));
+
+            
+            var enabledNodes= this.elements.getDisabledNodes(true);
+            enabledNodes.addClass('node-disabled');
+
+            var context= this;
+            enabledNodes.each(function(){
+                var nodeId= $(this).data('id');
+
+                // Disable all other states
+                context.setExpandedState(nodeId, false, silent, ignoreChildren);
+                context.setSelectedState(nodeId, false, silent);
+                context.setCheckedState(nodeId, false, silent);
+
+                if (!silent) {
+                    context.elements.original.trigger('nodeDisabled', nodeId);
+                }
+            });
+        },
+
+        enableAll: function (silent, ignoreChildren) {
+            // var identifiers = this.findNodes('true', 'g', 'state.disabled');
+            // this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+            //     this.setDisabledState(node, false, options);
+            // }, this));
+            
+            var disabledNodes= this.elements.getDisabledNodes(false);
+            disabledNodes.removeClass('node-disabled');
+
+            var context= this;
+            disabledNodes.each(function(){
+                var nodeId= $(this).data('id');
+
+                // // Enable all other states
+                // context.setExpandedState(nodeId, true, silent, ignoreChildren);
+                // context.setSelectedState(nodeId, true, silent);
+                // context.setCheckedState(nodeId, true, silent);
+
+                if (!silent) {
+                    context.elements.original.trigger('nodeEnabled', nodeId);
+                }
+            });            
+        },
+
+
+
+
+        // getNode: function (nodeId) {
+        //     return this.nodes[nodeId];
+        // },
 
         // /**
         //     Returns the parent node of a given node, if valid otherwise returns undefined.
@@ -592,135 +834,10 @@ Jx().package("T.UI.Components", function(J){
         //         });
         // },
 
-        /**
-            Returns an array of selected nodes.
-            @returns {Array} nodes - Selected nodes
-        */
-        getSelected: function () {
-            return this.findNodes('true', 'g', 'state.selected');
-        },
 
-        /**
-            Returns an array of unselected nodes.
-            @returns {Array} nodes - Unselected nodes
-        */
-        getUnselected: function () {
-            return this.findNodes('false', 'g', 'state.selected');
-        },
-
-        /**
-            Returns an array of expanded nodes.
-            @returns {Array} nodes - Expanded nodes
-        */
-        getExpanded: function () {
-            return this.findNodes('true', 'g', 'state.expanded');
-        },
-
-        /**
-            Returns an array of collapsed nodes.
-            @returns {Array} nodes - Collapsed nodes
-        */
-        getCollapsed: function () {
-            return this.findNodes('false', 'g', 'state.expanded');
-        },
-
-        /**
-            Returns an array of checked nodes.
-            @returns {Array} nodes - Checked nodes
-        */
-        getChecked: function () {
-            return this.findNodes('true', 'g', 'state.checked');
-        },
-
-        /**
-            Returns an array of unchecked nodes.
-            @returns {Array} nodes - Unchecked nodes
-        */
-        getUnchecked: function () {
-            return this.findNodes('false', 'g', 'state.checked');
-        },
-
-        /**
-            Returns an array of disabled nodes.
-            @returns {Array} nodes - Disabled nodes
-        */
-        getDisabled: function () {
-            return this.findNodes('true', 'g', 'state.disabled');
-        },
-
-        /**
-            Returns an array of enabled nodes.
-            @returns {Array} nodes - Enabled nodes
-        */
-        getEnabled: function () {
-            return this.findNodes('false', 'g', 'state.disabled');
-        },
+        
 
 
-        /**
-            Set a node state to selected
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        selectNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setSelectedState(node, true, options);
-            }, this));
-
-            // this.refresh();
-        },
-
-        /**
-            Set a node state to unselected
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        unselectNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setSelectedState(node, false, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Collapse a given tree node
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        collapseNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setExpandedState(node, false, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Toggles a node selected state; selecting if unselected, unselecting if selected.
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        toggleNodeSelected: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.toggleSelectedState(node, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Collapse all tree nodes
-            @param {optional Object} options
-        */
-        collapseAll: function (options) {
-            var identifiers = this.findNodes('true', 'g', 'state.expanded');
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setExpandedState(node, false, options);
-            }, this));
-
-            this.refresh();
-        },
 
         // /**
         //     Reveals a given tree node, expanding the tree from node to root.
@@ -739,353 +856,109 @@ Jx().package("T.UI.Components", function(J){
         //     this.refresh();
         // },
 
-        /**
-            Expand a given tree node
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        expandNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setExpandedState(node, true, options);
-                if (node.nodes && (options && options.levels)) {
-                    this.expandLevels(node.nodes, options.levels-1, options);
-                }
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Toggles a nodes expanded state; collapsing if expanded, expanding if collapsed.
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        toggleNodeExpanded: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.toggleExpandedState(node, options);
-            }, this));
-            
-            this.refresh();
-        },
-
-        expandLevels: function (nodes, level, options) {
-            options = $.extend({}, nodeOptions, options);
-
-            $.each(nodes, $.proxy(function (index, node) {
-                this.setExpandedState(node, (level > 0) ? true : false, options);
-                if (node.nodes) {
-                    this.expandLevels(node.nodes, level-1, options);
-                }
-            }, this));
-        },
-
-        /**
-            Expand all tree nodes
-            @param {optional Object} options
-        */
-        expandAll: function (options) {
-            options = $.extend({}, nodeOptions, options);
-
-            if (options && options.levels) {
-                his.expandLevels(this.data, options.levels, options);
-            }
-            else {
-                var identifiers = this.findNodes('false', 'g', 'state.expanded');
-                this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                    this.setExpandedState(node, true, options);
-                }, this));
-            }
-
-            this.refresh();
-        },
-
-        /**
-            Check a given tree node
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        checkNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setCheckedState(node, true, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Uncheck a given tree node
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        uncheckNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setCheckedState(node, false, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Toggles a nodes checked state; checking if unchecked, unchecking if checked.
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        toggleNodeChecked: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.toggleCheckedState(node, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Check all tree nodes
-            @param {optional Object} options
-        */
-        checkAll: function (options) {
-            var identifiers = this.findNodes('false', 'g', 'state.checked');
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setCheckedState(node, true, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Uncheck all tree nodes
-            @param {optional Object} options
-        */
-        uncheckAll: function (options) {
-            var identifiers = this.findNodes('true', 'g', 'state.checked');
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setCheckedState(node, false, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Enable a given tree node
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        enableNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setDisabledState(node, false, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Disable a given tree node
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        disableNode: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setDisabledState(node, true, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Toggles a nodes disabled state; disabling is enabled, enabling if disabled.
-            @param {Object|Number} identifiers - A valid node, node id or array of node identifiers
-            @param {optional Object} options
-        */
-        toggleNodeDisabled: function (identifiers, options) {
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setDisabledState(node, !node.state.disabled, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Enable all tree nodes
-            @param {optional Object} options
-        */
-        enableAll: function (options) {
-            var identifiers = this.findNodes('true', 'g', 'state.disabled');
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setDisabledState(node, false, options);
-            }, this));
-
-            this.refresh();
-        },
-
-        /**
-            Disable all tree nodes
-            @param {optional Object} options
-        */
-        disableAll: function (options) {
-            var identifiers = this.findNodes('false', 'g', 'state.disabled');
-            this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-                this.setDisabledState(node, true, options);
-            }, this));
-
-            this.refresh();
-        },
+        
 
         
 
-        /**
-            Common code for processing multiple identifiers
-        */
-        forEachIdentifier: function (identifiers, options, callback) {
+        
 
-            options = $.extend({}, nodeOptions, options);
+        // /*
+        //     Identifies a node from either a node id or object
+        // */
+        // identifyNode: function (identifier) {
+        //     return ((typeof identifier) === 'number') ? this.nodes[identifier] : identifier;
+        // },
 
-            if (!(identifiers instanceof Array)) {
-                identifiers = [identifiers];
+        search: function (pattern, options) {
+            var searchOptions = {
+                ignoreCase: true,
+                exactMatch: false,
+                revealResults: true
+            };
+
+            options = $.extend({}, searchOptions, options);
+
+            this.clearSearch();
+
+            var results = [];
+            if (pattern && pattern.length > 0) {
+
+                if (options.exactMatch) {
+                    pattern = '^' + pattern + '$';
+                }
+
+                var modifier = 'g';
+                if (options.ignoreCase) {
+                    modifier += 'i';
+                }
+
+                results = this.findNodes(pattern, modifier);
+
+                // // Add searchResult property to all matching nodes
+                // // This will be used to apply custom styles
+                // // and when identifying result to be cleared
+                // $.each(results, function (index, node) {
+                //     node.searchResult = true;
+                // })
             }
 
-            $.each(identifiers, $.proxy(function (index, identifier) {
-                callback(this.identifyNode(identifier), options);
-            }, this));  
+            // // If revealResults, then render is triggered from revealNode
+            // // otherwise we just call render.
+            // if (options.revealResults) {
+            //     this.revealNode(results);
+            // }
+            // else {
+            //     this.refresh();
+            // }
+
+            this.elements.original.trigger('searchComplete', $.extend(true, {}, results));
+
+            return results;
         },
 
-        /*
-            Identifies a node from either a node id or object
-        */
-        identifyNode: function (identifier) {
-            return ((typeof identifier) === 'number') ? this.nodes[identifier] : identifier;
-        },
+        clearSearch: function () {
 
-        // /**
-        //     Searches the tree for nodes (text) that match given criteria
-        //     @param {String} pattern - A given string to match against
-        //     @param {optional Object} options - Search criteria options
-        //     @return {Array} nodes - Matching nodes
-        // */
-        // search: function (pattern, options) {
-        //     var searchOptions = {
-        //         ignoreCase: true,
-        //         exactMatch: false,
-        //         revealResults: true
-        //     };
+            // options = $.extend({}, { render: true }, options);
 
-        //     options = $.extend({}, searchOptions, options);
+            // var results = $.each(this.findNodes('true', 'g', 'searchResult'), function (index, node) {
+            //     node.searchResult = false;
+            // });
 
-        //     this.clearSearch({ render: false });
+            // if (options.render) {
+            //     this.refresh();  
+            // }
 
-        //     var results = [];
-        //     if (pattern && pattern.length > 0) {
-
-        //         if (options.exactMatch) {
-        //             pattern = '^' + pattern + '$';
-        //         }
-
-        //         var modifier = 'g';
-        //         if (options.ignoreCase) {
-        //             modifier += 'i';
-        //         }
-
-        //         results = this.findNodes(pattern, modifier);
-
-        //         // Add searchResult property to all matching nodes
-        //         // This will be used to apply custom styles
-        //         // and when identifying result to be cleared
-        //         $.each(results, function (index, node) {
-        //             node.searchResult = true;
-        //         })
-        //     }
-
-        //     // If revealResults, then render is triggered from revealNode
-        //     // otherwise we just call render.
-        //     if (options.revealResults) {
-        //         this.revealNode(results);
-        //     }
-        //     else {
-        //         this.refresh();
-        //     }
-
-        //     this.elements.original.trigger('searchComplete', $.extend(true, {}, results));
-
-        //     return results;
-        // },
-
-        // /**
-        //     Clears previous search results
-        // */
-        // clearSearch: function (options) {
-
-        //     options = $.extend({}, { render: true }, options);
-
-        //     var results = $.each(this.findNodes('true', 'g', 'searchResult'), function (index, node) {
-        //         node.searchResult = false;
-        //     });
-
-        //     if (options.render) {
-        //         this.refresh();  
-        //     }
+            var searchResults= this.elements.getSearchResultNodes();
+            searchResults.removeClass('search-result');
             
-        //     this.elements.original.trigger('searchCleared', $.extend(true, {}, results));
-        // },
+            this.elements.original.trigger('searchCleared');    // , $.extend(true, {}, results)
+        },
 
-        /**
-            Find nodes that match a given criteria
-            @param {String} pattern - A given string to match against
-            @param {optional String} modifier - Valid RegEx modifiers
-            @param {optional String} attribute - Attribute to compare pattern against
-            @return {Array} nodes - Nodes that match your criteria
-        */
         findNodes: function (pattern, modifier, attribute) {
 
             modifier = modifier || 'g';
             attribute = attribute || 'text';
 
             var context = this;
-            return $.grep(this.nodes, function (node) {
-                var val = context.getNodeValue(node, attribute);
-                if (typeof val === 'string') {
-                    return val.match(new RegExp(pattern, modifier));
-                }
+            // return $.grep(this.nodes, function (node) {
+            //     var val = context.getNodeValue(node, attribute);
+            //     if (typeof val === 'string') {
+            //         return val.match(new RegExp(pattern, modifier));
+            //     }
+            // });
+
+            var allNodes= this.elements.getAllNodes();
+            return $.grep(allNodes, function (element) {                
+                var val = $(element).text();
+                return val.match(new RegExp(pattern, modifier));
             });
         },
 
-        /**
-            Recursive find for retrieving nested attributes values
-            All values are return as strings, unless invalid
-            @param {Object} obj - Typically a node, could be any object
-            @param {String} attr - Identifies an object property using dot notation
-            @return {String} value - Matching attributes string representation
-        */
-        getNodeValue: function (obj, attr) {
-            var index = attr.indexOf('.');
-            if (index > 0) {
-                var _obj = obj[attr.substring(0, index)];
-                var _attr = attr.substring(index + 1, attr.length);
-                return this.getNodeValue(_obj, _attr);
-            }
-            else {
-                if (obj.hasOwnProperty(attr)) {
-                    return obj[attr].toString();
-                }
-                else {
-                    return undefined;
-                }
-            }
-        },
-
-        // remove: function () {
-        //     this.destroy();
-        //     $.removeData(this, 'tree');
-        // },
-
         destroy: function () {
-            if (!this.initialized) return;
-
-            this.container.remove();
+            this.container.empty();
             this.container = null;
-
             // Switch off events
             this.unsubscribeEvents();
-
-            // Reset this.initialized flag
-            this.initialized = false;
         },
         // 取消事件监听
         unbindEvents: function () {
@@ -1150,3 +1023,93 @@ Jx().package("T.UI.Components", function(J){
         }
     });
 });
+
+
+
+
+        // API
+
+        // /**
+        //     Find nodes that match a given criteria
+        //     @param {String} pattern - A given string to match against
+        //     @param {optional String} modifier - Valid RegEx modifiers
+        //     @param {optional String} attribute - Attribute to compare pattern against
+        //     @return {Array} nodes - Nodes that match your criteria
+        // */
+        // findNodes: function (pattern, modifier, attribute) {
+
+        //     modifier = modifier || 'g';
+        //     attribute = attribute || 'text';
+
+        //     var context = this;
+        //     return $.grep(this.nodes, function (node) {
+        //         var val = context.getNodeValue(node, attribute);
+        //         if (typeof val === 'string') {
+        //             return val.match(new RegExp(pattern, modifier));
+        //         }
+        //     });
+        // },
+
+        // /**
+        //     Returns an array of selected nodes.
+        //     @returns {Array} nodes - Selected nodes
+        // */
+        // getSelected: function () {
+        //     return this.findNodes('true', 'g', 'state.selected');
+        // },
+
+        // /**
+        //     Returns an array of unselected nodes.
+        //     @returns {Array} nodes - Unselected nodes
+        // */
+        // getUnselected: function () {
+        //     return this.findNodes('false', 'g', 'state.selected');
+        // },
+
+        // /**
+        //     Returns an array of expanded nodes.
+        //     @returns {Array} nodes - Expanded nodes
+        // */
+        // getExpanded: function () {
+        //     return this.findNodes('true', 'g', 'state.expanded');
+        // },
+
+        // /**
+        //     Returns an array of collapsed nodes.
+        //     @returns {Array} nodes - Collapsed nodes
+        // */
+        // getCollapsed: function () {
+        //     return this.findNodes('false', 'g', 'state.expanded');
+        // },
+
+        // /**
+        //     Returns an array of checked nodes.
+        //     @returns {Array} nodes - Checked nodes
+        // */
+        // getChecked: function () {
+        //     return this.findNodes('true', 'g', 'state.checked');
+        // },
+
+        // /**
+        //     Returns an array of unchecked nodes.
+        //     @returns {Array} nodes - Unchecked nodes
+        // */
+        // getUnchecked: function () {
+        //     return this.findNodes('false', 'g', 'state.checked');
+        // },
+
+        // /**
+        //     Returns an array of disabled nodes.
+        //     @returns {Array} nodes - Disabled nodes
+        // */
+        // getDisabled: function () {
+        //     return this.findNodes('true', 'g', 'state.disabled');
+        // },
+
+        // /**
+        //     Returns an array of enabled nodes.
+        //     @returns {Array} nodes - Enabled nodes
+        // */
+        // getEnabled: function () {
+        //     return this.findNodes('false', 'g', 'state.disabled');
+        // },

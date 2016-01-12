@@ -581,7 +581,8 @@
 
                     var output = '<p>' + results.length + ' matches found</p>';
                     $.each(results, function (index, result) {
-                        output += '<p>- ' + result.text + '</p>';
+                        // output += '<p>- ' + result.text + '</p>';
+                        output += '<p>- ' + $(result).text() + '</p>';
                     });
                     $('#search-output').html(output);
                 }
@@ -657,11 +658,11 @@
 
                 var $expandibleTree = $('#tree-expandible').tree({
                     data: defaultData,
-                    onNodeCollapsed: function(event, node) {
-                        $('#expandible-output').prepend('<p>' + node.text + ' was collapsed</p>');
+                    onNodeCollapsed: function(event, nodeid) {
+                        $('#expandible-output').prepend('<p>' + nodeid + ' was collapsed</p>');
                     },
-                    onNodeExpanded: function (event, node) {
-                        $('#expandible-output').prepend('<p>' + node.text + ' was expanded</p>');
+                    onNodeExpanded: function (event, nodeid) {
+                        $('#expandible-output').prepend('<p>' + nodeid + ' was expanded</p>');
                     }
                 });
 
@@ -720,11 +721,11 @@
                     data: defaultData,
                     showIcon: false,
                     showCheckbox: true,
-                    onNodeChecked: function(event, node) {
-                        $('#checkable-output').prepend('<p>' + node.text + ' was checked</p>');
+                    onNodeChecked: function(event, nodeid) {
+                        $('#checkable-output').prepend('<p>' + nodeid + ' was checked</p>');
                     },
-                    onNodeUnchecked: function (event, node) {
-                        $('#checkable-output').prepend('<p>' + node.text + ' was unchecked</p>');
+                    onNodeUnchecked: function (event, nodeid) {
+                        $('#checkable-output').prepend('<p>' + nodeid + ' was unchecked</p>');
                     }
                 });
 
@@ -760,32 +761,32 @@
                 // Check/uncheck all
                 $('#btn-check-all').on('click', function (e) {
                     //$checkableTree.tree('checkAll', { silent: $('#chk-check-silent').is(':checked') });
-                    pluginCT.checkAll({ silent: $('#chk-check-silent').is(':checked') });
+                    pluginCT.checkAll($('#chk-check-silent').is(':checked'));
                 });
 
                 $('#btn-uncheck-all').on('click', function (e) {
                     //$checkableTree.tree('uncheckAll', { silent: $('#chk-check-silent').is(':checked') });
-                    pluginCT.uncheckAll({ silent: $('#chk-check-silent').is(':checked')});
+                    pluginCT.uncheckAll($('#chk-check-silent').is(':checked'));
                 });
 
 
 
                 var $disabledTree = $('#tree-disabled').tree({
                     data: defaultData,
-                    onNodeDisabled: function(event, node) {
-                        $('#disabled-output').prepend('<p>' + node.text + ' was disabled</p>');
+                    onNodeDisabled: function(event, nodeid) {
+                        $('#disabled-output').prepend('<p>' + nodeid + ' was disabled</p>');
                     },
-                    onNodeEnabled: function (event, node) {
-                        $('#disabled-output').prepend('<p>' + node.text + ' was enabled</p>');
+                    onNodeEnabled: function (event, nodeid) {
+                        $('#disabled-output').prepend('<p>' + nodeid + ' was enabled</p>');
                     },
-                    onNodeCollapsed: function(event, node) {
-                        $('#disabled-output').prepend('<p>' + node.text + ' was collapsed</p>');
+                    onNodeCollapsed: function(event, nodeid) {
+                        $('#disabled-output').prepend('<p>' + nodeid + ' was collapsed</p>');
                     },
-                    onNodeUnchecked: function (event, node) {
-                        $('#disabled-output').prepend('<p>' + node.text + ' was unchecked</p>');
+                    onNodeUnchecked: function (event, nodeid) {
+                        $('#disabled-output').prepend('<p>' + nodeid + ' was unchecked</p>');
                     },
-                    onNodeUnselected: function (event, node) {
-                        $('#disabled-output').prepend('<p>' + node.text + ' was unselected</p>');
+                    onNodeUnselected: function (event, nodeid) {
+                        $('#disabled-output').prepend('<p>' + nodeid + ' was unselected</p>');
                     }
                 });
 
@@ -820,12 +821,12 @@
                 // Expand/collapse all
                 $('#btn-disable-all').on('click', function (e) {
                     //$disabledTree.tree('disableAll', { silent: $('#chk-disable-silent').is(':checked') });
-                    pluginDS.disableAll({ silent: $('#chk-disable-silent').is(':checked') });
+                    pluginDS.disableAll($('#chk-disable-silent').is(':checked'));
                 });
 
                 $('#btn-enable-all').on('click', function (e) {
                     //$disabledTree.tree('enableAll', { silent: $('#chk-disable-silent').is(':checked') });
-                    pluginDS.enableAll({ silent: $('#chk-disable-silent').is(':checked') });
+                    pluginDS.enableAll($('#chk-disable-silent').is(':checked'));
                 });
 
 
