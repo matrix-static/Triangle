@@ -604,11 +604,11 @@
                     return $('#tree-selectable').tree({
                         data: defaultData,
                         multiSelect: $('#chk-select-multi').is(':checked'),
-                        onNodeSelected: function(event, node) {
-                            $('#selectable-output').prepend('<p>' + node.text + ' was selected</p>');
+                        onNodeSelected: function(event, nodeiId) {
+                            $('#selectable-output').prepend('<p>' + nodeiId + ' was selected</p>');
                         },
-                        onNodeUnselected: function (event, node) {
-                            $('#selectable-output').prepend('<p>' + node.text + ' was unselected</p>');
+                        onNodeUnselected: function (event, nodeiId) {
+                            $('#selectable-output').prepend('<p>' + nodeiId + ' was unselected</p>');
                         }
                     });
                 };
@@ -639,19 +639,19 @@
                 $('#btn-select-node.select-node').on('click', function (e) {
                     //$selectableTree.tree('selectNode', [ selectableNodes, { silent: $('#chk-select-silent').is(':checked') }]);
                     var plugin=$selectableTree.data('t-plugin-ref');
-                    plugin.selectNode(selectableNodes, { silent: $('#chk-select-silent').is(':checked') });
+                    plugin.selectNode(selectableNodes, $('#chk-select-silent').is(':checked'));
                 });
 
                 $('#btn-unselect-node.select-node').on('click', function (e) {
                     //$selectableTree.tree('unselectNode', [ selectableNodes, { silent: $('#chk-select-silent').is(':checked') }]);
                     var plugin=$selectableTree.data('t-plugin-ref');
-                    plugin.unselectNode(selectableNodes, { silent: $('#chk-select-silent').is(':checked') });
+                    plugin.unselectNode(selectableNodes, $('#chk-select-silent').is(':checked'));
                 });
 
                 $('#btn-toggle-selected.select-node').on('click', function (e) {
                     //$selectableTree.tree('toggleNodeSelected', [ selectableNodes, { silent: $('#chk-select-silent').is(':checked') }]);
                     var plugin=$selectableTree.data('t-plugin-ref');
-                    plugin.toggleNodeSelected(selectableNodes, { silent: $('#chk-select-silent').is(':checked') });
+                    plugin.toggleNodeSelected(selectableNodes, $('#chk-select-silent').is(':checked'));
                 });
 
 

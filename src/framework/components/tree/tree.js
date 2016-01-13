@@ -94,12 +94,6 @@ Jx().package("T.UI.Components", function(J){
 
         // 构造函数
         init: function(element, options){
-            // this.element = $(element);
-
-            // this.settings,
-            // this.container,
-            // this.elements,
-
             // -----------------------------------------------
             // options
             // -----------------------------------------------
@@ -137,43 +131,17 @@ Jx().package("T.UI.Components", function(J){
                 // html
                 // -----------------------------------------------
                 context.buildHtml(jqElement);
+                // context.transferAttributes();
                 context.initElements(jqElement);
                 context.refresh();
 
+                // -----------------------------------------------
+                // events
+                // -----------------------------------------------
+                // context.buildObservers();
                 context.bindEvents();
+                // context.bindEventsInterface();
             });
-
-            
-            // -----------------------------------------------
-            // events
-            // -----------------------------------------------
-            // this.buildObservers();
-            // this.bindEvents();
-
-            // 构建html DOM
-            // this.buildHtml();
-
-            // this.bindEvents();
-            // this.setInitialStates({ nodes: this.data }, 0);
-            
-            
-
-            
-            // // 初始化 html DOM 元素
-            // this.initElements();
-            // this.transferAttributes();
-
-            // // 创建 树型 菜单对象
-            // //this.menu=new LevelMenu(this.elements, this.settings);
-
-            // // 绑定事件
-            // this.bindEvents();
-            // // 绑定事件接口
-            // this.bindEventsInterface();
-
-            // this.initialized();
-
-            // this.refresh();
         },
 
         getData: function(){
@@ -220,42 +188,42 @@ Jx().package("T.UI.Components", function(J){
                 var child=node.nodes[i];
 
                 // nodeId : unique, incremental identifier
-                child.nodeId = this.nodes.length;
-                child.parentId = node.nodeId;
-                child.path = (node.path || 'r') + '-' + child.nodeId;
+                child._innerId = this.nodes.length;
+                child._innerParentId = node._innerId;
+                child._innerPath = (node._innerPath || 'r') + '-' + child._innerId;
 
                 // // if not provided set selectable default value
                 // if (!child.hasOwnProperty('selectable')) {
                 //     child.selectable = true;
                 // }
 
-                // where provided we should preserve states
-                child.state = child.state || {};
+                // // where provided we should preserve states
+                // child.state = child.state || {};
 
-                // set checked state; unless set always false
-                if (!child.state.hasOwnProperty('checked')) {
-                    child.state.checked = false;
-                }
+                // // set checked state; unless set always false
+                // if (!child.state.hasOwnProperty('checked')) {
+                //     child.state.checked = false;
+                // }
 
-                // set enabled state; unless set always false
-                if (!child.state.hasOwnProperty('disabled')) {
-                    child.state.disabled = false;
-                }
+                // // set enabled state; unless set always false
+                // if (!child.state.hasOwnProperty('disabled')) {
+                //     child.state.disabled = false;
+                // }
 
-                // set expanded state; if not provided based on levels
-                if (!child.state.hasOwnProperty('expanded')) {
-                    if (!child.state.disabled && (level < this.settings.levels) && (child.nodes && child.nodes.length > 0)) {
-                        child.state.expanded = true;
-                    }
-                    else {
-                        child.state.expanded = false;
-                    }
-                }
+                // // set expanded state; if not provided based on levels
+                // if (!child.state.hasOwnProperty('expanded')) {
+                //     if (!child.state.disabled && (level < this.settings.levels) && (child.nodes && child.nodes.length > 0)) {
+                //         child.state.expanded = true;
+                //     }
+                //     else {
+                //         child.state.expanded = false;
+                //     }
+                // }
 
-                // set selected state; unless set always false
-                if (!child.state.hasOwnProperty('selected')) {
-                    child.state.selected = false;
-                }
+                // // set selected state; unless set always false
+                // if (!child.state.hasOwnProperty('selected')) {
+                //     child.state.selected = false;
+                // }
 
                 // index nodes in a flattened structure for use later
                 this.nodes.push(child);
@@ -334,12 +302,10 @@ Jx().package("T.UI.Components", function(J){
                 this.container.append(item);
 
                 // Recursively add child ndoes
-                if (node.nodes && !node.state.disabled) {   // && node.state.expanded TODO:移除原有expanded机制，改为显示/隐藏模式
+                if (node.nodes) {   // && !node.state.disabled && node.state.expanded TODO:移除原有expanded机制，改为显示/隐藏模式
                     this.buildTree(node.nodes, level);
                 }
             }
-
-            // TODO:隐藏应该折叠的nodes
         },
 
         buildItem: function(node, level){
@@ -350,13 +316,21 @@ Jx().package("T.UI.Components", function(J){
             }
 
             // icon
+            // var cssClassIcon= 'icon';
+            // if (node.nodes) {
+            //     cssClassIcon += node.state.expanded ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
+            // }
+            // else {
+            //     cssClassIcon += ' ' + this.settings.emptyIcon;
+            // }
             var cssClassIcon= 'icon';
-            if (node.nodes) {
-                cssClassIcon += node.state.expanded ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
+            if (child.nodes && child.nodes.length > 0) {
+                cssClassIcon += level < this.settings.levels ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
             }
             else {
                 cssClassIcon += ' ' + this.settings.emptyIcon;
             }
+
             var icon= '<span class="'+cssClassIcon+'"></span>';
 
             // node icon
@@ -403,11 +377,13 @@ Jx().package("T.UI.Components", function(J){
             var item= ''+
                 '<li '+
                 '   class="' + cssClass + '" '+
+                (this.settings.levels && level>this.settings.levels ? 
+                '   style="display: none;"' : '')+  // 隐藏应该折叠的nodes
                 (this.settings.enableTitle ? 
                 '   title="'+node.text+'"' : '')+
-                '   data-id="'+node.nodeId+'"'+
+                '   data-id="'+node._innerId+'"'+
                 '   data-level="'+level+'"'+
-                '   data-path="'+node.path+'">'+
+                '   data-path="'+node._innerPath+'">'+
                 indent +
                 icon +
                 nodeIcon +
@@ -507,7 +483,18 @@ Jx().package("T.UI.Components", function(J){
             // }, this));
 
             for(var i=0; i<nodeIds.length; i++){
-                this.setExpandedState(nodeIds[i], true, silent, ignoreChildren);
+                var nodeId= nodeIds[i];
+
+                this.setExpandedState(nodeId, true, silent, ignoreChildren);
+
+                var children= this.elements.getChildNodes(nodeId);
+                if (children.length>0 && this.settings.levels) {
+                    var arrNodeId= [];
+                    children.each(function(){
+                        arrNodeId.push($(this).data('id'));
+                    });
+                    this.expandLevels(arrNodeId, this.settings.levels-1, silent, ignoreChildren);
+                }
             }
         },
 
@@ -526,36 +513,46 @@ Jx().package("T.UI.Components", function(J){
             }
         },
 
-        // expandLevels: function (nodes, level, silent, ignoreChildren) {
-        //     options = $.extend({}, nodeOptions, options);
+        expandLevels: function (nodeIds, level, silent, ignoreChildren) {
+            // $.each(nodes, $.proxy(function (index, node) {
+            //     this.setExpandedState(node, (level > 0) ? true : false, silent, ignoreChildren);
+            //     if (node.nodes) {
+            //         this.expandLevels(node.nodes, level-1, silent, ignoreChildren);
+            //     }
+            // }, this));
 
-        //     $.each(nodes, $.proxy(function (index, node) {
-        //         this.setExpandedState(node, (level > 0) ? true : false, options);
-        //         if (node.nodes) {
-        //             this.expandLevels(node.nodes, level-1, options);
-        //         }
-        //     }, this));
-        // },
+            for(var i=0; i<nodeIds.length; i++){
+                var nodeId= nodeIds[i];
+                this.setExpandedState(nodeId, level > 0, silent, ignoreChildren); //  (level > 0) ? true : false
+                var children= this.elements.getChildNodes(nodeId);
+                if(children.length>0){
+                    var arrNodeId= [];
+                    children.each(function(){
+                        arrNodeId.push($(this).data('id'));
+                    });
+
+                    this.expandLevels(arrNodeId, level-1, silent, ignoreChildren);
+                }
+            }
+        },
 
         expandAll: function (silent, ignoreChildren) {
-            // options = $.extend({}, nodeOptions, options);
+            if (this.settings.levels) {
+                var arrNodeId=[];
+                for(var i=0; i<this.data.length; i++){
+                    arrNodeId.push(this.data[i]._innerId);
+                }
 
-            // if (options && options.levels) {
-            //     his.expandLevels(this.data, options.levels, options);
-            // }
-            // else {
-            //     var identifiers = this.findNodes('false', 'g', 'state.expanded');
-            //     this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-            //         this.setExpandedState(node, true, options);
-            //     }, this));
-            // }
-
-            var nodes= this.elements.getLevelNodes(1);
-            var context= this;
-            nodes.each(function(){
-                var nodeId= $(this).data('id');
-                context.setExpandedState(nodeId, true, silent, ignoreChildren);
-            });
+                this.expandLevels(arrNodeId, this.settings.levels, silent, ignoreChildren);   // this.data
+            }
+            else {
+                var nodes= this.elements.getLevelNodes(1);
+                var context= this;
+                nodes.each(function(){
+                    var nodeId= $(this).data('id');
+                    context.setExpandedState(nodeId, true, silent, ignoreChildren);
+                });
+            }
         },
 
         collapseAll: function (silent, ignoreChildren) {
@@ -658,9 +655,9 @@ Jx().package("T.UI.Components", function(J){
             var jqNode= this.elements.getNode(nodeId);
             var jqCheck= jqNode.find('.check-icon');
 
-            var state= hasClasses(jqExpand, this.settings.checkedIcon);
+            var state= hasClasses(jqCheck, this.settings.checkedIcon);
 
-            this.setCheckedState(node.nodeId, !state, silent);
+            this.setCheckedState(nodeId, !state, silent);
         },
 
         toggleNodeChecked: function (nodeIds, silent) {
@@ -780,11 +777,6 @@ Jx().package("T.UI.Components", function(J){
         },
 
         enableAll: function (silent, ignoreChildren) {
-            // var identifiers = this.findNodes('true', 'g', 'state.disabled');
-            // this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-            //     this.setDisabledState(node, false, options);
-            // }, this));
-            
             var disabledNodes= this.elements.getDisabledNodes(false);
             disabledNodes.removeClass('node-disabled');
 
@@ -803,71 +795,29 @@ Jx().package("T.UI.Components", function(J){
             });            
         },
 
-
-
-
         // getNode: function (nodeId) {
         //     return this.nodes[nodeId];
         // },
 
-        // /**
-        //     Returns the parent node of a given node, if valid otherwise returns undefined.
-        //     @param {Object|Number} identifier - A valid node or node id
-        //     @returns {Object} node - The parent node
-        // */
-        // getParent: function (identifier) {
-        //     var node = this.identifyNode(identifier);
-        //     return this.nodes[node.parentId];
-        // },
+        revealNode: function (nodeIds, options) {
+            // this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
+            //     var parentNode = this.getParent(node);
+            //     while (parentNode) {
+            //         this.setExpandedState(parentNode, true, options);
+            //         parentNode = this.getParent(parentNode);
+            //     };
+            // }, this));
 
-        // /**
-        //     Returns an array of sibling nodes for a given node, if valid otherwise returns undefined.
-        //     @param {Object|Number} identifier - A valid node or node id
-        //     @returns {Array} nodes - Sibling nodes
-        // */
-        // getSiblings: function (identifier) {
-        //     var node = this.identifyNode(identifier);
-        //     var parent = this.getParent(node);
-        //     var nodes = parent ? parent.nodes : this.data;
-        //     return nodes.filter(function (obj) {
-        //             return obj.nodeId !== node.nodeId;
-        //         });
-        // },
-
-
-        
-
-
-
-        // /**
-        //     Reveals a given tree node, expanding the tree from node to root.
-        //     @param {Object|Number|Array} identifiers - A valid node, node id or array of node identifiers
-        //     @param {optional Object} options
-        // */
-        // revealNode: function (identifiers, options) {
-        //     this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-        //         var parentNode = this.getParent(node);
-        //         while (parentNode) {
-        //             this.setExpandedState(parentNode, true, options);
-        //             parentNode = this.getParent(parentNode);
-        //         }
-        //     }, this));
-
-        //     this.refresh();
-        // },
-
-        
-
-        
-
-        
-
-        // /*
-        //     Identifies a node from either a node id or object
-        // */
-        // identifyNode: function (identifier) {
-        //     return ((typeof identifier) === 'number') ? this.nodes[identifier] : identifier;
-        // },
+            for(var i=0; i<nodeIds.length; i++){
+                var nodeId= nodeIds[i];
+                var jqNode= this.elements.getNode(nodeId);
+                var path= jqNode.data('path');
+                var arrPath= path.split('-');
+                for(var j=1; j<arrPath.length-1; j++){
+                    this.setExpandedState(arrPath[i], true, options);
+                }
+            }
+        },
 
         search: function (pattern, options) {
             var searchOptions = {
@@ -893,23 +843,11 @@ Jx().package("T.UI.Components", function(J){
                 }
 
                 results = this.findNodes(pattern, modifier);
-
-                // // Add searchResult property to all matching nodes
-                // // This will be used to apply custom styles
-                // // and when identifying result to be cleared
-                // $.each(results, function (index, node) {
-                //     node.searchResult = true;
-                // })
             }
 
-            // // If revealResults, then render is triggered from revealNode
-            // // otherwise we just call render.
-            // if (options.revealResults) {
-            //     this.revealNode(results);
-            // }
-            // else {
-            //     this.refresh();
-            // }
+            if (options.revealResults) {
+                this.revealNode(results);
+            }
 
             this.elements.original.trigger('searchComplete', $.extend(true, {}, results));
 
@@ -917,17 +855,6 @@ Jx().package("T.UI.Components", function(J){
         },
 
         clearSearch: function () {
-
-            // options = $.extend({}, { render: true }, options);
-
-            // var results = $.each(this.findNodes('true', 'g', 'searchResult'), function (index, node) {
-            //     node.searchResult = false;
-            // });
-
-            // if (options.render) {
-            //     this.refresh();  
-            // }
-
             var searchResults= this.elements.getSearchResultNodes();
             searchResults.removeClass('search-result');
             
@@ -940,24 +867,25 @@ Jx().package("T.UI.Components", function(J){
             attribute = attribute || 'text';
 
             var context = this;
-            // return $.grep(this.nodes, function (node) {
-            //     var val = context.getNodeValue(node, attribute);
-            //     if (typeof val === 'string') {
-            //         return val.match(new RegExp(pattern, modifier));
-            //     }
-            // });
-
             var allNodes= this.elements.getAllNodes();
-            return $.grep(allNodes, function (element) {                
-                var val = $(element).text();
-                return val.match(new RegExp(pattern, modifier));
-            });
+
+            var results= [];
+            for(var i=0; i<allNodes.length; i++){
+                var jqNode= $(allNodes[i]);
+                var val = jqNode.text();
+                var isMatched= val.match(new RegExp(pattern, modifier));
+                if(isMatched){
+                    jqNode.addClass('search-result');
+                    results.push(jqNode.data('id'));
+                }
+            }
+
+            return results;
         },
 
         destroy: function () {
             this.container.empty();
             this.container = null;
-            // Switch off events
             this.unsubscribeEvents();
         },
         // 取消事件监听
@@ -971,12 +899,11 @@ Jx().package("T.UI.Components", function(J){
             this.elements.original.off('nodeSelected');
             this.elements.original.off('nodeUnchecked');
             this.elements.original.off('nodeUnselected');
-            // this.elements.original.off('searchComplete');
-            // this.elements.original.off('searchCleared');
+            this.elements.original.off('searchComplete');
+            this.elements.original.off('searchCleared');
         },
         // 监听事件
         bindEvents: function () {
-
             this.unbindEvents();
 
             this.elements.original.on('click', $.proxy(this.clickHandler, this));
@@ -1012,14 +939,14 @@ Jx().package("T.UI.Components", function(J){
             if (typeof (this.settings.onNodeUnselected) === 'function') {
                 this.elements.original.on('nodeUnselected', this.settings.onNodeUnselected);
             }
-            // // 搜索完成
-            // if (typeof (this.settings.onSearchComplete) === 'function') {
-            //     this.elements.original.on('searchComplete', this.settings.onSearchComplete);
-            // }
-            // // 搜索结果清除
-            // if (typeof (this.settings.onSearchCleared) === 'function') {
-            //     this.elements.original.on('searchCleared', this.settings.onSearchCleared);
-            // }
+            // 搜索完成
+            if (typeof (this.settings.onSearchComplete) === 'function') {
+                this.elements.original.on('searchComplete', this.settings.onSearchComplete);
+            }
+            // 搜索结果清除
+            if (typeof (this.settings.onSearchCleared) === 'function') {
+                this.elements.original.on('searchCleared', this.settings.onSearchCleared);
+            }
         }
     });
 });
@@ -1113,3 +1040,12 @@ Jx().package("T.UI.Components", function(J){
         // getEnabled: function () {
         //     return this.findNodes('false', 'g', 'state.disabled');
         // },
+
+
+
+            // var arrNodesResult= $.grep(allNodes, function (element) {
+            //     var jqNode= $(element);
+            //     var val = jqNode.text();
+            //     var isMatched= val.match(new RegExp(pattern, modifier));
+            //     return isMatched;
+            // });
