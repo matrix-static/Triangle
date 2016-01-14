@@ -684,7 +684,7 @@
                     //$expandibleTree.tree('expandNode', [ expandibleNodes, { levels: levels, silent: $('#chk-expand-silent').is(':checked') }]);
                     var expandibleNodes = findExpandibleNodess();
                     var plugin=$expandibleTree.data('t-plugin-ref');
-                    plugin.expandNode(expandibleNodes, { levels: levels, silent: $('#chk-expand-silent').is(':checked') });
+                    plugin.expandNode(expandibleNodes, levels, $('#chk-expand-silent').is(':checked'));
                 });
 
                 $('#btn-collapse-node.expand-node').on('click', function (e) {
@@ -706,7 +706,7 @@
                     var levels = $('#select-expand-all-levels').val();
                     //$expandibleTree.tree('expandAll', { levels: levels, silent: $('#chk-expand-silent').is(':checked') });
                     var plugin=$expandibleTree.data('t-plugin-ref');
-                    plugin.expandAll({ levels: levels, silent: $('#chk-expand-silent').is(':checked') });
+                    plugin.expandAll(levels, $('#chk-expand-silent').is(':checked'));
                 });
 
                 $('#btn-collapse-all').on('click', function (e) {
@@ -834,6 +834,137 @@
                 // var $tree = $('#tree12').tree({
                 //   data: json
                 // });
+
+
+// [
+//     {
+//         "id": 1,
+//         "parentId": 1,
+//         "path": "1",
+//         "data": {
+//             "name": "root",
+//             "text": "root node",
+//             "foo": "foo"
+//         },
+//         "children": []
+//     },
+//     {
+//         "id": 2,
+//         "parentId": 1,
+//         "path": "1|2",
+//         "data": {
+//             "text": "Parent 2",
+//             "href": "#parent2",
+//             "tags": ["4"],
+//             "foo": "foo"
+//         },
+//         "children": []
+//     },
+//     {
+//         "id": 121,
+//         "parentId": 2,
+//         "path": "1|2|121",
+//         "data": {
+//             "foo": "foo"
+//         }                    
+//     },
+//     {
+//         "id": 122,
+//         "parentId": 2,
+//         "path": "1|2|122",
+//         "data": {
+//             "foo": "foo"
+//         },
+//         "children": false
+//     },
+//     {
+//         "id": 123,
+//         "parentId": 2,
+//         "path": "1|2|123",
+//         "data": {
+//             "foo": "foo"
+//         },
+//         "children": []
+//     },
+//     {
+//         "id": 3,
+//         "parentId": 1,
+//         "path": "1|3",
+//         "data": {
+//             "text": "Parent 3",
+//             "href": "#parent3",
+//             "tags": ["4"],
+//             "foo": "foo"
+//         },
+//         "children": []
+//     },
+//     {
+//         "id": 131,
+//         "parentId": 3,
+//         "path": "1|3|131",
+//         "data": {
+//             "foo": "foo"
+//         }                    
+//     },
+//     {
+//         "id": 132,
+//         "parentId": 3,
+//         "path": "1|3|132",
+//         "data": {
+//             "foo": "foo"
+//         },
+//         "children": []
+//     },
+//     {
+//         "id": 1321,
+//         "parentId": 132,
+//         "path": "1|3|132|1321",
+//         "data": {
+//             "foo": "foo"
+//         }                    
+//     },
+//     {
+//         "id": 1322,
+//         "parentId": 132,
+//         "path": "1|3|132|1322",
+//         "data": {
+//             "foo": "foo"
+//         },
+//         "children": false
+//     },
+//     {
+//         "id": 1323,
+//         "parentId": 132,
+//         "path": "1|3|132|1323",
+//         "data": {
+//             "foo": "foo"
+//         },
+//         "children": []
+//     },
+//     {
+//         "id": 133,
+//         "parentId": 3,
+//         "path": "1|3|133",
+//         "data": {
+//             "foo": "foo"
+//         },
+//         "children": []
+//     },
+//     {
+//         "id": 4,
+//         "parentId": 1,
+//         "path": "1|4",
+//         "data": {
+//             "text": "Parent 4",
+//             "href": "#parent4",
+//             "tags": ["12"],
+//             "foo": "foo"
+//         },
+//         "children": []
+//     }
+// ]
+
+
                 });
         </script>
     </body>

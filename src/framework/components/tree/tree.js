@@ -30,6 +30,8 @@ Jx().package("T.UI.Components", function(J){
 
     // 全局变量、函数、对象
     var defaults = {
+        // id: 'id',               // id数据字段名称
+        // children: 'children',   // 子节点数据字段名称
         levels: 2,
         dataUrl: '',
 
@@ -115,7 +117,6 @@ Jx().package("T.UI.Components", function(J){
             // data
             // -----------------------------------------------
             this.data = [];
-            this.nodes = [];
 
             var context= this;
             // 初始化数据
@@ -126,7 +127,6 @@ Jx().package("T.UI.Components", function(J){
                 // states
                 // -----------------------------------------------
                 // this.initStates(jqElement);
-                context.setInitialStates({ nodes: context.data }, 0);
                 // -----------------------------------------------
                 // html
                 // -----------------------------------------------
@@ -148,7 +148,8 @@ Jx().package("T.UI.Components", function(J){
             var d = $.Deferred();
 
             if (this.settings.data) {
-                this.data = $.extend(true, [], this.settings.data);
+                var data = $.extend(true, [], this.settings.data);
+                this.data= this.parseData(data);
                 delete this.settings.data;
 
                 d.resolve();
@@ -176,63 +177,31 @@ Jx().package("T.UI.Components", function(J){
         },
 
         parseData: function(data){
-            return data;
-        },
 
-        setInitialStates: function (node, level) {
-            if (!node.nodes) return;
-            level += 1;
+            var index= 0;
+            function recurseTree (node, level) {
+                if (!node.nodes) return;
+                level += 1;
 
-            // $.each(node.nodes, function checkStates(index, node) {
-            for(var i=0; i<node.nodes.length; i++){
-                var child=node.nodes[i];
+                // $.each(node.nodes, function checkStates(index, node) {
+                for(var i=0; i<node.nodes.length; i++){
+                    var child=node.nodes[i];
 
-                // nodeId : unique, incremental identifier
-                child._innerId = this.nodes.length;
-                child._innerParentId = node._innerId;
-                child._innerPath = (node._innerPath || 'r') + '-' + child._innerId;
+                    // nodeId : unique, incremental identifier
+                    // child._innerId = this.nodes.length;
+                    child._innerId = index ++;
+                    child._innerParentId = node._innerId;
+                    child._innerPath = (node._innerPath || 'r') + '-' + child._innerId;
 
-                // // if not provided set selectable default value
-                // if (!child.hasOwnProperty('selectable')) {
-                //     child.selectable = true;
-                // }
-
-                // // where provided we should preserve states
-                // child.state = child.state || {};
-
-                // // set checked state; unless set always false
-                // if (!child.state.hasOwnProperty('checked')) {
-                //     child.state.checked = false;
-                // }
-
-                // // set enabled state; unless set always false
-                // if (!child.state.hasOwnProperty('disabled')) {
-                //     child.state.disabled = false;
-                // }
-
-                // // set expanded state; if not provided based on levels
-                // if (!child.state.hasOwnProperty('expanded')) {
-                //     if (!child.state.disabled && (level < this.settings.levels) && (child.nodes && child.nodes.length > 0)) {
-                //         child.state.expanded = true;
-                //     }
-                //     else {
-                //         child.state.expanded = false;
-                //     }
-                // }
-
-                // // set selected state; unless set always false
-                // if (!child.state.hasOwnProperty('selected')) {
-                //     child.state.selected = false;
-                // }
-
-                // index nodes in a flattened structure for use later
-                this.nodes.push(child);
-
-                // recurse child nodes and transverse the tree
-                if (child.nodes) {
-                    this.setInitialStates(child, level);
+                    // recurse child nodes and transverse the tree
+                    if (child.nodes) {
+                        recurseTree(child, level);
+                    }
                 }
             }
+
+            recurseTree({ nodes: data }, 0);
+            return data;
         },
 
         buildHtml: function(element){
@@ -324,7 +293,7 @@ Jx().package("T.UI.Components", function(J){
             //     cssClassIcon += ' ' + this.settings.emptyIcon;
             // }
             var cssClassIcon= 'icon';
-            if (child.nodes && child.nodes.length > 0) {
+            if (node.nodes && node.nodes.length > 0) {
                 cssClassIcon += level < this.settings.levels ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
             }
             else {
@@ -337,12 +306,13 @@ Jx().package("T.UI.Components", function(J){
             var nodeIcon= '';
             if (this.settings.showIcon) {
                 var cssClassNodeIcon= 'icon node-icon ';
-                if (node.state.selected) {
-                    cssClassNodeIcon += (node.selectedIcon || this.settings.selectedIcon || node.icon || this.settings.nodeIcon);
-                }
-                else{
-                    cssClassNodeIcon += (node.icon || this.settings.nodeIcon);
-                }
+                // if (node.state.selected) {
+                //     cssClassNodeIcon += (node.selectedIcon || this.settings.selectedIcon || node.icon || this.settings.nodeIcon);
+                // }
+                // else{
+                //     cssClassNodeIcon += (node.icon || this.settings.nodeIcon);
+                // }
+                cssClassNodeIcon += (node.icon || this.settings.nodeIcon);
                 nodeIcon= '<span class="'+cssClassNodeIcon+'"></span>'; // icon
             }
 
@@ -350,12 +320,13 @@ Jx().package("T.UI.Components", function(J){
             var check= '';
             if (this.settings.showCheckbox) {
                 var cssClassCheck= 'icon check-icon ';
-                if (node.state.checked) {
-                    cssClassCheck += this.settings.checkedIcon; 
-                }
-                else {
-                    cssClassCheck += this.settings.uncheckedIcon;
-                }
+                // if (node.state.checked) {
+                //     cssClassCheck += this.settings.checkedIcon; 
+                // }
+                // else {
+                //     cssClassCheck += this.settings.uncheckedIcon;
+                // }
+                cssClassCheck += this.settings.uncheckedIcon;
                 check= '<span class="'+ cssClassCheck +'"></span>';
             }
 
@@ -370,9 +341,9 @@ Jx().package("T.UI.Components", function(J){
 
             // item
             var cssClass= 'list-group-item';
-            cssClass += node.state.checked ? ' node-checked' : '';
-            cssClass += node.state.disabled ? ' node-disabled' : '';
-            cssClass += node.state.selected ? ' node-selected' : '';
+            // cssClass += node.state.checked ? ' node-checked' : '';
+            // cssClass += node.state.disabled ? ' node-disabled' : '';
+            // cssClass += node.state.selected ? ' node-selected' : '';
             // cssClass += node.searchResult ? ' search-result' : '';
             var item= ''+
                 '<li '+
@@ -415,7 +386,7 @@ Jx().package("T.UI.Components", function(J){
                 return;
             }
             
-            var nodeId = jqNode.attr('data-id');
+            var nodeId = jqNode.data('id');
 
             var classList = target.attr('class') ? target.attr('class').split(' ') : [];
             if ((classList.indexOf('expand-icon') !== -1)) {
@@ -474,7 +445,7 @@ Jx().package("T.UI.Components", function(J){
             }
         },
 
-        expandNode: function (nodeIds, silent, ignoreChildren) {
+        expandNode: function (nodeIds, levels, silent, ignoreChildren) {
             // this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
             //     this.setExpandedState(node, true, options);
             //     if (node.nodes && (options && options.levels)) {
@@ -488,12 +459,13 @@ Jx().package("T.UI.Components", function(J){
                 this.setExpandedState(nodeId, true, silent, ignoreChildren);
 
                 var children= this.elements.getChildNodes(nodeId);
-                if (children.length>0 && this.settings.levels) {
+                levels= levels || this.settings.levels;
+                if (children.length>0 && levels) {
                     var arrNodeId= [];
                     children.each(function(){
                         arrNodeId.push($(this).data('id'));
                     });
-                    this.expandLevels(arrNodeId, this.settings.levels-1, silent, ignoreChildren);
+                    this.expandLevels(arrNodeId, levels-1, silent, ignoreChildren);
                 }
             }
         },
@@ -513,17 +485,17 @@ Jx().package("T.UI.Components", function(J){
             }
         },
 
-        expandLevels: function (nodeIds, level, silent, ignoreChildren) {
+        expandLevels: function (nodeIds, levels, silent, ignoreChildren) {
             // $.each(nodes, $.proxy(function (index, node) {
-            //     this.setExpandedState(node, (level > 0) ? true : false, silent, ignoreChildren);
+            //     this.setExpandedState(node, (levels > 0) ? true : false, silent, ignoreChildren);
             //     if (node.nodes) {
-            //         this.expandLevels(node.nodes, level-1, silent, ignoreChildren);
+            //         this.expandLevels(node.nodes, levels-1, silent, ignoreChildren);
             //     }
             // }, this));
 
             for(var i=0; i<nodeIds.length; i++){
                 var nodeId= nodeIds[i];
-                this.setExpandedState(nodeId, level > 0, silent, ignoreChildren); //  (level > 0) ? true : false
+                this.setExpandedState(nodeId, levels > 0, silent, ignoreChildren); //  (level > 0) ? true : false
                 var children= this.elements.getChildNodes(nodeId);
                 if(children.length>0){
                     var arrNodeId= [];
@@ -531,19 +503,20 @@ Jx().package("T.UI.Components", function(J){
                         arrNodeId.push($(this).data('id'));
                     });
 
-                    this.expandLevels(arrNodeId, level-1, silent, ignoreChildren);
+                    this.expandLevels(arrNodeId, levels-1, silent, ignoreChildren);
                 }
             }
         },
 
-        expandAll: function (silent, ignoreChildren) {
-            if (this.settings.levels) {
+        expandAll: function (levels, silent, ignoreChildren) {
+            var levels= levels || this.settings.levels;
+            if (levels) {
                 var arrNodeId=[];
                 for(var i=0; i<this.data.length; i++){
                     arrNodeId.push(this.data[i]._innerId);
                 }
 
-                this.expandLevels(arrNodeId, this.settings.levels, silent, ignoreChildren);   // this.data
+                this.expandLevels(arrNodeId, levels, silent, ignoreChildren);   // this.data
             }
             else {
                 var nodes= this.elements.getLevelNodes(1);
@@ -795,10 +768,6 @@ Jx().package("T.UI.Components", function(J){
             });            
         },
 
-        // getNode: function (nodeId) {
-        //     return this.nodes[nodeId];
-        // },
-
         revealNode: function (nodeIds, options) {
             // this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
             //     var parentNode = this.getParent(node);
@@ -861,12 +830,10 @@ Jx().package("T.UI.Components", function(J){
             this.elements.original.trigger('searchCleared');    // , $.extend(true, {}, results)
         },
 
-        findNodes: function (pattern, modifier, attribute) {
-
+        findNodes: function (pattern, modifier) {   // , attribute
             modifier = modifier || 'g';
-            attribute = attribute || 'text';
+            // attribute = attribute || 'text';
 
-            var context = this;
             var allNodes= this.elements.getAllNodes();
 
             var results= [];
@@ -955,28 +922,7 @@ Jx().package("T.UI.Components", function(J){
 
 
         // API
-
-        // /**
-        //     Find nodes that match a given criteria
-        //     @param {String} pattern - A given string to match against
-        //     @param {optional String} modifier - Valid RegEx modifiers
-        //     @param {optional String} attribute - Attribute to compare pattern against
-        //     @return {Array} nodes - Nodes that match your criteria
-        // */
-        // findNodes: function (pattern, modifier, attribute) {
-
-        //     modifier = modifier || 'g';
-        //     attribute = attribute || 'text';
-
-        //     var context = this;
-        //     return $.grep(this.nodes, function (node) {
-        //         var val = context.getNodeValue(node, attribute);
-        //         if (typeof val === 'string') {
-        //             return val.match(new RegExp(pattern, modifier));
-        //         }
-        //     });
-        // },
-
+        
         // /**
         //     Returns an array of selected nodes.
         //     @returns {Array} nodes - Selected nodes
