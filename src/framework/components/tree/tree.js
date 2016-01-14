@@ -27,6 +27,7 @@ Jx().package("T.UI.Components", function(J){
 
     // 严格模式
     'use strict';
+    var emptyFun= function(){};
 
     // 全局变量、函数、对象
     var defaults = {
@@ -57,17 +58,18 @@ Jx().package("T.UI.Components", function(J){
         ignoreChildren: false,
 
         // Event handlers
-        onNodeChecked: undefined,
-        onNodeCollapsed: undefined,
-        onNodeDisabled: undefined,
-        onNodeEnabled: undefined,
-        onNodeExpanded: undefined,
-        onNodeSelected: undefined,
-        onNodeUnchecked: undefined,
-        onNodeUnselected: undefined//,
-        // onSearchComplete: undefined,
-        // onSearchCleared: undefined
+        onNodeChecked: emptyFun,
+        onNodeCollapsed: emptyFun,
+        onNodeDisabled: emptyFun,
+        onNodeEnabled: emptyFun,
+        onNodeExpanded: emptyFun,
+        onNodeSelected: emptyFun,
+        onNodeUnchecked: emptyFun,
+        onNodeUnselected: emptyFun,
+        onSearchComplete: emptyFun,
+        onSearchCleared: emptyFun
     };
+
     var attributeMap = {
         showTags: 'show-tags',
         levels: 'levels',
@@ -116,7 +118,8 @@ Jx().package("T.UI.Components", function(J){
             // -----------------------------------------------
             // data
             // -----------------------------------------------
-            this.data = [];
+            this.data= [];
+            this.idIndexMap= {};
 
             var context= this;
             // 初始化数据
@@ -163,7 +166,7 @@ Jx().package("T.UI.Components", function(J){
                 data: {},
                 success: function(data){
                     var innerData= context.parseData(data);
-                    context.data= $.extend(true, [], innerData);
+                    context.data= innerData;    //$.extend(true, [], innerData);
                     d.resolve();
                 },
                 error: function(xmlHttpRequest, status, error){
@@ -177,21 +180,31 @@ Jx().package("T.UI.Components", function(J){
         },
 
         parseData: function(data){
+            var innerData= [];
 
             var index= 0;
+            var context= this;
             function recurseTree (node, level) {
                 if (!node.nodes) return;
-                level += 1;
+
+                level ++;
 
                 // $.each(node.nodes, function checkStates(index, node) {
                 for(var i=0; i<node.nodes.length; i++){
-                    var child=node.nodes[i];
+                    var child= node.nodes[i];
 
                     // nodeId : unique, incremental identifier
                     // child._innerId = this.nodes.length;
-                    child._innerId = index ++;
-                    child._innerParentId = node._innerId;
-                    child._innerPath = (node._innerPath || 'r') + '-' + child._innerId;
+                    child.id = child.id || index;
+                    child._innerParentId = node.id;
+                    child._innerPath = (node._innerPath || 'r') + '|' + child.id;
+                    child._innerLevel = level;
+
+                    innerData.push(child);
+                    var idProperty= 'id_' + child.id;
+                    context.idIndexMap[idProperty] = index;
+
+                    index ++
 
                     // recurse child nodes and transverse the tree
                     if (child.nodes) {
@@ -201,7 +214,8 @@ Jx().package("T.UI.Components", function(J){
             }
 
             recurseTree({ nodes: data }, 0);
-            return data;
+
+            return innerData;
         },
 
         buildHtml: function(element){
@@ -228,7 +242,7 @@ Jx().package("T.UI.Components", function(J){
                 getChildNodes: function(nodeId){
                     var jqNode= this.getNode(nodeId);
                     var path= jqNode.data('path');
-                    var children= $('li[data-path^="'+path+'-"]', context.container);
+                    var children= $('li[data-path^="'+path+'|"]', context.container);
                     return children;
                 },
                 getLevelNodes: function(level){
@@ -258,29 +272,29 @@ Jx().package("T.UI.Components", function(J){
             };
         },
 
-        buildTree: function (nodes, level) {
-            if (!nodes) return;
-            level += 1;
+        buildTree: function () {    // nodes, level
+            // if (!nodes) return;
+            // level += 1;
 
-            for(var i=0; i<nodes.length; i++){
-                var node=nodes[i];
+            for(var i=0; i<this.data.length; i++){  // nodes
+                var node=this.data[i];
 
-                var item= this.buildItem(node, level);
+                var item= this.buildItem(node);
 
                 // Add item to the tree
                 this.container.append(item);
 
-                // Recursively add child ndoes
-                if (node.nodes) {   // && !node.state.disabled && node.state.expanded TODO:移除原有expanded机制，改为显示/隐藏模式
-                    this.buildTree(node.nodes, level);
-                }
+                // // Recursively add child ndoes
+                // if (node.nodes) {   // && !node.state.disabled && node.state.expanded TODO:移除原有expanded机制，改为显示/隐藏模式
+                //     this.buildTree(node.nodes, level);
+                // }
             }
         },
 
-        buildItem: function(node, level){
+        buildItem: function(node){
             // indent
             var indent= '';
-            for (var j = 0; j < (level - 1); j++) {
+            for (var j = 0; j < (node._innerLevel - 1); j++) {
                 indent+='<span class="indent"></span>';
             }
 
@@ -294,7 +308,7 @@ Jx().package("T.UI.Components", function(J){
             // }
             var cssClassIcon= 'icon';
             if (node.nodes && node.nodes.length > 0) {
-                cssClassIcon += level < this.settings.levels ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
+                cssClassIcon += node._innerLevel < this.settings.levels ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
             }
             else {
                 cssClassIcon += ' ' + this.settings.emptyIcon;
@@ -348,12 +362,12 @@ Jx().package("T.UI.Components", function(J){
             var item= ''+
                 '<li '+
                 '   class="' + cssClass + '" '+
-                (this.settings.levels && level>this.settings.levels ? 
+                (this.settings.levels && node._innerLevel > this.settings.levels ? 
                 '   style="display: none;"' : '')+  // 隐藏应该折叠的nodes
                 (this.settings.enableTitle ? 
                 '   title="'+node.text+'"' : '')+
-                '   data-id="'+node._innerId+'"'+
-                '   data-level="'+level+'"'+
+                '   data-id="'+node.id+'"'+
+                '   data-level="'+node._innerLevel+'"'+
                 '   data-path="'+node._innerPath+'">'+
                 indent +
                 icon +
@@ -367,11 +381,16 @@ Jx().package("T.UI.Components", function(J){
             return item;
         },
 
+        // refresh: function () {
+        //     this.container.empty();
+        //     // Build tree
+        //     this.buildTree(this.data, 0);
+        // },
         refresh: function () {
             this.container.empty();
-            // Build tree
-            this.buildTree(this.data, 0);
+            this.buildTree();
         },
+
 
         // 点击事件处理器
         clickHandler: function (event) {
@@ -446,13 +465,6 @@ Jx().package("T.UI.Components", function(J){
         },
 
         expandNode: function (nodeIds, levels, silent, ignoreChildren) {
-            // this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-            //     this.setExpandedState(node, true, options);
-            //     if (node.nodes && (options && options.levels)) {
-            //         this.expandLevels(node.nodes, options.levels-1, options);
-            //     }
-            // }, this));
-
             for(var i=0; i<nodeIds.length; i++){
                 var nodeId= nodeIds[i];
 
@@ -486,13 +498,6 @@ Jx().package("T.UI.Components", function(J){
         },
 
         expandLevels: function (nodeIds, levels, silent, ignoreChildren) {
-            // $.each(nodes, $.proxy(function (index, node) {
-            //     this.setExpandedState(node, (levels > 0) ? true : false, silent, ignoreChildren);
-            //     if (node.nodes) {
-            //         this.expandLevels(node.nodes, levels-1, silent, ignoreChildren);
-            //     }
-            // }, this));
-
             for(var i=0; i<nodeIds.length; i++){
                 var nodeId= nodeIds[i];
                 this.setExpandedState(nodeId, levels > 0, silent, ignoreChildren); //  (level > 0) ? true : false
@@ -513,7 +518,7 @@ Jx().package("T.UI.Components", function(J){
             if (levels) {
                 var arrNodeId=[];
                 for(var i=0; i<this.data.length; i++){
-                    arrNodeId.push(this.data[i]._innerId);
+                    arrNodeId.push(this.data[i].id);
                 }
 
                 this.expandLevels(arrNodeId, levels, silent, ignoreChildren);   // this.data
@@ -724,13 +729,7 @@ Jx().package("T.UI.Components", function(J){
             }
         },
 
-        disableAll: function (silent, ignoreChildren) {
-            // var identifiers = this.findNodes('false', 'g', 'state.disabled');
-            // this.forEachIdentifier(identifiers, options, $.proxy(function (node, options) {
-            //     this.setDisabledState(node, true, options);
-            // }, this));
-
-            
+        disableAll: function (silent, ignoreChildren) {            
             var enabledNodes= this.elements.getDisabledNodes(true);
             enabledNodes.addClass('node-disabled');
 
@@ -781,7 +780,7 @@ Jx().package("T.UI.Components", function(J){
                 var nodeId= nodeIds[i];
                 var jqNode= this.elements.getNode(nodeId);
                 var path= jqNode.data('path');
-                var arrPath= path.split('-');
+                var arrPath= path.split('|');
                 for(var j=1; j<arrPath.length-1; j++){
                     this.setExpandedState(arrPath[i], true, options);
                 }
@@ -875,45 +874,25 @@ Jx().package("T.UI.Components", function(J){
 
             this.elements.original.on('click', $.proxy(this.clickHandler, this));
             // 节点勾选
-            if (typeof (this.settings.onNodeChecked) === 'function') {
-                this.elements.original.on('nodeChecked', this.settings.onNodeChecked);
-            }
+            this.elements.original.on('nodeChecked', this.settings.onNodeChecked);
             // 节点收起
-            if (typeof (this.settings.onNodeCollapsed) === 'function') {
-                this.elements.original.on('nodeCollapsed', this.settings.onNodeCollapsed);
-            }
+            this.elements.original.on('nodeCollapsed', this.settings.onNodeCollapsed);
             // 节点禁用
-            if (typeof (this.settings.onNodeDisabled) === 'function') {
-                this.elements.original.on('nodeDisabled', this.settings.onNodeDisabled);
-            }
+            this.elements.original.on('nodeDisabled', this.settings.onNodeDisabled);
             // 节点启用
-            if (typeof (this.settings.onNodeEnabled) === 'function') {
-                this.elements.original.on('nodeEnabled', this.settings.onNodeEnabled);
-            }
+            this.elements.original.on('nodeEnabled', this.settings.onNodeEnabled);
             // 节点展开
-            if (typeof (this.settings.onNodeExpanded) === 'function') {
-                this.elements.original.on('nodeExpanded', this.settings.onNodeExpanded);
-            }
+            this.elements.original.on('nodeExpanded', this.settings.onNodeExpanded);
             // 节点选中
-            if (typeof (this.settings.onNodeSelected) === 'function') {
-                this.elements.original.on('nodeSelected', this.settings.onNodeSelected);
-            }
+            this.elements.original.on('nodeSelected', this.settings.onNodeSelected);
             // 节点取消勾选
-            if (typeof (this.settings.onNodeUnchecked) === 'function') {
-                this.elements.original.on('nodeUnchecked', this.settings.onNodeUnchecked);
-            }
+            this.elements.original.on('nodeUnchecked', this.settings.onNodeUnchecked);
             // 节点取消选中
-            if (typeof (this.settings.onNodeUnselected) === 'function') {
-                this.elements.original.on('nodeUnselected', this.settings.onNodeUnselected);
-            }
+            this.elements.original.on('nodeUnselected', this.settings.onNodeUnselected);
             // 搜索完成
-            if (typeof (this.settings.onSearchComplete) === 'function') {
-                this.elements.original.on('searchComplete', this.settings.onSearchComplete);
-            }
+            this.elements.original.on('searchComplete', this.settings.onSearchComplete);
             // 搜索结果清除
-            if (typeof (this.settings.onSearchCleared) === 'function') {
-                this.elements.original.on('searchCleared', this.settings.onSearchCleared);
-            }
+            this.elements.original.on('searchCleared', this.settings.onSearchCleared);
         }
     });
 });
@@ -995,3 +974,115 @@ Jx().package("T.UI.Components", function(J){
             //     var isMatched= val.match(new RegExp(pattern, modifier));
             //     return isMatched;
             // });
+
+
+
+
+        // buildTree: function (nodes, level) {
+        //     if (!nodes) return;
+        //     level += 1;
+
+        //     for(var i=0; i<nodes.length; i++){
+        //         var node=nodes[i];
+
+        //         var item= this.buildItem(node, level);
+
+        //         // Add item to the tree
+        //         this.container.append(item);
+
+        //         // Recursively add child ndoes
+        //         if (node.nodes) {   // && !node.state.disabled && node.state.expanded TODO:移除原有expanded机制，改为显示/隐藏模式
+        //             this.buildTree(node.nodes, level);
+        //         }
+        //     }
+        // },
+        
+        // buildItem: function(node, level){
+        //     // indent
+        //     var indent= '';
+        //     for (var j = 0; j < (level - 1); j++) {
+        //         indent+='<span class="indent"></span>';
+        //     }
+
+        //     // icon
+        //     // var cssClassIcon= 'icon';
+        //     // if (node.nodes) {
+        //     //     cssClassIcon += node.state.expanded ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
+        //     // }
+        //     // else {
+        //     //     cssClassIcon += ' ' + this.settings.emptyIcon;
+        //     // }
+        //     var cssClassIcon= 'icon';
+        //     if (node.nodes && node.nodes.length > 0) {
+        //         cssClassIcon += level < this.settings.levels ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
+        //     }
+        //     else {
+        //         cssClassIcon += ' ' + this.settings.emptyIcon;
+        //     }
+
+        //     var icon= '<span class="'+cssClassIcon+'"></span>';
+
+        //     // node icon
+        //     var nodeIcon= '';
+        //     if (this.settings.showIcon) {
+        //         var cssClassNodeIcon= 'icon node-icon ';
+        //         // if (node.state.selected) {
+        //         //     cssClassNodeIcon += (node.selectedIcon || this.settings.selectedIcon || node.icon || this.settings.nodeIcon);
+        //         // }
+        //         // else{
+        //         //     cssClassNodeIcon += (node.icon || this.settings.nodeIcon);
+        //         // }
+        //         cssClassNodeIcon += (node.icon || this.settings.nodeIcon);
+        //         nodeIcon= '<span class="'+cssClassNodeIcon+'"></span>'; // icon
+        //     }
+
+        //     // Add check / unchecked icon
+        //     var check= '';
+        //     if (this.settings.showCheckbox) {
+        //         var cssClassCheck= 'icon check-icon ';
+        //         // if (node.state.checked) {
+        //         //     cssClassCheck += this.settings.checkedIcon; 
+        //         // }
+        //         // else {
+        //         //     cssClassCheck += this.settings.uncheckedIcon;
+        //         // }
+        //         cssClassCheck += this.settings.uncheckedIcon;
+        //         check= '<span class="'+ cssClassCheck +'"></span>';
+        //     }
+
+        //     // tags as badges
+        //     var badge= '';
+        //     if (this.settings.showTags && node.tags) {
+        //         for(var k=0; k<node.tags.length; k++){
+        //             var tag=node.tags[k];
+        //             badge += '<span class="badge">'+tag+'</span>';  // badge
+        //         }
+        //     }
+
+        //     // item
+        //     var cssClass= 'list-group-item';
+        //     // cssClass += node.state.checked ? ' node-checked' : '';
+        //     // cssClass += node.state.disabled ? ' node-disabled' : '';
+        //     // cssClass += node.state.selected ? ' node-selected' : '';
+        //     // cssClass += node.searchResult ? ' search-result' : '';
+        //     var item= ''+
+        //         '<li '+
+        //         '   class="' + cssClass + '" '+
+        //         (this.settings.levels && level>this.settings.levels ? 
+        //         '   style="display: none;"' : '')+  // 隐藏应该折叠的nodes
+        //         (this.settings.enableTitle ? 
+        //         '   title="'+node.text+'"' : '')+
+        //         '   data-id="'+node.id+'"'+
+        //         '   data-level="'+level+'"'+
+        //         '   data-path="'+node._innerPath+'">'+
+        //         indent +
+        //         icon +
+        //         nodeIcon +
+        //         check +
+        //         (this.settings.enableLinks ? 
+        //         '   <a href="'+node.href+'" style="color:inherit;">'+node.text+'</a>' : node.text) +
+        //         badge +
+        //         '</li>';
+
+        //     return item;
+        // },
