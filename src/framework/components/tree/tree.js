@@ -218,6 +218,11 @@ Jx().package("T.UI.Components", function(J){
             return innerData;
         },
 
+        updateData: function(data){
+            var innerData= $.extend(true, [], data);
+            this.data= this.parseData(data);
+        },
+
         buildHtml: function(element){
             element.addClass('t-tree');
             this.container = $('<ul class="list-group"></ul>'); // list
@@ -782,7 +787,7 @@ Jx().package("T.UI.Components", function(J){
                 var path= jqNode.data('path');
                 var arrPath= path.split('|');
                 for(var j=1; j<arrPath.length-1; j++){
-                    this.setExpandedState(arrPath[i], true, options);
+                    this.setExpandedState(arrPath[j], true, options);
                 }
             }
         },

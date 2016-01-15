@@ -11,6 +11,9 @@
         <div class="row">
             <div class="col-md-5" ng-controller="treeController">
                 <label for="tree">树型控件</label>
+                <input type="button" value="折叠" ng-click="collapseAll()">
+                <input type="button" value="展开" ng-click="expandAll()">
+                <input type="button" value="换数据" ng-click="changeData()">
                 <!--
                     data-fn-onNodeSelected="ctrlFn(e, node)"
                     callback-fn="ctrlFn(e, node)"

@@ -41,6 +41,61 @@ angular.module('pnApp.controllers', [])
             // onSearchCleared: function(e, node){ alert( node.text + ': onSearchCleared') }
         };
         $scope.treeOptions = treeOptions;
+
+        var data= [
+            {
+                "text": "Parent 2",
+                "href": "#parent2",
+                "tags": ["0"]
+            },
+            {
+                "text": "Parent 3",
+                "href": "#parent3",
+                "tags": ["4"],
+                "nodes": [
+                    {
+                        "text": "Child 3",
+                        "href": "#child3",
+                        "tags": ["2"],
+                        "nodes": [
+                            {
+                                "text": "Grandchild 31",
+                                "href": "#grandchild31",
+                                "tags": ["0"]
+                            },
+                            {
+                                "text": "Grandchild 32",
+                                "href": "#grandchild32",
+                                "tags": ["0"]
+                            }
+                        ]
+                    },
+                    {
+                        "text": "Child 2",
+                        "href": "#child2",
+                        "tags": ["0"]
+                    }
+                ]
+            },
+            {
+                "text": "Parent 5",
+                "href": "#parent5"  ,
+                "tags": ["0"]
+            }
+        ];
+
+        $scope.collapseAll= function(){
+            $scope.treeRef.collapseAll();
+        };
+        $scope.expandAll= function(){
+            $scope.treeRef.expandAll();
+        };
+        $scope.changeData= function(){
+            $scope.treeRef.updateData(data);
+            $scope.treeRef.refresh();
+        };
+
+
     }])
 	.controller('bindController', ['$scope', '$rootScope', function ($scope, $rootScope){
         $scope.comboboxValue= 'CO';
