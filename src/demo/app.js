@@ -94,8 +94,6 @@ angular.module('pnApp.controllers', [])
             $scope.treeRef.updateData(data);
             $scope.treeRef.refresh();
         };
-
-
     }])
 	.controller('bindController', ['$scope', '$rootScope', function ($scope, $rootScope){
         $scope.comboboxValue= 'CO';
@@ -104,7 +102,78 @@ angular.module('pnApp.controllers', [])
         $scope.levelValue= '230000,230200,230227';	// 330000,330600,330682 浙江 / 绍兴 / 上虞
         $scope.dtpickerValue= '2001-11-11 11:11:11';
     }])
-    .controller('paginatorController', ['$scope', '$rootScope', function ($scope, $rootScope){
+    .controller("validatorController", ['$scope', '$rootScope', function ($scope, $rootScope){
+        var validatorOptions= {
+            rules: {
+                name: {
+                    // required: true,
+                    minlength: 4
+                },
+                password: {
+                    required: true,
+                    minlength: 5
+                },
+                password_again: {
+                    equalTo: "#password"
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                // agree: "required",
+                agree: {
+                    required: true
+                },
+                topic: {
+                    required: "#newsletter:checked",
+                    minlength: 2
+                },
+                comment: {
+                    required: true
+                }
+            },
+            messages: {
+                name: {
+                    required: "请输入一个名称",
+                    minlength: "名称至少需要4个字符"
+                },
+                password: {
+                    required: "请输入一个密码",
+                    minlength: "密码至少需要5个字符"
+                },
+                confirm_password: {
+                    required: "请输入一个密码",
+                    minlength: "密码至少需要5个字符",
+                    equalTo: "两次输入的密码不一致"
+                },
+                email: "请输入一个有效的邮箱地址",
+                agree: "请接受我们的服务条款"
+            },
+            // errorContainer: '#ErrorsSummary, #ErrorsSummary2',
+            // errorLabelContainer: "#ErrorsSummary ul",
+            // wrapper: "li", 
+            // invalidHandler: function() {
+            //     $( "#ErrorsSummary" ).text( this.numberOfInvalids() + " field(s) are invalid" );
+            // },
+            submitHandler: function() { alert("Submitted!") }
+
+            // showErrors: function(errorMap, errorList) {
+            //     if (submitted) {
+            //         var summary = "You have the following errors: \n";
+            //         $.each(errorList, function() { summary += " * " + this.message + "\n"; });
+            //         alert(summary);
+            //         submitted = false;
+            //     }
+            //     this.defaultShowErrors();
+            // },          
+            // invalidHandler: function(form, validator) {
+            //     submitted = true;
+            // }
+        };
+
+        $scope.validatorOptions= validatorOptions;
+    }])
+    .controller('paginatorController', ['$scope', '$rootScope', '$compile', function ($scope, $rootScope, $compile){
         function reloadList(pageIndex){
             var queryData={
                 name: $('#formQuery #name').val(),
@@ -148,9 +217,25 @@ angular.module('pnApp.controllers', [])
         $scope.edit=function(id, e){
             e.preventDefault();
 
-            if(!confirm('你确定要修改id: '+id+' 吗？')){
-                return;
-            }
+            // if(!confirm('你确定要修改id: '+id+' 吗？')){
+            //     return;
+            // }
+
+            // get html
+            // get data
+            // bind data
+            // show
+
+            var editor= new T.UI.Components.Modal(e.target, {
+                modalId: '#demoPopEditorModal',
+                remote: '/demo/components/paginator/remote.html',
+                show: true,
+                bindTarget: false,
+                parseData: function(data){
+                    return $compile(data)($scope);
+                }
+            });
+            // editor.show();
         }
 
         $scope.deleteEntity=function(id, e){
@@ -193,9 +278,6 @@ angular.module('pnApp.controllers', [])
         };
         reloadList(0);
     }]);
-
-        
-
 
 angular.module('pnApp.directives', [])
     .directive('fooDirective', ['$rootScope', '$compile', function($rootScope, $compile){

@@ -79,3 +79,44 @@ newsletter.click(function() {
     topics[this.checked ? "removeClass" : "addClass"]("gray");
     topicInputs.attr("disabled", !this.checked);
 });
+
+
+$("#commentForm2").validate2({
+    rules: {
+        name2: {
+            // required: true,
+            minlength: 4
+        },
+        email2: {
+            required: true,
+            email: true
+        }
+    },
+    messages: {
+        name2: {
+            required: "请输入一个名称",
+            minlength: "名称至少需要4个字符"
+        },
+        email2: "请输入一个有效的邮箱地址"
+    },
+    errorContainer: '#ErrorsSummary',
+    // errorLabelContainer: "ul",
+    // errorLabelWrapper: "li", 
+    // invalidHandler: function() {
+    //     $( "#ErrorsSummary" ).text( this.numberOfInvalids() + " field(s) are invalid" );
+    // },
+    submitHandler: function() { alert("Submitted!") }
+
+    // showErrors: function(errorMap, errorList) {
+    //     if (submitted) {
+    //         var summary = "You have the following errors: \n";
+    //         $.each(errorList, function() { summary += " * " + this.message + "\n"; });
+    //         alert(summary);
+    //         submitted = false;
+    //     }
+    //     this.defaultShowErrors();
+    // },          
+    // invalidHandler: function(form, validator) {
+    //     submitted = true;
+    // }
+});

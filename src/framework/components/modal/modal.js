@@ -21,7 +21,9 @@ Jx().package("T.UI.Components", function(J){
     var defaults = {
         // 参数
         modalId: '',
-        show: true,
+        show: false,
+        bindTarget: true,
+        remote: '',
         backdrop: true,
         keyboard: true
         // 覆写
@@ -30,6 +32,7 @@ Jx().package("T.UI.Components", function(J){
     var attributeMap = {
         modalId:'modal-id',
         show: 'show',
+        remote: 'remote',
         backdrop: 'backdrop',
         keyboard: 'keyboard'
     };
@@ -52,15 +55,19 @@ Jx().package("T.UI.Components", function(J){
             // // 初始化选项
             // this.initSettings(options);
             this.settings             = options
-
-            // 初始化 html DOM 元素
-            this.initElements();
+            if (typeof (this.settings.parseData) === 'function') {
+                this.parseData = this.settings.parseData;
+                delete this.settings.parseData;
+            }
 
             // 初始化数据
             this.getData();
 
+            // 初始化 html DOM 元素
+            this.initElements();            
+
             // 绑定事件
-            this.bindEvents();            
+            this.bindEvents();
             // // 绑定事件接口
             // this.bindEventsInterface();
         },
@@ -72,27 +79,39 @@ Jx().package("T.UI.Components", function(J){
                 dialog: context.element.find('.modal-dialog'),
                 backdrop: null
             };
-        },
-        getData: function(){
-            if (this.settings.remote) {
-                this.element
-                    .find('.modal-content')
-                    .load(this.settings.remote, $.proxy(function () {
-                        this.element.trigger('loaded.bs.modal')
-                    }, this))
+
+            if(this.settings.show){
+                this.show(this.inputElements.original);
             }
         },
+        getData: function(){
+            var context= this;
+            if (this.settings.remote) {
+                // this.element
+                //     .find('.modal-content')
+                //     .load(this.settings.remote, $.proxy(function () {
+                //         this.element.trigger('loaded.bs.modal')
+                //     }, this))
+                
+                var jqModalContent= this.element.find('.modal-content');
+
+                $.ajax({
+                    url: this.settings.remote,
+                    type: 'GET',
+                    dataType: "html"//,
+                    // data: params
+                }).done(function( responseText ) {
+                    var innerHtml= context.parseData(responseText);
+                    jqModalContent.empty();
+                    // jqModalContent.append($.parseHTML(innerHtml));
+                    jqModalContent.append(innerHtml);
+                })
+            }
+        },
+        parseData: function(data){
+            return data;
+        },
         bindEvents: function(){
-            var context = this;
-
-            this.inputElements.original.on('click', function(e){
-                if($(this).is('a')){
-                    e.preventDefault();
-                }
-
-                context.show(context.inputElements.original);
-            });
-
             this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
         },
         toggle: function (_relatedTarget) {
@@ -352,8 +371,10 @@ Jx().package("T.UI.Components", function(J){
             var jqElement=$(element);
             this.initSettings(jqElement, options);
 
-            var href= this.element.attr('href');
-            this.settings.remote= !/#/.test(href) && href;
+            if(!this.settings.remote){
+                var href= this.element.attr('href');
+                this.settings.remote= !/#/.test(href) && href;
+            }
 
             // // 初始化数据
             // this.getData();
@@ -363,6 +384,8 @@ Jx().package("T.UI.Components", function(J){
 
             // 创建 树型 菜单对象
             this.pop=new ModalPop(this.elements, this.settings);
+
+            this.bindEvents();
         },
         initElements: function(){
             this.elements={
@@ -370,8 +393,36 @@ Jx().package("T.UI.Components", function(J){
                 pop: $(this.settings.modalId)
             }
         },
+        bindEvents: function(){
+            var context = this;
+
+            if(this.settings.bindTarget){
+                this.elements.original.on('click', function(e){
+                    if($(this).is('a')){
+                        e.preventDefault();
+                    }
+
+                    context.pop.show(context.elements.original);
+                });
+            }
+
+            this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
+        },
+        show: function(){
+            this.pop.show();
+        },
         hide: function(){
             this.pop.hide();
         }
+    });
+
+    // 嵌套 modal
+    // http://stackoverflow.com/questions/19305821/multiple-modals-overlay
+    $(document).on('show.bs.modal', '.modal', function () {
+        var zIndex = 1040 + (10 * $('.modal:visible').length);
+        $(this).css('z-index', zIndex);
+        setTimeout(function() {
+            $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
+        }, 0);
     });
 });

@@ -4,8 +4,8 @@
 T.UI.ngComponents
     .directive('validator', ['$rootScope', '$compile', function($rootScope, $compile){
         var args= {
-            options: 'treeOptions',
-            ref: 'treeRef'
+            options: 'validatorOptions',
+            ref: 'validatorRef'
         };
 
         function link($scope, $element, $attrs, undefined, link){
@@ -26,11 +26,7 @@ T.UI.ngComponents
         }
 
         return {
-            scope: {
-                instance: '=controller',
-                templateUrl: '@',
-                unload: '&'
-            },
+            scope: {},
             restric: 'A',
             transclude: false,
             link: link
