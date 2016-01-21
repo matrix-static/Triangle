@@ -720,7 +720,8 @@
                 var $checkableTree = $('#tree-checkable').tree({
                     data: defaultData,
                     showIcon: false,
-                    showCheckbox: true,
+                    showCheckbox: 'all',
+                    checkRecursive: true,
                     onNodeChecked: function(event, nodeid) {
                         $('#checkable-output').prepend('<p>' + nodeid + ' was checked</p>');
                     },
