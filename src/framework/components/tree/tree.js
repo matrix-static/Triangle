@@ -24,9 +24,30 @@
  */
 
 Jx().package("T.UI.Components", function(J){
-
     // 严格模式
     'use strict';
+
+    // 勾选框是否显示
+    var enumShowCheckbox= {
+        none: 'none',       // 0 所有节点都不显示勾选框(默认)
+        all: 'all',         // 1 所有节点都显示勾选框        
+        leaf: 'leaf'        // 2 仅叶子节点显示勾选框
+    };
+
+    // 勾选框选中状态
+    var enumCheckedState= {
+        unchecked: 'unchecked', // 0 选中(默认)
+        checked: 'checked',     // 1 未选中
+        partOf: 'partOf'        // 2 部分子节点选中
+    };
+
+    // 节点是否可选
+    var enumSelectMode= {
+        // none: 'none',       // 0 所有不可选中(默认) TODO:逻辑代码未实现
+        all: 'all',         // 1 所有可选中
+        leaf: 'leaf'        // 2 仅叶子节点可选中
+    };
+
     var emptyFun= function(){};
 
     // 全局变量、函数、对象
@@ -44,18 +65,29 @@ Jx().package("T.UI.Components", function(J){
         nodeIcon: '',
         selectedIcon: '',
         checkedIcon: 'glyphicon glyphicon-check',
+        // checkedPartOfIcon: 'glyphicon glyphicon-checked-partof', // 图标用checked，颜色用灰色(黑灰白)
         uncheckedIcon: 'glyphicon glyphicon-unchecked',
 
         enableLinks: false,
         enableTitle: false,
         showIcon: true,
-        showCheckbox: false,
+        // showCheckbox: false,
         showTags: false,
         multiSelect: false,
 
         // nodeOptions
         silent: false,
         ignoreChildren: false,
+
+        // extend
+        showCheckbox: enumShowCheckbox.none,
+        checkRecursive: false,
+        selectMode: enumSelectMode.none,
+        // appendHtml: '',
+        // parseAppendHtml: undefined, // for angularjs: function(html){ return $compile(html)($scope); }
+
+        selectedNodeIds: '',
+        checkedNodeIds: '',
 
         // Event handlers
         onNodeChecked: emptyFun,
@@ -71,10 +103,18 @@ Jx().package("T.UI.Components", function(J){
     };
 
     var attributeMap = {
-        showTags: 'show-tags',
-        levels: 'levels',
+        expandIcon: 'expand-icon',
+        collapseIcon: 'collapse-icon',
+
         enableTitle: 'enable-title',
-        dataUrl: 'data-url'
+        showTags: 'show-tags',
+        levels: 'levels',        
+        multiSelect: 'multi-select',
+
+        dataUrl: 'data-url',
+
+        selectedNodeIds: 'selected-node-ids',
+        checkedNodeIds: 'checked-node-ids'
     };
 
     // var state= jqNode.find('.expand-icon').hasClass(this.settings.expandIcon);
@@ -125,11 +165,6 @@ Jx().package("T.UI.Components", function(J){
             // 初始化数据
             $.when(this.getData())
              .done(function(){
-                
-                // -----------------------------------------------
-                // states
-                // -----------------------------------------------
-                // this.initStates(jqElement);
                 // -----------------------------------------------
                 // html
                 // -----------------------------------------------
@@ -137,7 +172,10 @@ Jx().package("T.UI.Components", function(J){
                 // context.transferAttributes();
                 context.initElements(jqElement);
                 context.refresh();
-
+                // -----------------------------------------------
+                // states
+                // -----------------------------------------------
+                // this.initStates(jqElement);
                 // -----------------------------------------------
                 // events
                 // -----------------------------------------------
@@ -250,6 +288,18 @@ Jx().package("T.UI.Components", function(J){
                     var children= $('li[data-path^="'+path+'|"]', context.container);
                     return children;
                 },
+                getChildNodesChecked: function(nodeId){
+                    var jqNode= this.getNode(nodeId);
+                    var path= jqNode.data('path');
+                    var children= $('li.node-checked[data-path^="'+path+'|"]', context.container);
+                    return children;
+                },
+                getChildNodesCheckedPartOf: function(nodeId){
+                    var jqNode= this.getNode(nodeId);
+                    var path= jqNode.data('path');
+                    var children= $('li.node-checked-partof[data-path^="'+path+'|"]', context.container);
+                    return children;
+                },
                 getLevelNodes: function(level){
                     var child= $('li[data-level="'+level+'"]', context.container);
                     return child;
@@ -297,6 +347,8 @@ Jx().package("T.UI.Components", function(J){
         },
 
         buildItem: function(node){
+            var hasChildren= node.nodes && node.nodes.length>0;
+
             // indent
             var indent= '';
             for (var j = 0; j < (node._innerLevel - 1); j++) {
@@ -312,7 +364,7 @@ Jx().package("T.UI.Components", function(J){
             //     cssClassIcon += ' ' + this.settings.emptyIcon;
             // }
             var cssClassIcon= 'icon';
-            if (node.nodes && node.nodes.length > 0) {
+            if (hasChildren) {
                 cssClassIcon += node._innerLevel < this.settings.levels ? ' expand-icon '+this.settings.collapseIcon : ' expand-icon '+this.settings.expandIcon;
             }
             else {
@@ -337,7 +389,8 @@ Jx().package("T.UI.Components", function(J){
 
             // Add check / unchecked icon
             var check= '';
-            if (this.settings.showCheckbox) {
+            // if (this.settings.showCheckbox) {
+            if (this.settings.showCheckbox === enumShowCheckbox.all || (!hasChildren && this.settings.showCheckbox === enumShowCheckbox.leaf)) {
                 var cssClassCheck= 'icon check-icon ';
                 // if (node.state.checked) {
                 //     cssClassCheck += this.settings.checkedIcon; 
@@ -358,12 +411,29 @@ Jx().package("T.UI.Components", function(J){
                 }
             }
 
+            // append html to li
+            // var appendHtml= this.settings.appendHtml;
+            // if(appendHtml){
+            //     if(this.settings.parseAppendHtml){
+            //         appendHtml= this.settings.parseAppendHtml(appendHtml);
+            //     }
+            //     // else{
+            //     //     appendHtml= this.settings.appendHtml
+            //     // }
+            // }
+
             // item
             var cssClass= 'list-group-item';
             // cssClass += node.state.checked ? ' node-checked' : '';
             // cssClass += node.state.disabled ? ' node-disabled' : '';
             // cssClass += node.state.selected ? ' node-selected' : '';
             // cssClass += node.searchResult ? ' search-result' : '';
+            if(hasChildren){
+                // cssClass += 'has-children';
+                if(this.settings.selectNode === enumSelectMode.leaf){
+                    cssClass += ' node-unselelctable';
+                }
+            }
             var item= ''+
                 '<li '+
                 '   class="' + cssClass + '" '+
@@ -380,22 +450,27 @@ Jx().package("T.UI.Components", function(J){
                 check +
                 (this.settings.enableLinks ? 
                 '   <a href="'+node.href+'" style="color:inherit;">'+node.text+'</a>' : node.text) +
+                // appendHtml+
                 badge +
                 '</li>';
 
             return item;
         },
 
-        // refresh: function () {
-        //     this.container.empty();
-        //     // Build tree
-        //     this.buildTree(this.data, 0);
-        // },
         refresh: function () {
             this.container.empty();
             this.buildTree();
+            this.initStates();
         },
 
+        initStates: function(){
+            if(this.settings.selectedNodeIds){
+                this.selectedNodeByIds(this.settings.selectedNodeIds);
+            }
+            if(this.settings.checkedNodeIds){
+                this.selectedNodeByIds(this.settings.checkedNodeIds);
+            }
+        },
 
         // 点击事件处理器
         clickHandler: function (event) {
@@ -424,10 +499,13 @@ Jx().package("T.UI.Components", function(J){
             }
 
             // if (node.selectable) {
-            this.toggleSelectedState(nodeId, this.settings.silent);
+            //     this.toggleSelectedState(nodeId, this.settings.silent);
             // } else {
             //     this.toggleExpandedState(nodeId, this.settings.silent);
             // }
+            if(!jqNode.hasClass('node-unselelctable')){
+                this.toggleSelectedState(nodeId, this.settings.silent);
+            }
         },
 
         // -------------------------------------------------------------------
@@ -552,18 +630,24 @@ Jx().package("T.UI.Components", function(J){
         // -------------------------------------------------------------------
 
         setSelectedState: function (nodeId, state, silent) {
+            var jqNode= this.elements.getNode(nodeId);
+
+            if(jqNode.hasClass('node-unselelctable')){
+                return;
+            }
+
             if (state) {
                 if (!this.settings.multiSelect) {
                     this.elements.getSelectedNodes(false).removeClass('node-selected');
                 }
 
-                this.elements.getNode(nodeId).addClass('node-selected');
+                jqNode.addClass('node-selected');
                 if (!silent) {
                     this.elements.original.trigger('nodeSelected', nodeId);
                 }
             }
             else {
-                this.elements.getNode(nodeId).removeClass('node-selected');
+                jqNode.removeClass('node-selected');
                 if (!silent) {
                     this.elements.original.trigger('nodeUnselected', nodeId);
                 }
@@ -600,37 +684,138 @@ Jx().package("T.UI.Components", function(J){
         // -------------------------------------------------------------------
 
         setCheckedState: function(nodeId, state, silent){
+            this._innerSetChcekedState(nodeId, state, silent);
+
+            // 级联勾选
+            if(this.settings.checkRecursive){
+                var node= this.getNode(nodeId); // TODO:直接用dom里的数据，不要用this.data和this.getNode()
+                this.checkRecursiveParent(node, state, silent);
+                this.checkRecursiveChildren(node, state, silent);
+            }
+        },
+
+        _innerSetChcekedState: function(nodeId, state, silent){
             var jqNode= this.elements.getNode(nodeId);
             var jqCheck= jqNode.find('.check-icon');
 
-            if (state) {   
-                jqNode.addClass('node-checked');
-                jqCheck.removeClass(this.settings.uncheckedIcon).addClass(this.settings.checkedIcon);
+            switch(state){
+                case enumCheckedState.checked: {
+                    jqNode
+                        .removeClass('node-checked-partof')
+                        .addClass('node-checked');
+                    jqCheck
+                        .removeClass(this.settings.uncheckedIcon)
+                        .removeClass(this.settings.checkedpartOfIcon)
+                        .addClass(this.settings.checkedIcon);
 
-                if (!silent) {
-                    // this.elements.original.trigger('nodeChecked', $.extend(true, {}, node));
-                    this.elements.original.trigger('nodeChecked', nodeId);
+                    if (!silent) {
+                        // this.elements.original.trigger('nodeChecked', $.extend(true, {}, node));
+                        this.elements.original.trigger('nodeChecked', nodeId);
+                    }
+
+                    break;
+                }
+                case enumCheckedState.unchecked: {
+                    jqNode
+                        .removeClass('node-checked')
+                        .removeClass('node-checked-partof');
+                    jqCheck
+                        .removeClass(this.settings.checkedIcon)
+                        .removeClass(this.settings.checkedpartOfIcon)
+                        .addClass(this.settings.uncheckedIcon);
+
+                    if (!silent) {
+                        this.elements.original.trigger('nodeUnchecked', nodeId);
+                    }
+
+                    break;
+                }
+                case enumCheckedState.partof: {
+                    jqNode
+                        .removeClass('node-checked')
+                        .addClass('node-checked-partof');
+                    jqCheck
+                        .removeClass(this.settings.checkedIcon)
+                        .removeClass(this.settings.uncheckedIcon)
+                        .addClass(this.settings.checkedpartOfIcon);
+
+                    if (!silent) {
+                        this.elements.original.trigger('nodeUnchecked', nodeId);
+                    }
+
+                    break;
                 }
             }
-            else {
-                jqNode.removeClass('node-checked');
-                jqCheck.removeClass(this.settings.checkedIcon).addClass(this.settings.uncheckedIcon);
+        },
 
-                if (!silent) {
-                    this.elements.original.trigger('nodeUnchecked', nodeId);
+        checkRecursiveParent: function(node, state, silent){
+            // if(!node._innerParentId){
+            // 可能等于0
+            if(typeof node._innerParentId === 'undefined'){
+                return;
+            }
+
+            var parent= this.getNode(node._innerParentId);
+            while(parent){
+                var parentState;
+                switch(state){
+                    case enumCheckedState.checked: 
+                    case enumCheckedState.unchecked: {
+                        // 条件1 state= checked / unchecked
+                        // 条件2 Sibling is all checked or has CheckedPartOf
+                        // var isSiblingAllSameCheckedState= false;
+
+                        var numberOfSiblingCheckedPartOf= this.elements.getChildNodesCheckedPartOf(parent.id).length;
+                        if(numberOfSiblingCheckedPartOf > 0){
+                            parentState= enumCheckedState.partOf;
+                        }
+                        else{
+                            var numberOfSiblingChecked= this.elements.getChildNodesChecked(parent.id).length;
+                            if(numberOfSiblingChecked === 0){
+                                parentState= enumCheckedState.unchecked;
+                            }
+                            else{
+                                // var numberOfSibling= this.elements.getChildNodes(parent.id).length;
+                                // if(numberOfSiblingChecked === numberOfSibling){
+                                parentState= enumCheckedState.checked;
+                                // }
+                            }
+                        }
+
+                        break;
+                    }
+                    case enumCheckedState.partOf: {
+                        parentState= state;
+
+                        break;
+                    }
+                }
+
+                this._innerSetChcekedState(parent.id, parentState, silent);
+
+                parent= this.getNode(parent._innerParentId);
+            }
+        },
+
+        checkRecursiveChildren: function(node, state, silent){
+            if(node.nodes && node.nodes.length>0){
+                for(var i=0; i<node.nodes.length; i++){
+                    var child= node.nodes[i];
+                    this._innerSetChcekedState(child.id, state, silent);
+                    this.checkRecursiveChildren(child, state, silent);
                 }
             }
         },
 
         checkNode: function (nodeIds, silent) {
             for(var i=0; i<nodeIds.length; i++){
-                this.setCheckedState(nodeIds[i], true, silent);
+                this.setCheckedState(nodeIds[i], 'checked', silent);
             }
         },
 
         uncheckNode: function (nodeIds, silent) {
             for(var i=0; i<nodeIds.length; i++){
-                this.setCheckedState(nodeIds[i], false, silent);
+                this.setCheckedState(nodeIds[i], 'unchecked', silent);
             }
         },
 
@@ -638,9 +823,12 @@ Jx().package("T.UI.Components", function(J){
             var jqNode= this.elements.getNode(nodeId);
             var jqCheck= jqNode.find('.check-icon');
 
-            var state= hasClasses(jqCheck, this.settings.checkedIcon);
+            // 是否未选中
+            var state= hasClasses(jqCheck, this.settings.uncheckedIcon);
 
-            this.setCheckedState(nodeId, !state, silent);
+            // 在选中和部分选中的情况下切换为不选中
+            // this.setCheckedState(nodeId, !state, silent);
+            this.setCheckedState(nodeId, state ? 'checked' : 'unchecked', silent);
         },
 
         toggleNodeChecked: function (nodeIds, silent) {
@@ -694,7 +882,7 @@ Jx().package("T.UI.Components", function(J){
                 // Disable all other states
                 this.setExpandedState(nodeId, false, silent, ignoreChildren);
                 this.setSelectedState(nodeId, false, silent);
-                this.setCheckedState(nodeId, false, silent);
+                this.setCheckedState(nodeId, 'unchecked', silent);
 
                 if (!silent) {
                     this.elements.original.trigger('nodeDisabled', nodeId);
@@ -745,7 +933,7 @@ Jx().package("T.UI.Components", function(J){
                 // Disable all other states
                 context.setExpandedState(nodeId, false, silent, ignoreChildren);
                 context.setSelectedState(nodeId, false, silent);
-                context.setCheckedState(nodeId, false, silent);
+                context.setCheckedState(nodeId, 'unchecked', silent);
 
                 if (!silent) {
                     context.elements.original.trigger('nodeDisabled', nodeId);
@@ -764,12 +952,17 @@ Jx().package("T.UI.Components", function(J){
                 // // Enable all other states
                 // context.setExpandedState(nodeId, true, silent, ignoreChildren);
                 // context.setSelectedState(nodeId, true, silent);
-                // context.setCheckedState(nodeId, true, silent);
+                // context.setCheckedState(nodeId, 'checked', silent);
 
                 if (!silent) {
                     context.elements.original.trigger('nodeEnabled', nodeId);
                 }
             });            
+        },
+
+        getNode: function(nodeId){
+            var nodeIndex= this.idIndexMap['id_'+nodeId];
+            return this.data[nodeIndex];
         },
 
         revealNode: function (nodeIds, options) {
@@ -1091,3 +1284,28 @@ Jx().package("T.UI.Components", function(J){
 
         //     return item;
         // },
+
+
+
+        // setCheckedState: function(nodeId, state, silent){
+        //     var jqNode= this.elements.getNode(nodeId);
+        //     var jqCheck= jqNode.find('.check-icon');
+
+        //     if (state) {   
+        //         jqNode.addClass('node-checked');
+        //         jqCheck.removeClass(this.settings.uncheckedIcon).addClass(this.settings.checkedIcon);
+
+        //         if (!silent) {
+        //             // this.elements.original.trigger('nodeChecked', $.extend(true, {}, node));
+        //             this.elements.original.trigger('nodeChecked', nodeId);
+        //         }
+        //     }
+        //     else {
+        //         jqNode.removeClass('node-checked');
+        //         jqCheck.removeClass(this.settings.checkedIcon).addClass(this.settings.uncheckedIcon);
+
+        //         if (!silent) {
+        //             this.elements.original.trigger('nodeUnchecked', nodeId);
+        //         }
+        //     }
+        // }
