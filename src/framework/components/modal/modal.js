@@ -22,7 +22,7 @@ Jx().package("T.UI.Components", function(J){
         // 参数
         modalId: '',
         show: false,
-        bindTarget: true,
+        bindTarget: true,   // 绑定element元素(button等)的click事件
         remote: '',
         backdrop: true,
         keyboard: true

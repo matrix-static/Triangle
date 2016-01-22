@@ -305,7 +305,7 @@ Jx().package("T.UI.Components", function(J){
         //             if (valid) {
         //                 submitted = context.formSubmitted;
         //                 context.reset();
-        //                 context.toHide = this.errorsFor(element);
+        //                 context.toHide = this.elements.errorElement(element);
         //                 context.formSubmitted = submitted;
         //                 context.successList.push(element);
         //                 delete context.invalid[element.name];
@@ -393,16 +393,17 @@ Jx().package("T.UI.Components", function(J){
 
         // 模板模式 方法
         buildHtml: function(){
+            this.container= this.element;
+
+            this.errorContext= this.element;
+            // 错误消息放在外部容器里
             if(this.settings.errorContainer){
                 this.errorContainer= $(this.settings.errorContainer);
                 // this.errorLabelContainer= $(this.settings.errorLabelContainer);
                 // this.errorContainer.append(this.errorLabelContainer);
                 this.errorContainer.append('<ul></ul>');
                 // this.errorContext= this.errorLabelContainer;
-                this.errorContext= this.errorContainer;
-            }
-            else{
-                this.errorContext= this.element;
+                this.errorContext.add(this.errorContainer);
             }
 
             // this.errorLabelContainer = $(this.settings.errorLabelContainer);
@@ -410,21 +411,18 @@ Jx().package("T.UI.Components", function(J){
             // this.containers = $(this.settings.errorContainer).add(this.settings.errorLabelContainer);
         },
         initElements: function(){
-            var context= this;
-
-            var container= this.element;
+            var context= this;            
             this.elements= {
                 // original: this.element,
-                submitButton: $('input:submit:not("save"), button:submit:not("save")', container),
-                saveButton: $('input.save:submit, button.save:submit', container),
+                submitButton: $('input:submit:not("save"), button:submit:not("save")', this.container),
+                saveButton: $('input.save:submit, button.save:submit', this.container),
                 currentElements: function(){
                     // 有可能中途disabled，插入元素等。
                     var rulesCache = {};
-                    var currentElements= container
-                        .find("input, select, textarea")
-                        .not(":submit, :reset, :image, :disabled")
-                        .not(context.settings.ignore)
-                        .filter(function() {
+                    var elementsAll= context.container.find("input, select, textarea");
+                    var elementsField= elementsAll.not(":submit, :reset, :image, :disabled");
+                    var elementsFieldNotIgnore= elementsField.not(context.settings.ignore);
+                    var currentElements= elementsFieldNotIgnore.filter(function() {
                             // add by matrix
                             var data= context.settings.rules[this.name];
 
@@ -441,7 +439,21 @@ Jx().package("T.UI.Components", function(J){
                     return currentElements;
                 },
                 findByName: function(name) {
-                    return container.find('[name="' + name + '"]');
+                    return context.container.find('[name="' + name + '"]');
+                },
+                // 所有的error元素
+                errorElements: function() {
+                    var errorClass = context.settings.errorClass.split(' ').join('.');
+                    var errorElements= $(context.settings.errorElement + "." + errorClass, context.errorContext);
+                    return errorElements;
+                },
+                // 指定元素的error元素
+                errorElement: function(element) {
+                    var identity= context.idOrName(element);
+                    var selector = "label[for='" + identity + "'], label[for='" + identity + "'] *";
+                    var errorElements= context.elements.errorElements();
+                    var errorElement= errorElements.filter(selector);
+                    return errorElement;
                 }
                 // view: $('input[type=text]', this.container)
                 // getTab: function(levelIndex){
@@ -565,11 +577,11 @@ Jx().package("T.UI.Components", function(J){
             // Hide error label and remove error class on focus if enabled
             if (this.settings.focusCleanup) {
                 this.unhighlight(element, this.settings.errorClass, this.settings.validClass);
-                var errors= this.errorsFor(element);
+                var errorElements= this.elements.errorElement(element);
                 // errors.not(this.containers).text("");
                 // this.addWrapper(errors).hide();
-                errors.text("");
-                errors.hide();
+                errorElements.text("");
+                errorElements.hide();
                 // this.containers.hide();
             }
         },
@@ -628,7 +640,7 @@ Jx().package("T.UI.Components", function(J){
         checkForm: function() {
 
             this.reset();
-            this.toHide = this.errors();//.add(this.containers);
+            this.toHide = this.elements.errorElements();//.add(this.containers);
 
             var elements= this.currentElements = this.elements.currentElements();   // 所有需要验证的元素
             for (var i = 0; i<elements.length; i++) {
@@ -658,7 +670,7 @@ Jx().package("T.UI.Components", function(J){
                 delete this.invalid[cleanElement.name];
             } else {
                 this.reset();
-                this.toHide = this.errorsFor(checkElement);
+                this.toHide = this.elements.errorElement(checkElement);
                 this.currentElements = $(checkElement);
 
                 result = this.check(checkElement) !== false;
@@ -668,42 +680,73 @@ Jx().package("T.UI.Components", function(J){
                     this.invalid[checkElement.name] = true;
                 }
             }
-            if (!objectLength(this.invalid)) {
-                // Hide error containers on last error
-                this.toHide = this.toHide;//.add(this.containers);
-            }
+            // if (!objectLength(this.invalid)) {
+            //     // Hide error containers on last error
+            //     this.toHide = this.toHide.add(this.containers);
+            // }
             this.showErrors();
             return result;
         },
 
         // http://jqueryvalidation.org/Validator.showErrors/
-        showErrors: function(errors) {
-            if (errors) {
-                // add items to error list and map
-                $.extend(this.errorMap, errors);
-                this.errorList = [];
-                for (var name in errors) {
-                    var error= {
-                        message: errors[name],
-                        element: this.elements.findByName(name)[0]
-                    };
-                    this.errorList.push(error);
-                }
-                // remove items from success list
-                // this.successList = $.grep(this.successList, function(element) {
-                //     return !(element.name in errors);
-                // });
-                var newSuccessList=[];
-                for(var i=0; i<this.successList.length; i++){
-                    var element= this.successList[i];
-                    if(element.name in errors){
-                        continue;
-                    }
-                    newSuccessList.push(element);
-                }
-                this.successList= newSuccessList;
+        // showErrors: function(errors) {
+        showErrors: function() {
+
+            // // just for ajax
+            // if (errors) {
+            //     // add items to error list and map
+            //     $.extend(this.errorMap, errors);
+            //     this.errorList = [];
+            //     for (var name in errors) {
+            //         var error= {
+            //             message: errors[name],
+            //             element: this.elements.findByName(name)[0]
+            //         };
+            //         this.errorList.push(error);
+            //     }
+            //     // remove items from success list
+            //     // this.successList = $.grep(this.successList, function(element) {
+            //     //     return !(element.name in errors);
+            //     // });
+            //     var newSuccessList=[];
+            //     for(var i=0; i<this.successList.length; i++){
+            //         var element= this.successList[i];
+            //         if(element.name in errors){
+            //             continue;
+            //         }
+            //         newSuccessList.push(element);
+            //     }
+            //     this.successList= newSuccessList;
+            // }
+
+
+            // this.defaultShowErrors();
+            for (var i = 0; this.errorList[i]; i++) {
+                var error = this.errorList[i];
+                this.highlight(error.element, this.settings.errorClass, this.settings.validClass);
+                this.showLabel(error.element, error.message);
             }
-            this.defaultShowErrors();
+            // if (this.errorList.length) {
+            //     this.toShow = this.toShow.add(this.containers);
+            // }
+            if (this.settings.success) {
+                for (var i = 0; this.successList[i]; i++) {
+                    this.showLabel(this.successList[i]);
+                }
+            }
+            var invalidElements= $(this.errorList).map(function() {return this.element;});
+
+            var elements = this.currentElements.not(invalidElements);
+            for (var i = 0; i<elements.length; i++) {
+                this.unhighlight(elements[i], this.settings.errorClass, this.settings.validClass);
+            }
+            var toHide = this.toHide.not(this.toShow);
+            // this.toHide.not(this.containers).text("");
+            // this.addWrapper(this.toHide).hide();
+            // this.addWrapper(this.toShow).show();
+            toHide.text("");
+            toHide.hide();
+            this.toShow.show();
         },
 
         // http://jqueryvalidation.org/Validator.resetForm/
@@ -714,11 +757,12 @@ Jx().package("T.UI.Components", function(J){
             this.submitted = {};
             this.lastElement = null;
             this.reset();
-            this.toHide = this.errors();//.add(this.containers);
+            var errorElements = this.elements.errorElements();//.add(this.containers);
             // this.toHide.not(this.containers).text("");
             // this.addWrapper(this.toHide).hide();
-            this.toHide.text("");
-            this.toHide.hide();
+            errorElements.text("");
+            errorElements.hide();
+
             var elements = this.elements.currentElements();//.removeData("previousValue");
 
             for (var i = 0; elements[i]; i++) {
@@ -726,17 +770,12 @@ Jx().package("T.UI.Components", function(J){
             }
         },
 
-        errors: function() {
-            var errorClass = this.settings.errorClass.split(' ').join('.');
-            return $(this.settings.errorElement + "." + errorClass, this.errorContext);
-        },
-
         reset: function() {
             this.successList = [];  // 成功列表
             this.errorList = [];    // 错误列表
             this.errorMap = {};     // 错误映射
-            this.toShow = $([]);  // 需要隐藏的元素
-            this.toHide = $([]);  // 需要显示的元素
+            this.toShow = $([]);    // 需要隐藏的元素
+            this.toHide = $([]);    // 需要显示的元素
             this.currentElements = $([]); // 当前所有需要验证的元素
         },
 
@@ -771,7 +810,7 @@ Jx().package("T.UI.Components", function(J){
                 dependencyMismatch = false;
 
                 // if (result === "pending") {
-                //     this.toHide = this.toHide.not(this.errorsFor(element));
+                //     this.toHide = this.toHide.not(this.elements.errorElement(element));
                 //     return;
                 // }
 
@@ -831,39 +870,6 @@ Jx().package("T.UI.Components", function(J){
         //     return toToggle;
         // },
 
-        defaultShowErrors: function() {
-            for (var i = 0; this.errorList[i]; i++) {
-                var error = this.errorList[i];
-
-
-                this.highlight.call(this, error.element, this.settings.errorClass, this.settings.validClass);
-
-
-                this.showLabel(error.element, error.message);
-            }
-            if (this.errorList.length) {
-                this.toShow = this.toShow;//.add(this.containers);
-            }
-            if (this.settings.success) {
-                for (var i = 0; this.successList[i]; i++) {
-                    this.showLabel(this.successList[i]);
-                }
-            }
-            var invalidElements= $(this.errorList).map(function() {return this.element;});
-
-            var elements = this.currentElements.not(invalidElements);
-            for (var i = 0; i<elements.length; i++) {
-                this.unhighlight(elements[i], this.settings.errorClass, this.settings.validClass);
-            }
-            this.toHide = this.toHide.not(this.toShow);
-            // this.toHide.not(this.containers).text("");
-            // this.addWrapper(this.toHide).hide();
-            // this.addWrapper(this.toShow).show();
-            this.toHide.text("");
-            this.toHide.hide();
-            this.toShow.show();
-        },
-
         // 高亮错误元素
         highlight: function(element, errorClass, validClass) {
             if (element.type === "radio") {
@@ -882,24 +888,24 @@ Jx().package("T.UI.Components", function(J){
         },
 
         showLabel: function(element, message) {
-            var place, group, errorID,
-                error = this.errorsFor(element),
-                // elementID = this.idOrName(element);
-                elementID = element.id;
+            var error = this.elements.errorElement(element);
+
             if (error.length) {
                 // refresh error/success class
                 error.removeClass(this.settings.validClass).addClass(this.settings.errorClass);
                 // replace message on existing label
                 error.html(message);
             } else {
+                var identity= this.idOrName(element);
+
                 // create error element
                 error = $("<" + this.settings.errorElement + ">")
-                    .attr("id", elementID + "-error")
+                    .attr("id", identity + "-error")
                     .addClass(this.settings.errorClass)
                     .html(message || "");
 
                 // Maintain reference to the element to be placed into the DOM
-                place = error;
+                var place = error;
                 if (this.settings.errorLabelWrapper) {
                     // make sure the element is visible, even in IE
                     // actually showing the wrapped element is handled elsewhere
@@ -921,8 +927,8 @@ Jx().package("T.UI.Components", function(J){
                 // Link error back to the element
                 if (error.is("label")) {
                     // If the error is a label, then associate using 'for'
-                    error.attr("for", elementID);
-                } 
+                    error.attr("for", identity);
+                }
             }
             if (!message && this.settings.success) {
                 error.text("");
@@ -935,17 +941,14 @@ Jx().package("T.UI.Components", function(J){
             this.toShow = this.toShow.add(error);
         },
 
-        errorsFor: function(element) {
-            // var name = this.idOrName(element);
-            var name = element.name;
-            var selector = "label[for='" + name + "'], label[for='" + name + "'] *";
-            return this.errors().filter(selector);
-        },
+        
 
-        // idOrName: function(element) {
-        //     // return this.groups[element.name] || (this.checkable(element) ? element.name : element.id || element.name);
-        //     return this.checkable(element) ? element.name : element.id || element.name;
-        // },
+        
+
+        idOrName: function(element) {
+            // return this.groups[element.name] || (this.checkable(element) ? element.name : element.id || element.name);
+            return this.checkable(element) ? element.name : element.id;
+        },
 
         // 验证元素是否是当前form内的元素
         validationTargetFor: function(element) {
@@ -966,29 +969,32 @@ Jx().package("T.UI.Components", function(J){
             if (type === "radio" || type === "checkbox") {
                 return this.elements.findByName(element.name).filter(":checked").val();
             } else if (type === "number" && typeof element.validity !== "undefined") {
+                // html5 number标签
                 return element.validity.badInput ? false : jqElement.val();
             }
 
-            var val = jqElement.val();
-            if (typeof val === "string") {
-                return val.replace(/\r/g, "");
+            var value = jqElement.val();
+            if (typeof value === "string") {
+                return value.replace(/\r/g, "");
             }
-            return val;
+            return value;
         },
 
+        // 字符串长度 或 select option/radio/checkbox 被选中的个数
         getLength: function(value, element) {
-            switch (element.nodeName.toLowerCase()) {
-            case "select":
-                return $("option:selected", element).length;
-            case "input":
-                if (this.checkable(element)) {
-                    return this.elements.findByName(element.name).filter(":checked").length;
-                }
+            var nodeName= element.nodeName.toLowerCase();
+            switch (nodeName) {
+                case "select":
+                    return $("option:selected", element).length;
+                case "input":
+                    if (this.checkable(element)) {
+                        return this.elements.findByName(element.name).filter(":checked").length;
+                    }
             }
             return value.length;
         },
 
-        // 非必填？
+        // 非必填
         optional: function(element) {
             var val = this.getValue(element);
             return !methods.required.call(this, val, element) && "dependency-mismatch";

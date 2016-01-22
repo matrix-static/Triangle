@@ -11,60 +11,60 @@
         method="get" 
         action="" >
         <div class="form-group">
-            <label for="cname">名称 (必填，至少4个字符)</label>
-            <input id="cname" type="text" name="name" ng-model="name" class="form-control">
+            <label for="id_name">名称 (必填，至少4个字符)</label>
+            <input type="text" id="id_name" name="name" class="form-control">
         </div>
         <br />
         <div class="form-group">
-            <label for="cemail">E-Mail (必填)</label>
-            <input id="cemail" type="email" name="email" class="form-control">
+            <label for="id_email">E-Mail (必填)</label>
+            <input type="email" id="id_email" name="email" class="form-control">
         </div>
         <br />
         <div class="form-group">
-            <label for="password">密码</label>
-            <input id="password" name="password" class="form-control"/>
+            <label for="id_password">密码</label>
+            <input type="password" id="id_password" name="password" class="form-control"/>
         </div>
         <br />
         <div class="form-group">
-            <label for="password_again">密码确认</label>
-            <input id="password_again" name="password_again" class="form-control"/>
+            <label for="id_password_again">密码确认</label>
+            <input type="password" id="id_password_again" name="password_again" class="form-control"/>
         </div>
         <br />
         <div class="form-group">
-            <label for="curl">网址 (可选)</label>
-            <input id="curl" type="url" name="url" class="form-control">
+            <label for="id_curl">网址 (可选)</label>
+            <input type="url" id="id_curl" name="url" class="form-control">
         </div>
         <br />
         <div class="form-group">
-            <label for="agree">请同意我们的服务条款</label>
-            <input type="checkbox" class="checkbox" id="agree" name="agree">
+            <label for="id_agree">请同意我们的服务条款</label>
+            <input type="checkbox" id="id_agree" name="agree" class="checkbox">
         </div>
         <br />
         <div class="form-group">
-            <label for="newsletter">我希望接收新闻动态</label>
-            <input type="checkbox" class="checkbox" id="newsletter" name="newsletter">
+            <label for="id_newsletter">我希望接收新闻动态</label>
+            <input type="checkbox" id="id_newsletter" name="newsletter" class="checkbox">
         </div>
         <br />
         <div class="form-group" id="newsletter_topics">
             <p>话题 (至少选择2个) - 注意: 新闻动态未选中时,可能被隐藏. 为了演示方便显示在这里</p>
-            <label for="topic_marketflash">
-                <input type="checkbox" id="topic_marketflash" value="marketflash" name="topic">市场快讯
+            <label for="id_topic_marketflash">
+                <input type="checkbox" id="id_topic_marketflash" value="marketflash" name="topic">市场快讯
             </label>
             <br />
-            <label for="topic_fuzz">
-                <input type="checkbox" id="topic_fuzz" value="fuzz" name="topic">最新传言
+            <label for="id_topic_fuzz">
+                <input type="checkbox" id="id_topic_fuzz" value="fuzz" name="topic">最新传言
             </label>
             <br />
-            <label for="topic_digester">
-                <input type="checkbox" id="topic_digester" value="digester" name="topic">邮件列表
+            <label for="id_topic_digester">
+                <input type="checkbox" id="id_topic_digester" value="digester" name="topic">邮件列表
             </label>
             <br />
             <label for="topic" class="error">请至少选择2项需要接收的新闻动态</label>
         </div>
         <br />
         <div class="form-group">
-            <label for="ccomment">评论 (必填)</label>
-            <textarea id="ccomment" name="comment" class="form-control"></textarea>
+            <label for="id_ccomment">评论 (必填)</label>
+            <textarea id="id_ccomment" name="comment" class="form-control"></textarea>
         </div>
         <br />
         <div class="form-group">
