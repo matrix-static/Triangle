@@ -114,7 +114,7 @@ angular.module('pnApp.controllers', [])
                     minlength: 5
                 },
                 password_again: {
-                    equalTo: "#password"
+                    equalTo: "#id_password"
                 },
                 email: {
                     required: true,
@@ -214,10 +214,12 @@ angular.module('pnApp.controllers', [])
             $('#tblListData tbody :checkbox').prop('checked', checkedAll);
         };
 
-        $scope.edit=function(id, e){
+        // 动态加载的内容compiled以后，从dom中移除还不够，还需要销毁$scope
+        var editorScope;
+        $scope.edit=function(entity, e){
             e.preventDefault();
 
-            // if(!confirm('你确定要修改id: '+id+' 吗？')){
+            // if(!confirm('你确定要修改id: '+entity.id+' 吗？')){
             //     return;
             // }
 
@@ -228,20 +230,30 @@ angular.module('pnApp.controllers', [])
 
             var editor= new T.UI.Components.Modal(e.target, {
                 modalId: '#demoPopEditorModal',
-                remote: '/demo/components/paginator/remote.html',
-                show: true,
+                show: false,
                 bindTarget: false,
+                remote: '/demo/components/paginator/remote.html',
                 parseData: function(data){
-                    return $compile(data)($scope);
+                    if(editorScope){
+                        editorScope.$destroy();
+                    }
+                    editorScope=$scope.$new();
+                    return $compile(data)(editorScope);
+                },
+                onInitialized: function(){
+                    $scope.$broadcast("editEntity", entity);
+                    editor.show();
                 }
+                // close $scope.distroy
             });
-            // editor.show();
+
+            // this.inputElements.original.trigger('modal.on.initialized');
         }
 
-        $scope.deleteEntity=function(id, e){
+        $scope.deleteEntity=function(entity, e){
             e.preventDefault();
 
-            if(!confirm('你确定要删除id: '+id+' 吗？')){
+            if(!confirm('你确定要删除id: '+entity.id+' 吗？')){
                 return;
             }
         }
@@ -277,6 +289,83 @@ angular.module('pnApp.controllers', [])
             pageButtons: 7      // 分页按钮数 必须为奇数 3, 5, 7 ,9 ....
         };
         reloadList(0);
+    }])
+    .controller("editController", ['$scope', '$rootScope', function ($scope, $rootScope){
+        var validatorOptions= {
+            rules: {
+                name: {
+                    // required: true,
+                    minlength: 4
+                },
+                password: {
+                    required: true,
+                    minlength: 5
+                },
+                password_again: {
+                    equalTo: "#id_password"
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                // agree: "required",
+                agree: {
+                    required: true
+                },
+                topic: {
+                    required: "#newsletter:checked",
+                    minlength: 2
+                },
+                comment: {
+                    required: true
+                }
+            },
+            messages: {
+                name: {
+                    required: "请输入一个名称",
+                    minlength: "名称至少需要4个字符"
+                },
+                password: {
+                    required: "请输入一个密码",
+                    minlength: "密码至少需要5个字符"
+                },
+                confirm_password: {
+                    required: "请输入一个密码",
+                    minlength: "密码至少需要5个字符",
+                    equalTo: "两次输入的密码不一致"
+                },
+                email: "请输入一个有效的邮箱地址",
+                agree: "请接受我们的服务条款"
+            },
+            // errorContainer: '#ErrorsSummary, #ErrorsSummary2',
+            // errorLabelContainer: "#ErrorsSummary ul",
+            // wrapper: "li", 
+            // invalidHandler: function() {
+            //     $( "#ErrorsSummary" ).text( this.numberOfInvalids() + " field(s) are invalid" );
+            // },
+            submitHandler: function() { alert("Submitted!") }
+
+            // showErrors: function(errorMap, errorList) {
+            //     if (submitted) {
+            //         var summary = "You have the following errors: \n";
+            //         $.each(errorList, function() { summary += " * " + this.message + "\n"; });
+            //         alert(summary);
+            //         submitted = false;
+            //     }
+            //     this.defaultShowErrors();
+            // },          
+            // invalidHandler: function(form, validator) {
+            //     submitted = true;
+            // }
+        };
+
+        $scope.validatorOptions= validatorOptions;
+
+        $scope.$on("editEntity",function (event, entity){
+            $scope.entity= entity;
+
+            $scope.validatorRef.resetForm();
+        });
     }]);
 
 angular.module('pnApp.directives', [])

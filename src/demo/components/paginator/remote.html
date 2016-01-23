@@ -2,7 +2,7 @@
     <button type="button" class="close"><span aria-hidden="true">&times;</span></button>
     <h4 class="modal-title">Modal 编辑实体</h4>
 </div>
-<div class="modal-body" ng-controller="validatorController">
+<div class="modal-body" ng-controller="editController">
     <form 
         id="editEntityForm" 
         class="form-inline"                 
@@ -11,8 +11,12 @@
         method="get" 
         action="" >
         <div class="form-group">
+            <label for="id_id">Id</label>
+            <span id="id_id">{{entity.id}}</span>
+        </div>
+        <div class="form-group">
             <label for="id_name">名称 (必填，至少4个字符)</label>
-            <input type="text" id="id_name" name="name" class="form-control">
+            <input type="text" id="id_name" name="name" ng-model="entity.name" class="form-control">
         </div>
         <br />
         <div class="form-group">
@@ -47,19 +51,19 @@
         <br />
         <div class="form-group" id="newsletter_topics">
             <p>话题 (至少选择2个) - 注意: 新闻动态未选中时,可能被隐藏. 为了演示方便显示在这里</p>
-            <label for="id_topic_marketflash">
-                <input type="checkbox" id="id_topic_marketflash" value="marketflash" name="topic">市场快讯
+            <label for="id_topic_marketflash2">
+                <input type="checkbox" id="id_topic_marketflash2" value="marketflash" name="topic">市场快讯
             </label>
             <br />
-            <label for="id_topic_fuzz">
-                <input type="checkbox" id="id_topic_fuzz" value="fuzz" name="topic">最新传言
+            <label for="id_topic_fuzz2">
+                <input type="checkbox" id="id_topic_fuzz2" value="fuzz" name="topic">最新传言
             </label>
             <br />
-            <label for="id_topic_digester">
-                <input type="checkbox" id="id_topic_digester" value="digester" name="topic">邮件列表
+            <label for="id_topic_digester2">
+                <input type="checkbox" id="id_topic_digester2" value="digester" name="topic">邮件列表
             </label>
             <br />
-            <label for="topic" class="error">请至少选择2项需要接收的新闻动态</label>
+            <!-- <label for="topic" class="error">请至少选择2项需要接收的新闻动态</label> -->
         </div>
         <br />
         <div class="form-group">

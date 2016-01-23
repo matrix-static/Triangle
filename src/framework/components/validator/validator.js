@@ -79,7 +79,7 @@ Jx().package("T.UI.Components", function(J){
         focusCleanup: false,
         focusInvalid: true,
         onsubmit: true,
-        ignore: ':hidden',  // 忽略掉的 form 元素
+        // ignore: ':hidden',  // 忽略掉的 form 元素. issue-1: 在modal里拿不到全部元素, issue-2: 在控件traslateAttributes以后element被设置成:hidden
 
         // errorContainer: $([]),
         // errorLabelContainer: $([]),
@@ -360,7 +360,7 @@ Jx().package("T.UI.Components", function(J){
             // this.valueCache = {};
             // this.pendingRequest = 0;
             // this.pending = {};
-            this.invalid = {};  // errorMap
+            // this.invalid = {};  // errorMap
             this.reset();
             // this.groups = {};
 
@@ -395,23 +395,29 @@ Jx().package("T.UI.Components", function(J){
         buildHtml: function(){
             this.container= this.element;
 
-            this.errorContext= this.element;
             // 错误消息放在外部容器里
             if(this.settings.errorContainer){
-                this.errorContainer= $(this.settings.errorContainer);
-                // this.errorLabelContainer= $(this.settings.errorLabelContainer);
-                // this.errorContainer.append(this.errorLabelContainer);
-                this.errorContainer.append('<ul></ul>');
-                // this.errorContext= this.errorLabelContainer;
-                this.errorContext.add(this.errorContainer);
+                $(this.settings.errorContainer).append('<ul></ul>');
             }
+
+            
+            // // 错误消息放在外部容器里
+            // if(this.settings.errorContainer){
+            //     var errorContainer= $('<ul></ul>');
+            //     // this.errorLabelContainer= $(this.settings.errorLabelContainer);
+            //     // this.errorContainer.append(this.errorLabelContainer);
+            //     this.errorContainer= $(this.settings.errorContainer).append(errorContainer);
+            //     // this.errorContext= this.errorLabelContainer;
+            //     this.errorContext= this.errorContext.add(this.errorContainer);
+            // }
 
             // this.errorLabelContainer = $(this.settings.errorLabelContainer);
             // this.errorContext = this.errorLabelContainer.length && this.errorLabelContainer || this.element;
             // this.containers = $(this.settings.errorContainer).add(this.settings.errorLabelContainer);
         },
         initElements: function(){
-            var context= this;            
+            var context= this;
+
             this.elements= {
                 // original: this.element,
                 submitButton: $('input:submit:not("save"), button:submit:not("save")', this.container),
@@ -441,10 +447,23 @@ Jx().package("T.UI.Components", function(J){
                 findByName: function(name) {
                     return context.container.find('[name="' + name + '"]');
                 },
+                errorContainer: $(this.settings.errorContainer),
                 // 所有的error元素
                 errorElements: function() {
+                    var errorContext;
+                    if(context.settings.errorContainer){
+                        var errorContainer= $(context.settings.errorContainer).find('ul');
+
+                        errorContext= $([]);
+                        errorContext= errorContext.add(context.element);
+                        errorContext= errorContext.add(errorContainer);
+                    }
+                    else{
+                        errorContext= context.element;
+                    }
+
                     var errorClass = context.settings.errorClass.split(' ').join('.');
-                    var errorElements= $(context.settings.errorElement + "." + errorClass, context.errorContext);
+                    var errorElements= $(context.settings.errorElement + "." + errorClass, context.elements.errorContext);
                     return errorElements;
                 },
                 // 指定元素的error元素
@@ -469,11 +488,11 @@ Jx().package("T.UI.Components", function(J){
             // validate the form on submit
             element.on("submit", function(event) {
                 function handle() {
-                    var hidden, result;
                     if (!context.settings.submitHandler) {
                         return true;
                     }
 
+                    var hidden;
                     if (context.submitButton) {
                         // insert a hidden input as a replacement for the missing submit button
                         hidden = $("<input type='hidden'/>")
@@ -481,7 +500,7 @@ Jx().package("T.UI.Components", function(J){
                             .val($(context.submitButton).val())
                             .appendTo(context.element);
                     }
-                    result = context.settings.submitHandler.call(context, context.element, event);
+                    var result = context.settings.submitHandler(context.element, event);
                     if (context.submitButton) {
                         // and clean up afterwards; thanks to no-block-scope, hidden can be referenced
                         hidden.remove();
@@ -506,7 +525,10 @@ Jx().package("T.UI.Components", function(J){
                 } else {
                     if (context.settings.focusInvalid) {
                         try {
-                            var lastActive = context.lastActive && $.grep(context.errorList, function(n) {return n.element.name === lastActive.name;}).length === 1;
+                            var lastActiveElement= $.grep(context.errorList, function(n) {
+                                return n.element.name === lastActive.name;
+                            });
+                            var lastActive = context.lastActive && lastActiveElement.length === 1;
                             $(lastActive || context.errorList.length && context.errorList[0].element || [])
                                 .filter(":visible")
                                 .focus()
@@ -578,9 +600,7 @@ Jx().package("T.UI.Components", function(J){
             if (this.settings.focusCleanup) {
                 this.unhighlight(element, this.settings.errorClass, this.settings.validClass);
                 var errorElements= this.elements.errorElement(element);
-                // errors.not(this.containers).text("");
                 // this.addWrapper(errors).hide();
-                errorElements.text("");
                 errorElements.hide();
                 // this.containers.hide();
             }
@@ -640,16 +660,17 @@ Jx().package("T.UI.Components", function(J){
         checkForm: function() {
 
             this.reset();
-            this.toHide = this.elements.errorElements();//.add(this.containers);
+            // this.toHide = this.elements.errorElements();//.add(this.containers);
 
-            var elements= this.currentElements = this.elements.currentElements();   // 所有需要验证的元素
+            // var elements= this.currentElements = this.elements.currentElements();   // 所有需要验证的元素
+            var elements= this.elements.currentElements();   // 所有需要验证的元素
             for (var i = 0; i<elements.length; i++) {
                 this.check(elements[i]);
             }
             // return this.errorList.length === 0;
 
             $.extend(this.submitted, this.errorMap);
-            this.invalid = $.extend({}, this.errorMap);
+            // this.invalid = $.extend({}, this.errorMap);
             if (this.errorList.length > 0) {
                 this.element.triggerHandler("invalid-form", [this]);
             }
@@ -666,31 +687,31 @@ Jx().package("T.UI.Components", function(J){
 
             this.lastElement = checkElement;
 
-            if (checkElement === undefined) {
-                delete this.invalid[cleanElement.name];
-            } else {
+            // if (checkElement === undefined) {
+            //     delete this.invalid[cleanElement.name];
+            // } else {
                 this.reset();
-                this.toHide = this.elements.errorElement(checkElement);
-                this.currentElements = $(checkElement);
+                // this.toHide = this.elements.errorElement(checkElement);
+                // this.currentElements = $(checkElement);
 
-                result = this.check(checkElement) !== false;
-                if (result) {
-                    delete this.invalid[checkElement.name];
-                } else {
-                    this.invalid[checkElement.name] = true;
-                }
-            }
+            //     result = this.check(checkElement) !== false;
+            //     if (result) {
+            //         delete this.invalid[checkElement.name];
+            //     } else {
+            //         this.invalid[checkElement.name] = true;
+            //     }
+            // }
             // if (!objectLength(this.invalid)) {
             //     // Hide error containers on last error
             //     this.toHide = this.toHide.add(this.containers);
             // }
-            this.showErrors();
+            this.showErrors(checkElement);
             return result;
         },
 
         // http://jqueryvalidation.org/Validator.showErrors/
         // showErrors: function(errors) {
-        showErrors: function() {
+        showErrors: function(element) {
 
             // // just for ajax
             // if (errors) {
@@ -721,32 +742,37 @@ Jx().package("T.UI.Components", function(J){
 
 
             // this.defaultShowErrors();
+            var errorElements= $([]);
             for (var i = 0; this.errorList[i]; i++) {
                 var error = this.errorList[i];
                 this.highlight(error.element, this.settings.errorClass, this.settings.validClass);
-                this.showLabel(error.element, error.message);
+
+                var errorElement= this.showLabel(error.element, error.message);
+                errorElements= errorElements.add(errorElement);
             }
             // if (this.errorList.length) {
             //     this.toShow = this.toShow.add(this.containers);
             // }
-            if (this.settings.success) {
-                for (var i = 0; this.successList[i]; i++) {
-                    this.showLabel(this.successList[i]);
-                }
-            }
+            // if (this.settings.success) {
+            //     for (var i = 0; this.successList[i]; i++) {
+            //         this.showLabel(this.successList[i]);
+            //     }
+            // }
             var invalidElements= $(this.errorList).map(function() {return this.element;});
 
-            var elements = this.currentElements.not(invalidElements);
+            // var elements = this.currentElements.not(invalidElements);
+            var elements = this.elements.currentElements().not(invalidElements);
             for (var i = 0; i<elements.length; i++) {
                 this.unhighlight(elements[i], this.settings.errorClass, this.settings.validClass);
             }
-            var toHide = this.toHide.not(this.toShow);
-            // this.toHide.not(this.containers).text("");
+            // var toHide = this.toHide.not(this.toShow);
+            // var toHide = this.elements.errorElement(checkElement).not(errorElements);
+            var toHide= element ? this.elements.errorElement(element).not(errorElements) : this.elements.errorElements().not(errorElements);
             // this.addWrapper(this.toHide).hide();
             // this.addWrapper(this.toShow).show();
-            toHide.text("");
             toHide.hide();
-            this.toShow.show();
+            // this.toShow.show();
+            errorElements.show();
         },
 
         // http://jqueryvalidation.org/Validator.resetForm/
@@ -758,9 +784,7 @@ Jx().package("T.UI.Components", function(J){
             this.lastElement = null;
             this.reset();
             var errorElements = this.elements.errorElements();//.add(this.containers);
-            // this.toHide.not(this.containers).text("");
             // this.addWrapper(this.toHide).hide();
-            errorElements.text("");
             errorElements.hide();
 
             var elements = this.elements.currentElements();//.removeData("previousValue");
@@ -774,9 +798,9 @@ Jx().package("T.UI.Components", function(J){
             this.successList = [];  // 成功列表
             this.errorList = [];    // 错误列表
             this.errorMap = {};     // 错误映射
-            this.toShow = $([]);    // 需要隐藏的元素
-            this.toHide = $([]);    // 需要显示的元素
-            this.currentElements = $([]); // 当前所有需要验证的元素
+            // this.toShow = $([]);    // 需要隐藏的元素
+            // this.toHide = $([]);    // 需要显示的元素
+            // this.currentElements = $([]); // 当前所有需要验证的元素
         },
 
         check: function(element) {
@@ -888,36 +912,36 @@ Jx().package("T.UI.Components", function(J){
         },
 
         showLabel: function(element, message) {
-            var error = this.elements.errorElement(element);
+            var errorElement = this.elements.errorElement(element);
 
-            if (error.length) {
+            if (errorElement.length) {
                 // refresh error/success class
-                error.removeClass(this.settings.validClass).addClass(this.settings.errorClass);
+                errorElement.removeClass(this.settings.validClass).addClass(this.settings.errorClass);
                 // replace message on existing label
-                error.html(message);
+                errorElement.html(message);
             } else {
                 var identity= this.idOrName(element);
 
                 // create error element
-                error = $("<" + this.settings.errorElement + ">")
+                errorElement = $("<" + this.settings.errorElement + ">")
                     .attr("id", identity + "-error")
                     .addClass(this.settings.errorClass)
                     .html(message || "");
 
                 // Maintain reference to the element to be placed into the DOM
-                var place = error;
+                var place = errorElement;
                 if (this.settings.errorLabelWrapper) {
                     // make sure the element is visible, even in IE
                     // actually showing the wrapped element is handled elsewhere
                     // place = error.hide().show().wrap("<" + this.settings.errorLabelWrapper + "/>").parent();
-                    place = error.hide().show().wrap(this.settings.errorLabelWrapper).parent();
+                    place = errorElement.hide().show().wrap(this.settings.errorLabelWrapper).parent();
                 }
                 // if (this.errorLabelContainer) {   // this.errorLabelContainer.length
                 //     this.errorLabelContainer.append(place);
                 // } else if (this.settings.errorPlacement) {
                 //     this.settings.errorPlacement(place, $(element));
-                if (this.errorContainer) {   // this.errorLabelContainer.length
-                    this.errorContainer.find('ul').append(place);
+                if (this.settings.errorContainer) {   // this.errorLabelContainer.length
+                    this.elements.errorContainer.find('ul').append(place);
                 } else if (this.settings.errorPlacement) {
                     this.settings.errorPlacement(place, $(element));
                 } else {
@@ -925,20 +949,20 @@ Jx().package("T.UI.Components", function(J){
                 }
 
                 // Link error back to the element
-                if (error.is("label")) {
+                if (errorElement.is("label")) {
                     // If the error is a label, then associate using 'for'
-                    error.attr("for", identity);
+                    errorElement.attr("for", identity);
                 }
             }
-            if (!message && this.settings.success) {
-                error.text("");
-                if (typeof this.settings.success === "string") {
-                    error.addClass(this.settings.success);
-                } else {
-                    this.settings.success(error, element);
-                }
-            }
-            this.toShow = this.toShow.add(error);
+            // if (!message && this.settings.success) {
+            //     if (typeof this.settings.success === "string") {
+            //         errorElement.addClass(this.settings.success);
+            //     } else {
+            //         this.settings.success(errorElement, element);
+            //     }
+            // }
+            // this.toShow = this.toShow.add(error);
+            return errorElement
         },
 
         
@@ -1040,8 +1064,8 @@ Jx().package("T.UI.Components", function(J){
             this.resetForm();
 
             $(this.element)
-                .off(".validate")
-                .removeData("validator");
+                .off(".validate");
+                // .removeData("validator");
         }
     });
 });

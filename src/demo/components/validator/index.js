@@ -11,7 +11,7 @@ $("#commentFormx").validate2({
             minlength: 5
         },
         password_again: {
-            equalTo: "#password"
+            equalTo: "#id_password"
         },
         email: {
             required: true,

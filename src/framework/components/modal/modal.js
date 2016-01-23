@@ -25,9 +25,10 @@ Jx().package("T.UI.Components", function(J){
         bindTarget: true,   // 绑定element元素(button等)的click事件
         remote: '',
         backdrop: true,
-        keyboard: true
+        keyboard: true,
         // 覆写
         // 事件
+        onInitialized: function(){}
     };
     var attributeMap = {
         modalId:'modal-id',
@@ -93,7 +94,7 @@ Jx().package("T.UI.Components", function(J){
                 //         this.element.trigger('loaded.bs.modal')
                 //     }, this))
                 
-                var jqModalContent= this.element.find('.modal-content');
+                var jqModalContent= this.element.find('.modal-content:first');  // 嵌套modal必须加:first选择器
 
                 $.ajax({
                     url: this.settings.remote,
@@ -101,10 +102,12 @@ Jx().package("T.UI.Components", function(J){
                     dataType: "html"//,
                     // data: params
                 }).done(function( responseText ) {
-                    var innerHtml= context.parseData(responseText);
                     jqModalContent.empty();
+                    var innerHtml= context.parseData(responseText);                    
                     // jqModalContent.append($.parseHTML(innerHtml));
                     jqModalContent.append(innerHtml);
+
+                    context.inputElements.original.trigger('modal.on.initialized');
                 })
             }
         },
@@ -117,7 +120,6 @@ Jx().package("T.UI.Components", function(J){
         toggle: function (_relatedTarget) {
             return this.isShown ? this.hide() : this.show(_relatedTarget)
         },
-
         show: function (_relatedTarget) {
             var context = this
             var e    = $.Event('show.bs.modal', { relatedTarget: _relatedTarget })
@@ -407,6 +409,8 @@ Jx().package("T.UI.Components", function(J){
             }
 
             this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
+
+            this.element.on('modal.on.initialized', this.settings.onInitialized);
         },
         show: function(){
             this.pop.show();
