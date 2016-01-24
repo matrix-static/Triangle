@@ -11,11 +11,16 @@ $("#commentFormx").validate2({
             minlength: 5
         },
         password_again: {
-            equalTo: "#id_password"
+            equalTo: "#password"
         },
         email: {
             required: true,
             email: true
+        },
+        remote: {
+            required: true,
+            minlength: 5,
+            remote: '/demo/components/validator/remote.html'
         },
         // agree: "required",
         agree: {
@@ -38,21 +43,27 @@ $("#commentFormx").validate2({
             required: "请输入一个密码",
             minlength: "密码至少需要5个字符"
         },
-        confirm_password: {
+        password_again: {
             required: "请输入一个密码",
             minlength: "密码至少需要5个字符",
             equalTo: "两次输入的密码不一致"
         },
         email: "请输入一个有效的邮箱地址",
+        remote: {
+            required: "请输入一个Remote",
+            minlength: "Remote至少需要5个字符",
+            remote: 'Remote服务器校验失败！'
+        },
         agree: "请接受我们的服务条款"
-    }//,
+    },
     // errorContainer: '#ErrorsSummary, #ErrorsSummary2',
     // errorLabelContainer: "#ErrorsSummary ul",
     // wrapper: "li", 
     // invalidHandler: function() {
     //     $( "#ErrorsSummary" ).text( this.numberOfInvalids() + " field(s) are invalid" );
     // },
-    // submitHandler: function() { alert("Submitted!") }
+    focusCleanup: true,
+    submitHandler: function() { alert("Submitted!") }
 
     // showErrors: function(errorMap, errorList) {
     //     if (submitted) {

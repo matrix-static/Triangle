@@ -29,35 +29,35 @@
     // usage: $.ajax({ mode: "abort"[, port: "uniqueport"]});
     // if mode:"abort" is used, the previous request on that port (port can be undefined) is aborted via XMLHttpRequest.abort()
 
-    // var pendingRequests = {},
-    //     ajax;
-    // // Use a prefilter if available (1.5+)
-    // if ($.ajaxPrefilter) {
-    //     $.ajaxPrefilter(function(settings, _, xhr) {
-    //         var port = settings.port;
-    //         if (settings.mode === "abort") {
-    //             if (pendingRequests[port]) {
-    //                 pendingRequests[port].abort();
-    //             }
-    //             pendingRequests[port] = xhr;
-    //         }
-    //     });
-    // } else {
-    //     // Proxy ajax
-    //     ajax = $.ajax;
-    //     $.ajax = function(settings) {
-    //         var mode = ("mode" in settings ? settings : $.ajaxSettings).mode,
-    //             port = ("port" in settings ? settings : $.ajaxSettings).port;
-    //         if (mode === "abort") {
-    //             if (pendingRequests[port]) {
-    //                 pendingRequests[port].abort();
-    //             }
-    //             pendingRequests[port] = ajax.apply(this, arguments);
-    //             return pendingRequests[port];
-    //         }
-    //         return ajax.apply(this, arguments);
-    //     };
-    // }
+    var pendingRequests = {},
+        ajax;
+    // Use a prefilter if available (1.5+)
+    if ($.ajaxPrefilter) {
+        $.ajaxPrefilter(function(settings, _, xhr) {
+            var port = settings.port;
+            if (settings.mode === "abort") {
+                if (pendingRequests[port]) {
+                    pendingRequests[port].abort();
+                }
+                pendingRequests[port] = xhr;
+            }
+        });
+    } else {
+        // Proxy ajax
+        ajax = $.ajax;
+        $.ajax = function(settings) {
+            var mode = ("mode" in settings ? settings : $.ajaxSettings).mode,
+                port = ("port" in settings ? settings : $.ajaxSettings).port;
+            if (mode === "abort") {
+                if (pendingRequests[port]) {
+                    pendingRequests[port].abort();
+                }
+                pendingRequests[port] = ajax.apply(this, arguments);
+                return pendingRequests[port];
+            }
+            return ajax.apply(this, arguments);
+        };
+    }
 
 })(jQuery);
 
@@ -86,12 +86,12 @@ Jx().package("T.UI.Components", function(J){
         errorContainer: '',
         // errorLabelContainer: '<ul></ul>',
         // errorLabelWrapper: '<li></li>',
-        // errorPlacement
+        errorPlacement: undefined, // 是一个函数
 
         errorElement: 'label',
         errorClass: 'error',
         validClass: 'valid',
-        // success: '',
+        success: '',
         // 覆写 类方法
         // parseData: undefined,
         submitHandler: function(){},
@@ -266,63 +266,87 @@ Jx().package("T.UI.Components", function(J){
         },
 
         // // http://jqueryvalidation.org/remote-method/
-        // remote: function(value, element, param) {
-        //     if (this.optional(element)) {
-        //         return "dependency-mismatch";
-        //     }
+        remote: function(value, element, param) {
+            if (this.optional(element)) {
+                return "dependency-mismatch";
+            }
 
-        //     var previous = this.previousValue(element),
-        //         context, data;
+            var previous = this.previousValue(element),
+                context, data;
 
-        //     if (!this.settings.messages[element.name]) {
-        //         this.settings.messages[element.name] = {};
-        //     }
-        //     previous.originalMessage = this.settings.messages[element.name].remote;
-        //     this.settings.messages[element.name].remote = previous.message;
+            if (!this.settings.messages[element.name]) {
+                this.settings.messages[element.name] = {};
+            }
+            previous.originalMessage = this.settings.messages[element.name].remote;
+            this.settings.messages[element.name].remote = previous.message;
 
-        //     param = typeof param === "string" && { url: param } || param;
+            param = typeof param === "string" && { url: param } || param;
 
-        //     if (previous.old === value) {
-        //         return previous.valid;
-        //     }
+            if (previous.old === value) {
+                return previous.valid;
+            }
 
-        //     previous.old = value;
-        //     context = this;
-        //     this.startRequest(element);
-        //     data = {};
-        //     data[element.name] = value;
-        //     $.ajax($.extend(true, {
-        //         mode: "abort",
-        //         port: "validate" + element.name,
-        //         dataType: "json",
-        //         data: data,
-        //         context: context.element,
-        //         success: function(response) {
-        //             var valid = response === true || response === "true",
-        //                 errors, message, submitted;
+            previous.old = value;
+            context = this;
+            this.startRequest(element);
+            data = {};
+            data[element.name] = value;
+            $.ajax($.extend(true, {
+                mode: "abort",
+                port: "validate" + element.name,
+                dataType: "json",
+                data: data,
+                context: context.element,
+                success: function(response) {
+                    var valid = response === true || response === "true",
+                        errors, message, submitted;
 
-        //             context.settings.messages[element.name].remote = previous.originalMessage;
-        //             if (valid) {
-        //                 submitted = context.formSubmitted;
-        //                 context.reset();
-        //                 context.toHide = this.elements.errorElement(element);
-        //                 context.formSubmitted = submitted;
-        //                 context.successList.push(element);
-        //                 delete context.invalid[element.name];
-        //                 context.showErrors();
-        //             } else {
-        //                 errors = {};
-        //                 message = response || context.defaultMessage(element, "remote");
-        //                 errors[element.name] = previous.message = $.isFunction(message) ? message(value) : message;
-        //                 context.invalid[element.name] = true;
-        //                 context.showErrors(errors);
-        //             }
-        //             previous.valid = valid;
-        //             context.stopRequest(element, valid);
-        //         }
-        //     }, param));
-        //     return "pending";
-        // }
+                    context.settings.messages[element.name].remote = previous.originalMessage;
+                    if (valid) {
+                        submitted = context.formSubmitted;
+                        context.reset();
+                        // context.toHide = this.elements.errorElement(element);
+                        context.formSubmitted = submitted;
+                        context.successList.push(element);
+                        // delete context.invalid[element.name];
+                        context.showErrors();
+                    } 
+                    else {
+                        errors = {};
+                        message = response || context.defaultMessage(element, "remote");
+                        errors[element.name] = previous.message = $.isFunction(message) ? message(value) : message;
+                        // context.invalid[element.name] = true;
+
+                        // add items to error list and map
+                        // $.extend(this.errorMap, errors);
+                        context.errorList = [];
+                        for (var name in errors) {
+                            var error= {
+                                message: errors[name],
+                                element: context.elements.findByName(name)[0]
+                            };
+                            context.errorList.push(error);
+                        }
+
+                        var newSuccessList=[];
+                        for(var i=0; i<context.successList.length; i++){
+                            var success= context.successList[i];
+                            if(success.name in errors){
+                                continue;
+                            }
+                            newSuccessList.push(success);
+                        }
+                        context.successList= newSuccessList;
+
+                        context.showErrors(errors);
+                    }
+
+                    previous.valid = valid;
+                    context.stopRequest(element, valid);
+                }
+            }, param));
+            return "pending";
+        }
     };
 
     function objectLength(obj) {
@@ -356,10 +380,10 @@ Jx().package("T.UI.Components", function(J){
             // this.value= this.element.val();
 
             
-            this.submitted = {};
+            // this.submitted = {};
             // this.valueCache = {};
             // this.pendingRequest = 0;
-            // this.pending = {};
+            this.pending = {};
             // this.invalid = {};  // errorMap
             this.reset();
             // this.groups = {};
@@ -399,22 +423,8 @@ Jx().package("T.UI.Components", function(J){
             if(this.settings.errorContainer){
                 $(this.settings.errorContainer).append('<ul></ul>');
             }
-
-            
-            // // 错误消息放在外部容器里
-            // if(this.settings.errorContainer){
-            //     var errorContainer= $('<ul></ul>');
-            //     // this.errorLabelContainer= $(this.settings.errorLabelContainer);
-            //     // this.errorContainer.append(this.errorLabelContainer);
-            //     this.errorContainer= $(this.settings.errorContainer).append(errorContainer);
-            //     // this.errorContext= this.errorLabelContainer;
-            //     this.errorContext= this.errorContext.add(this.errorContainer);
-            // }
-
-            // this.errorLabelContainer = $(this.settings.errorLabelContainer);
-            // this.errorContext = this.errorLabelContainer.length && this.errorLabelContainer || this.element;
-            // this.containers = $(this.settings.errorContainer).add(this.settings.errorLabelContainer);
         },
+
         initElements: function(){
             var context= this;
 
@@ -451,26 +461,31 @@ Jx().package("T.UI.Components", function(J){
                 // 所有的error元素
                 errorElements: function() {
                     var errorContext;
+                    var errorElement;
                     if(context.settings.errorContainer){
-                        var errorContainer= $(context.settings.errorContainer).find('ul');
+                        errorContext= $(context.settings.errorContainer).find('ul');
+                        errorElement= 'li';
+                        // var errorContainer= $(context.settings.errorContainer).find('ul');
 
-                        errorContext= $([]);
-                        errorContext= errorContext.add(context.element);
-                        errorContext= errorContext.add(errorContainer);
+                        // errorContext= $([]);
+                        // errorContext= errorContext.add(context.element);
+                        // errorContext= errorContext.add(errorContainer);
                     }
                     else{
                         errorContext= context.element;
+                        errorElement= context.settings.errorElement;
                     }
 
                     var errorClass = context.settings.errorClass.split(' ').join('.');
-                    var errorElements= $(context.settings.errorElement + "." + errorClass, context.elements.errorContext);
+                    var errorElements= $(errorElement + "." + errorClass, errorContext);
                     return errorElements;
                 },
                 // 指定元素的error元素
                 errorElement: function(element) {
-                    var identity= context.idOrName(element);
-                    var selector = "label[for='" + identity + "'], label[for='" + identity + "'] *";
                     var errorElements= context.elements.errorElements();
+
+                    var identity= context.idOrName(element);
+                    var selector = "label[for='" + identity + "'], li[data-for='" + identity + "']";                    
                     var errorElement= errorElements.filter(selector);
                     return errorElement;
                 }
@@ -481,76 +496,19 @@ Jx().package("T.UI.Components", function(J){
                 // }
             };
         },
+
         bindEvents: function(){
             var context= this;
             var element= this.element;
 
-            // validate the form on submit
-            element.on("submit", function(event) {
-                function handle() {
-                    if (!context.settings.submitHandler) {
-                        return true;
-                    }
-
-                    var hidden;
-                    if (context.submitButton) {
-                        // insert a hidden input as a replacement for the missing submit button
-                        hidden = $("<input type='hidden'/>")
-                            .attr("name", context.submitButton.name)
-                            .val($(context.submitButton).val())
-                            .appendTo(context.element);
-                    }
-                    var result = context.settings.submitHandler(context.element, event);
-                    if (context.submitButton) {
-                        // and clean up afterwards; thanks to no-block-scope, hidden can be referenced
-                        hidden.remove();
-                    }
-                    if (result !== undefined) {
-                        return result;
-                    }
-                    return false;
-                }
-
-                // prevent submit for invalid forms or custom submit handlers
-                if (context.cancelSubmit) {
-                    context.cancelSubmit = false;
-                    return handle();
-                }
-                if (context.checkForm()) {
-                    // if (context.pendingRequest) {
-                    //     context.formSubmitted = true;
-                    //     return false;
-                    // }
-                    return handle();
-                } else {
-                    if (context.settings.focusInvalid) {
-                        try {
-                            var lastActiveElement= $.grep(context.errorList, function(n) {
-                                return n.element.name === lastActive.name;
-                            });
-                            var lastActive = context.lastActive && lastActiveElement.length === 1;
-                            $(lastActive || context.errorList.length && context.errorList[0].element || [])
-                                .filter(":visible")
-                                .focus()
-                                // manually trigger focusin event; without it, focusin handler isn't called, findLastActive won't have anything to find
-                                .trigger("focusin");
-                        } catch (e) {
-                            // ignore IE throwing errors when focusing hidden elements
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            // add by matrix
             var context= this;
             function delegate(event) {
                 var eventType = "on" + event.type.replace(/^validate/, "");
-                if (context[eventType] && !$(this).is(context.settings.ignore)) {      // jshint ignore:line
+                // && !$(this).is(context.settings.ignore)
+                if (context[eventType]) {      // jshint ignore:line   
                     context[eventType].call(context, this, event);               // jshint ignore:line
                 }
             }
-
             this.element
                 .on("focusin.validate focusout.validate keyup.validate",
                     ":text, [type='password'], [type='file'], select, textarea, [type='number'], [type='search'], " +
@@ -561,30 +519,90 @@ Jx().package("T.UI.Components", function(J){
                 // "select" is provided as event.target when clicking a option
                 .on("click.validate", "select, option, [type='radio'], [type='checkbox']", delegate);
 
-            if (this.settings.invalidHandler) {
-                // this.element.on("invalid-form.validate", this.settings.invalidHandler);
-                this.element.on("invalid-form.validate", $.proxy(this.settings.invalidHandler, this));
-            }
+            this.element.on("invalid-form.validate", $.proxy(this.settings.invalidHandler, this));
 
             // element.on("click.validate", ":submit", function(event) {
-            this.elements.submitButton.on("click", function(event) {
-                if (context.settings.submitHandler) {
-                    context.submitButton = event.target;
-                }
+            this.elements.submitButton.on("click", $.proxy(this.onSubmitButtonClick, this));
 
-                // allow suppressing validation by adding a cancel class to the submit button
-                if (context.element.hasClass("cancel")) {
-                    context.cancelSubmit = true;
-                }
-
-                // allow suppressing validation by adding the html5 formnovalidate attribute to the submit button
-                if (context.element.attr("formnovalidate") !== undefined) {
-                    context.cancelSubmit = true;
-                }
-            });
+            // validate the form on submit
+            element.on("submit", $.proxy(this.onSubmit,this));
 
             // element.on('click', $.proxy(this.onFooClick, this));
         },
+
+        onSubmitButtonClick: function(event) {
+            if (this.settings.submitHandler) {
+                this.submitButton = event.target;
+            }
+
+            // allow suppressing validation by adding a cancel class to the submit button
+            if (this.element.hasClass("cancel")) {
+                this.cancelSubmit = true;
+            }
+
+            // allow suppressing validation by adding the html5 formnovalidate attribute to the submit button
+            if (this.element.attr("formnovalidate") !== undefined) {
+                this.cancelSubmit = true;
+            }
+        },
+
+        onSubmit: function(event) {
+            var context= this;
+            function handle() {
+                if (!context.settings.submitHandler) {
+                    return true;
+                }
+
+                var hidden;
+                if (context.submitButton) {
+                    // insert a hidden input as a replacement for the missing submit button
+                    hidden = $("<input type='hidden'/>")
+                        .attr("name", context.submitButton.name)
+                        .val($(context.submitButton).val())
+                        .appendTo(context.element);
+                }
+                var result = context.settings.submitHandler(context.element, event);
+                if (context.submitButton) {
+                    // and clean up afterwards; thanks to no-block-scope, hidden can be referenced
+                    hidden.remove();
+                }
+                if (result !== undefined) {
+                    return result;
+                }
+                return false;
+            }
+
+            // prevent submit for invalid forms or custom submit handlers
+            if (this.cancelSubmit) {
+                this.cancelSubmit = false;
+                return handle();
+            }
+            if (this.checkForm()) {
+                // if (context.pendingRequest) {
+                //     context.formSubmitted = true;
+                //     return false;
+                // }
+                return handle();
+            } 
+
+            if (this.settings.focusInvalid) {
+                try {
+                    var lastActiveElement= $.grep(this.errorList, function(n) {
+                        return n.element.name === lastActive.name;
+                    });
+                    var lastActive = this.lastActive && lastActiveElement.length === 1;
+                    $(lastActive || this.errorList.length && this.errorList[0].element || [])
+                        .filter(":visible")
+                        .focus()
+                        // manually trigger focusin event; without it, focusin handler isn't called, findLastActive won't have anything to find
+                        .trigger("focusin");
+                } catch (e) {
+                    // ignore IE throwing errors when focusing hidden elements
+                }
+            }
+            return false;
+        },
+
         // bindEventsInterface: function(){
         //     var context= this;
         //     var element= this.element;
@@ -593,6 +611,7 @@ Jx().package("T.UI.Components", function(J){
         //         element.on('click.t.template', $.proxy(this.settings.onFooSelected, this));
         //     }
         // },
+
         onfocusin: function(element) {
             this.lastActive = element;
 
@@ -600,11 +619,11 @@ Jx().package("T.UI.Components", function(J){
             if (this.settings.focusCleanup) {
                 this.unhighlight(element, this.settings.errorClass, this.settings.validClass);
                 var errorElements= this.elements.errorElement(element);
-                // this.addWrapper(errors).hide();
                 errorElements.hide();
                 // this.containers.hide();
             }
         },
+
         onfocusout: function(element) {
             if(this.checkable(element)){
                 return;
@@ -614,6 +633,7 @@ Jx().package("T.UI.Components", function(J){
                 this.checkElement(element);
             }
         },
+
         onkeyup: function(element, event) {
             // Avoid revalidate the field when pressing one of the following keys
             // Shift       => 16
@@ -640,6 +660,7 @@ Jx().package("T.UI.Components", function(J){
                 this.checkElement(element);
             }
         },
+
         onclick: function(element) {
             // click on selects, radiobuttons and checkboxes
             if (element.name in this.submitted) {
@@ -669,7 +690,7 @@ Jx().package("T.UI.Components", function(J){
             }
             // return this.errorList.length === 0;
 
-            $.extend(this.submitted, this.errorMap);
+            // $.extend(this.submitted, this.errorMap);
             // this.invalid = $.extend({}, this.errorMap);
             if (this.errorList.length > 0) {
                 this.element.triggerHandler("invalid-form", [this]);
@@ -677,7 +698,6 @@ Jx().package("T.UI.Components", function(J){
             this.showErrors();
             return this.errorList.length === 0;
         },
-
 
         // http://jqueryvalidation.org/Validator.element/
         checkElement: function(element) {
@@ -694,7 +714,7 @@ Jx().package("T.UI.Components", function(J){
                 // this.toHide = this.elements.errorElement(checkElement);
                 // this.currentElements = $(checkElement);
 
-            //     result = this.check(checkElement) !== false;
+                result = this.check(checkElement) !== false;
             //     if (result) {
             //         delete this.invalid[checkElement.name];
             //     } else {
@@ -709,115 +729,16 @@ Jx().package("T.UI.Components", function(J){
             return result;
         },
 
-        // http://jqueryvalidation.org/Validator.showErrors/
-        // showErrors: function(errors) {
-        showErrors: function(element) {
-
-            // // just for ajax
-            // if (errors) {
-            //     // add items to error list and map
-            //     $.extend(this.errorMap, errors);
-            //     this.errorList = [];
-            //     for (var name in errors) {
-            //         var error= {
-            //             message: errors[name],
-            //             element: this.elements.findByName(name)[0]
-            //         };
-            //         this.errorList.push(error);
-            //     }
-            //     // remove items from success list
-            //     // this.successList = $.grep(this.successList, function(element) {
-            //     //     return !(element.name in errors);
-            //     // });
-            //     var newSuccessList=[];
-            //     for(var i=0; i<this.successList.length; i++){
-            //         var element= this.successList[i];
-            //         if(element.name in errors){
-            //             continue;
-            //         }
-            //         newSuccessList.push(element);
-            //     }
-            //     this.successList= newSuccessList;
-            // }
-
-
-            // this.defaultShowErrors();
-            var errorElements= $([]);
-            for (var i = 0; this.errorList[i]; i++) {
-                var error = this.errorList[i];
-                this.highlight(error.element, this.settings.errorClass, this.settings.validClass);
-
-                var errorElement= this.showLabel(error.element, error.message);
-                errorElements= errorElements.add(errorElement);
-            }
-            // if (this.errorList.length) {
-            //     this.toShow = this.toShow.add(this.containers);
-            // }
-            // if (this.settings.success) {
-            //     for (var i = 0; this.successList[i]; i++) {
-            //         this.showLabel(this.successList[i]);
-            //     }
-            // }
-            var invalidElements= $(this.errorList).map(function() {return this.element;});
-
-            // var elements = this.currentElements.not(invalidElements);
-            var elements = this.elements.currentElements().not(invalidElements);
-            for (var i = 0; i<elements.length; i++) {
-                this.unhighlight(elements[i], this.settings.errorClass, this.settings.validClass);
-            }
-            // var toHide = this.toHide.not(this.toShow);
-            // var toHide = this.elements.errorElement(checkElement).not(errorElements);
-            var toHide= element ? this.elements.errorElement(element).not(errorElements) : this.elements.errorElements().not(errorElements);
-            // this.addWrapper(this.toHide).hide();
-            // this.addWrapper(this.toShow).show();
-            toHide.hide();
-            // this.toShow.show();
-            errorElements.show();
-        },
-
-        // http://jqueryvalidation.org/Validator.resetForm/
-        resetForm: function() {
-            if ($.fn.resetForm) {
-                this.element.resetForm();
-            }
-            this.submitted = {};
-            this.lastElement = null;
-            this.reset();
-            var errorElements = this.elements.errorElements();//.add(this.containers);
-            // this.addWrapper(this.toHide).hide();
-            errorElements.hide();
-
-            var elements = this.elements.currentElements();//.removeData("previousValue");
-
-            for (var i = 0; elements[i]; i++) {
-                this.unhighlight(elements[i], this.settings.errorClass, "");
-            }
-        },
-
-        reset: function() {
-            this.successList = [];  // 成功列表
-            this.errorList = [];    // 错误列表
-            this.errorMap = {};     // 错误映射
-            // this.toShow = $([]);    // 需要隐藏的元素
-            // this.toHide = $([]);    // 需要显示的元素
-            // this.currentElements = $([]); // 当前所有需要验证的元素
-        },
-
         check: function(element) {
             element = this.validationTargetFor($(element)[0]); 
 
-            // add by matrix
-            var data= this.settings.rules[element.name];
-
-            // var rules = $(element).rules(),
-            var rules = data;
+            var rules = this.settings.rules[element.name];
             var rulesCount= objectLength(rules);
             var dependencyMismatch = false;
             var val = this.getValue(element);
 
             for (var method in rules) {
                 var rule = { method: method, parameters: rules[method] };
-                // result = $.validator.methods[method].call(this, val, element, rule.parameters);
                 var result = methods[method].call(this, val, element, rule.parameters);
 
                 // this.optional(element)
@@ -833,10 +754,10 @@ Jx().package("T.UI.Components", function(J){
                 }
                 dependencyMismatch = false;
 
-                // if (result === "pending") {
-                //     this.toHide = this.toHide.not(this.elements.errorElement(element));
-                //     return;
-                // }
+                if (result === "pending") {
+                    // this.toHide = this.toHide.not(this.elements.errorElement(element));
+                    return;
+                }
 
                 if (!result) {
                     var message = this.defaultMessage(element, rule.method);
@@ -853,7 +774,7 @@ Jx().package("T.UI.Components", function(J){
                         method: rule.method
                     });
 
-                    this.errorMap[element.name] = message;
+                    // this.errorMap[element.name] = message;
                     this.submitted[element.name] = message;
 
                     return false;
@@ -869,30 +790,128 @@ Jx().package("T.UI.Components", function(J){
         },
 
         defaultMessage: function(element, method) {
-            var msg;
+            var message;
 
             // 自定义消息
-            // msg= this.customMessage(element.name, method);
-            var m = this.settings.messages[name];
-            msg= m && (m.constructor === String ? m : m[method]);            
-            if(msg !== undefined){ return msg; }
+            // message= this.customMessage(element.name, method);
+            var customMessage = this.settings.messages[element.name];
+            message= customMessage && (customMessage.constructor === String ? customMessage : customMessage[method]);            
+            if(message !== undefined){ return message; }
 
             // 默认消息
-            msg= messages[method];
-            if(msg !== undefined){ return msg; }
+            message= messages[method];
+            if(message !== undefined){ return message; }
 
             // 未定义消息
-            msg= "<strong>Warning: No message defined for " + element.name + "</strong>";
-            return msg;
+            message= "<strong>Warning: No message defined for " + element.name + "</strong>";
+            return message;
         },
 
+        // http://jqueryvalidation.org/Validator.showErrors/
+        // showErrors: function(errors) {
+        showErrors: function(element) {
+            var toShow= $([]);
+            for (var i = 0; this.errorList[i]; i++) {
+                var error = this.errorList[i];
+                this.highlight(error.element, this.settings.errorClass, this.settings.validClass);
 
-        // addWrapper: function(toToggle) {
-        //     // if (this.settings.errorLabelWrapper) {
-        //     //     toToggle = toToggle.add(toToggle.parent(this.settings.errorLabelWrapper));
-        //     // }
-        //     return toToggle;
-        // },
+                var errorElement= this.showLabel(error.element, error.message);
+                toShow= toShow.add(errorElement);
+            }
+            if (this.settings.success) {
+                for (var i = 0; this.successList[i]; i++) {
+                    this.showLabel(this.successList[i]);
+                }
+            }
+            var invalidElements= $(this.errorList).map(function() {return this.element;});
+
+            var elements = this.elements.currentElements().not(invalidElements);
+            for (var i = 0; i<elements.length; i++) {
+                this.unhighlight(elements[i], this.settings.errorClass, this.settings.validClass);
+            }
+            var toHide= element ? this.elements.errorElement(element).not(toShow) : this.elements.errorElements().not(toShow);
+            toHide.hide();
+            toShow.show();
+        },
+
+        showLabel: function(element, message) {
+            var errorElement = this.elements.errorElement(element);
+
+            if (errorElement.length) {
+                // refresh error/success class
+                errorElement.removeClass(this.settings.validClass).addClass(this.settings.errorClass);
+                // replace message on existing label
+                errorElement.html(message);
+            } else {
+                var identity= this.idOrName(element);
+
+                var tag;
+                var forId;
+                if(this.settings.errorContainer){
+                    tag= 'li';
+                    forId= 'data-for="'+identity+'"';
+                }
+                else{
+                    tag= 'label';
+                    forId= 'for="'+identity+'"';
+                }
+
+                // create error element
+                var errorElementTemplate = ''+
+                    '<' + tag+
+                    '   id="' + identity + '-error' + '"'+
+                    forId+
+                    '   class="' + this.settings.errorClass + '"'+'>'+
+                    (message || '')+
+                    '</'+tag+'>';
+
+                errorElement= $(errorElementTemplate);
+
+                if (this.settings.errorContainer) {   // this.errorLabelContainer.length
+                    this.elements.errorContainer.find('ul').append(errorElement); // this.settings.errorLabelWrapper
+                } else if (this.settings.errorPlacement) {
+                    this.settings.errorPlacement(errorElement, $(element));
+                } else {
+                    errorElement.insertAfter(element);
+                }
+            }
+
+            if (!message && this.settings.success) {
+                if (typeof this.settings.success === "string") {
+                    errorElement.addClass(this.settings.success);
+                } else {
+                    this.settings.success(errorElement, $(element));
+                }
+            }
+
+            // this.toShow = this.toShow.add(error);
+            return errorElement;
+        },
+        
+        // http://jqueryvalidation.org/Validator.resetForm/
+        resetForm: function() {
+            if ($.fn.resetForm) {
+                this.element.resetForm();
+            }
+            
+            this.lastElement = null;
+            this.reset();
+            var errorElements = this.elements.errorElements();//.add(this.containers);
+            errorElements.hide();
+
+            var elements = this.elements.currentElements();
+            elements.removeData("previousValue");
+            for (var i = 0; elements[i]; i++) {
+                this.unhighlight(elements[i], this.settings.errorClass, "");
+            }
+        },
+
+        reset: function() {
+            this.successList = [];      // 成功列表
+            this.errorList = [];        // 错误列表
+            this.submitted = {};        // 校验过的
+            // this.errorMap = {};     // 错误映射
+        },
 
         // 高亮错误元素
         highlight: function(element, errorClass, validClass) {
@@ -910,64 +929,6 @@ Jx().package("T.UI.Components", function(J){
                 $(element).removeClass(errorClass).addClass(validClass);
             }
         },
-
-        showLabel: function(element, message) {
-            var errorElement = this.elements.errorElement(element);
-
-            if (errorElement.length) {
-                // refresh error/success class
-                errorElement.removeClass(this.settings.validClass).addClass(this.settings.errorClass);
-                // replace message on existing label
-                errorElement.html(message);
-            } else {
-                var identity= this.idOrName(element);
-
-                // create error element
-                errorElement = $("<" + this.settings.errorElement + ">")
-                    .attr("id", identity + "-error")
-                    .addClass(this.settings.errorClass)
-                    .html(message || "");
-
-                // Maintain reference to the element to be placed into the DOM
-                var place = errorElement;
-                if (this.settings.errorLabelWrapper) {
-                    // make sure the element is visible, even in IE
-                    // actually showing the wrapped element is handled elsewhere
-                    // place = error.hide().show().wrap("<" + this.settings.errorLabelWrapper + "/>").parent();
-                    place = errorElement.hide().show().wrap(this.settings.errorLabelWrapper).parent();
-                }
-                // if (this.errorLabelContainer) {   // this.errorLabelContainer.length
-                //     this.errorLabelContainer.append(place);
-                // } else if (this.settings.errorPlacement) {
-                //     this.settings.errorPlacement(place, $(element));
-                if (this.settings.errorContainer) {   // this.errorLabelContainer.length
-                    this.elements.errorContainer.find('ul').append(place);
-                } else if (this.settings.errorPlacement) {
-                    this.settings.errorPlacement(place, $(element));
-                } else {
-                    place.insertAfter(element);
-                }
-
-                // Link error back to the element
-                if (errorElement.is("label")) {
-                    // If the error is a label, then associate using 'for'
-                    errorElement.attr("for", identity);
-                }
-            }
-            // if (!message && this.settings.success) {
-            //     if (typeof this.settings.success === "string") {
-            //         errorElement.addClass(this.settings.success);
-            //     } else {
-            //         this.settings.success(errorElement, element);
-            //     }
-            // }
-            // this.toShow = this.toShow.add(error);
-            return errorElement
-        },
-
-        
-
-        
 
         idOrName: function(element) {
             // return this.groups[element.name] || (this.checkable(element) ? element.name : element.id || element.name);
@@ -1024,36 +985,37 @@ Jx().package("T.UI.Components", function(J){
             return !methods.required.call(this, val, element) && "dependency-mismatch";
         },
 
-        // startRequest: function(element) {
-        //     if (!this.pending[element.name]) {
-        //         this.pendingRequest++;
-        //         this.pending[element.name] = true;
-        //     }
-        // },
-
-        // stopRequest: function(element, valid) {
-        //     this.pendingRequest--;
-        //     // sometimes synchronization fails, make sure pendingRequest is never < 0
-        //     if (this.pendingRequest < 0) {
-        //         this.pendingRequest = 0;
-        //     }
-        //     delete this.pending[element.name];
-        //     if (valid && this.pendingRequest === 0 && this.formSubmitted && this.checkForm()) {
-        //         $(this.element).submit();
-        //         this.formSubmitted = false;
-        //     } else if (!valid && this.pendingRequest === 0 && this.formSubmitted) {
-        //         this.element.triggerHandler("invalid-form", [this]);
-        //         this.formSubmitted = false;
-        //     }
-        // },
-
-        // previousValue: function(element) {
-        //     return $.data(element, "previousValue") || $.data(element, "previousValue", {
-        //         old: null,
-        //         valid: true,
-        //         message: this.defaultMessage(element, "remote")
-        //     });
-        // },
+        // for ajax
+        startRequest: function(element) {
+            if (!this.pending[element.name]) {
+                this.pendingRequest++;
+                this.pending[element.name] = true;
+            }
+        },
+        // for ajax
+        stopRequest: function(element, valid) {
+            this.pendingRequest--;
+            // sometimes synchronization fails, make sure pendingRequest is never < 0
+            if (this.pendingRequest < 0) {
+                this.pendingRequest = 0;
+            }
+            delete this.pending[element.name];
+            if (valid && this.pendingRequest === 0 && this.formSubmitted && this.checkForm()) {
+                $(this.element).submit();
+                this.formSubmitted = false;
+            } else if (!valid && this.pendingRequest === 0 && this.formSubmitted) {
+                this.element.triggerHandler("invalid-form", [this]);
+                this.formSubmitted = false;
+            }
+        },
+        // for ajax
+        previousValue: function(element) {
+            return $.data(element, "previousValue") || $.data(element, "previousValue", {
+                old: null,
+                valid: true,
+                message: this.defaultMessage(element, "remote")
+            });
+        },
 
         // API
         refresh: function(){},

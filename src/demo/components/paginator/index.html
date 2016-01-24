@@ -15,8 +15,9 @@
                         <input id="name" type="text" name="name" class="form-control" />
                     </div>
                     <div class="form-group">
-                        <input type="button" value="查询" class="btn btn-primary" ng-click="query()">
-                        <input type="button" value="批量删除" class="btn btn-primary" ng-click="batchDelete()">
+                        <input type="button" value="查询" class="btn btn-primary" ng-click="query($event)">
+                        <input type="button" value="批量删除" class="btn btn-primary" ng-click="batchDelete($event)">
+                        <input type="button" value="添加" class="btn btn-primary" ng-click="create($event)">
                     </div>
                 </form>
                 <table id="tblListData" class="table">
@@ -51,6 +52,12 @@
                     >
                 </ul>
                 <div class="modal fade" id="demoPopEditorModal" tabindex="-1">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="demoPopCreatorModal" tabindex="-1">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                         </div>
