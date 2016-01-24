@@ -20,15 +20,36 @@ Jx().package("T.UI.Components", function(J){
 
     var defaults = {
         // 参数
-        modalId: '',
-        show: false,
+        modalId: '',        // 窗口div的id
+        show: false,        // 创建后直接显示
         bindTarget: true,   // 绑定element元素(button等)的click事件
-        remote: '',
-        backdrop: true,
-        keyboard: true,
+        remote: '',         // 远程内容
+        backdrop: true,     // 遮罩
+        keyboard: true,     // 键盘操作支持
+        buttons:[
+            {
+                selector: '.cancel',
+                eventName: 'click',
+                handler: function(e){
+                    this.hide();
+                }
+            },
+            {
+                selector: '.close',
+                eventName: 'click',
+                handler: function(e){
+                    this.hide();
+                }
+            }//,
+            // {
+            //     selector: '.submit',
+            //     eventName: 'click',
+            //     handler: function(e){}
+            // }
+        ],
         // 覆写
         // 事件
-        onInitialized: function(){}
+        onInitialized: function(){} // 初始化完成事件
     };
     var attributeMap = {
         modalId:'modal-id',
@@ -48,7 +69,7 @@ Jx().package("T.UI.Components", function(J){
             _currentPluginId += 1;
             this.element.data('plugin-id', _currentPluginId);
 
-            this.isShown             = null
+            this.isShown             = false
             this.originalBodyPad     = null
             this.scrollbarWidth      = 0
             this.ignoreBackdropClick = false
@@ -87,13 +108,7 @@ Jx().package("T.UI.Components", function(J){
         },
         getData: function(){
             var context= this;
-            if (this.settings.remote) {
-                // this.element
-                //     .find('.modal-content')
-                //     .load(this.settings.remote, $.proxy(function () {
-                //         this.element.trigger('loaded.bs.modal')
-                //     }, this))
-                
+            if (this.settings.remote) {                
                 var jqModalContent= this.element.find('.modal-content:first');  // 嵌套modal必须加:first选择器
 
                 $.ajax({
@@ -101,8 +116,9 @@ Jx().package("T.UI.Components", function(J){
                     type: 'GET',
                     dataType: "html"//,
                     // data: params
-                }).done(function( responseText ) {
+                }).done(function(responseText) {
                     jqModalContent.empty();
+                    // context.inputElements.original.trigger('modal.on.loaded');
                     var innerHtml= context.parseData(responseText);                    
                     // jqModalContent.append($.parseHTML(innerHtml));
                     jqModalContent.append(innerHtml);
@@ -115,16 +131,46 @@ Jx().package("T.UI.Components", function(J){
             return data;
         },
         bindEvents: function(){
-            this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
+            // this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
+            for(var i=0; i<this.settings.buttons.length; i++){
+                var button= this.settings.buttons[i];
+                this.element.on(button.eventName, button.selector, $.proxy(button.handler, this));
+            }
+        },
+
+        escape: function () {
+            if (this.isShown && this.settings.keyboard) {
+                this.element.on('keydown.modal.on.dismiss', $.proxy(function (e) {
+                    e.which == 27 && this.hide()
+                }, this))
+            } else if (!this.isShown) {
+                this.element.off('keydown.modal.on.dismiss')
+            }
+        },
+
+        resize: function () {
+            if (this.isShown) {
+                $(window).on('resize.modal', $.proxy(this.handleUpdate, this))
+            } else {
+                $(window).off('resize.modal')
+            }
         },
         toggle: function (_relatedTarget) {
             return this.isShown ? this.hide() : this.show(_relatedTarget)
         },
         show: function (_relatedTarget) {
-            var context = this
-            var e    = $.Event('show.bs.modal', { relatedTarget: _relatedTarget })
+            var context= this;
 
-            this.element.trigger(e)
+            var e= $.Event('modal.on.show', { relatedTarget: _relatedTarget });
+            this.element.trigger(e);
+
+            // 嵌套madel
+            var zIndex = 1040 + (10 * $('.modal:visible').length);
+            // $(this).css('z-index', zIndex);
+            this.inputElements.pop.css('z-index', zIndex);
+            setTimeout(function() {
+                $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
+            }, 0);
 
             if (this.isShown || e.isDefaultPrevented()) return
 
@@ -134,106 +180,54 @@ Jx().package("T.UI.Components", function(J){
             this.setScrollbar()
             this.elements.body.addClass('modal-open')
 
-            this.escape()
-            this.resize()
+            // 绑定esc键事件
+            this.escape();
+            this.resize();
 
-            // this.element.on('click.dismiss.bs.modal', '[data-dismiss="modal"]', $.proxy(this.hide, this))
+            // this.element.on('click.modal.on.dismiss', '[data-dismiss="modal"]', $.proxy(this.hide, this))
 
-            this.elements.dialog.on('mousedown.dismiss.bs.modal', function () {
-                context.element.one('mouseup.dismiss.bs.modal', function (e) {
+            this.elements.dialog.on('mousedown.modal.on.dismiss', function () {
+                context.element.one('mouseup.modal.on.dismiss', function (e) {
                     if ($(e.target).is(context.element)) context.ignoreBackdropClick = true
                 })
             })
 
-            this.backdrop(function () {
-                var transition = $.support.transition && context.element.hasClass('fade')
-
-                if (!context.element.parent().length) {
-                    context.element.appendTo(context.elements.body) // don't move modals dom position
-                }
-
-                context.element
-                    .show()
-                    .scrollTop(0)
-
-                context.adjustDialog()
-
-                if (transition) {
-                    context.element[0].offsetWidth // force reflow
-                }
-
-                context.element.addClass('in')
-
-                context.enforceFocus()
-
-                var e = $.Event('shown.bs.modal', { relatedTarget: _relatedTarget })
-
-                transition ?
-                    context.elements.dialog // wait for modal to slide in
-                        .one('bsTransitionEnd', function () {
-                            context.element.trigger('focus').trigger(e)
-                        })
-                        .emulateTransitionEnd(TRANSITION_DURATION) :
-                    context.element.trigger('focus').trigger(e)
-            })
+            var e = $.Event('modal.on.shown', { relatedTarget: _relatedTarget });
+            this.backdrop($.proxy(this.backdropCallback, this, e));
         },
 
         hide: function (e) {
-            if (e) e.preventDefault()
+            if(e){
+                e.preventDefault();
+            }
 
-            e = $.Event('hide.bs.modal')
+            e = $.Event('modal.on.hide');
+            this.element.trigger(e);
 
-            this.element.trigger(e)
+            if (!this.isShown || e.isDefaultPrevented()) {
+                return;
+            }
 
-            if (!this.isShown || e.isDefaultPrevented()) return
+            this.isShown = false;
 
-            this.isShown = false
+            // 绑定esc键事件
+            this.escape();
+            this.resize();
 
-            this.escape()
-            this.resize()
-
-            $(document).off('focusin.bs.modal')
+            $(document).off('modal.on.focusin');
 
             this.element
                 .removeClass('in')
-                .off('click.dismiss.bs.modal')
-                .off('mouseup.dismiss.bs.modal')
+                .off('click.modal.on.dismiss')
+                .off('mouseup.modal.on.dismiss');
 
-            this.elements.dialog.off('mousedown.dismiss.bs.modal')
+            this.elements.dialog.off('mousedown.modal.on.dismiss');
 
             $.support.transition && this.element.hasClass('fade') ?
                 this.element
                     .one('bsTransitionEnd', $.proxy(this.hideModal, this))
                     .emulateTransitionEnd(TRANSITION_DURATION) :
                 this.hideModal()
-        },
-
-        enforceFocus: function () {
-            $(document)
-                .off('focusin.bs.modal') // guard against infinite focus loop
-                .on('focusin.bs.modal', $.proxy(function (e) {
-                    if (this.element[0] !== e.target && !this.element.has(e.target).length) {
-                        this.element.trigger('focus')
-                    }
-                }, this))
-        },
-
-        escape: function () {
-            if (this.isShown && this.settings.keyboard) {
-                this.element.on('keydown.dismiss.bs.modal', $.proxy(function (e) {
-                    e.which == 27 && this.hide()
-                }, this))
-            } else if (!this.isShown) {
-                this.element.off('keydown.dismiss.bs.modal')
-            }
-        },
-
-        resize: function () {
-            if (this.isShown) {
-                $(window).on('resize.bs.modal', $.proxy(this.handleUpdate, this))
-            } else {
-                $(window).off('resize.bs.modal')
-            }
         },
 
         hideModal: function () {
@@ -243,7 +237,7 @@ Jx().package("T.UI.Components", function(J){
                 context.elements.body.removeClass('modal-open')
                 context.resetAdjustments()
                 context.resetScrollbar()
-                context.element.trigger('hidden.bs.modal')
+                context.element.trigger('modal.on.hidden')
             })
         },
 
@@ -263,7 +257,7 @@ Jx().package("T.UI.Components", function(J){
                     .addClass('modal-backdrop ' + animate)
                     .appendTo(this.elements.body)
 
-                this.element.on('click.dismiss.bs.modal', $.proxy(function (e) {
+                this.element.on('click.modal.on.dismiss', $.proxy(function (e) {
                     if (this.ignoreBackdropClick) {
                         this.ignoreBackdropClick = false
                         return
@@ -304,6 +298,41 @@ Jx().package("T.UI.Components", function(J){
             }
         },
 
+        backdropCallback: function (e) {
+            if (!this.element.parent().length) {
+                this.element.appendTo(this.elements.body); // don't move modals dom position
+            }
+
+            this.element
+                .show()
+                .scrollTop(0);
+
+            this.adjustDialog();
+
+            var transition = $.support.transition && this.element.hasClass('fade');
+            if (transition) {
+                this.element[0].offsetWidth; // force reflow
+            }
+
+            this.element.addClass('in');
+
+            $(document)
+                .off('modal.onfocusin') // guard against infinite focus loop
+                .on('modal.onfocusin', $.proxy(function (e) {
+                    if (this.element[0] !== e.target && !this.element.has(e.target).length) {
+                        this.element.trigger('focus')
+                    }
+                }, this));
+
+            transition ?
+                this.elements.dialog // wait for modal to slide in
+                    .one('bsTransitionEnd', function () {
+                        this.element.trigger('focus').trigger(e)
+                    })
+                    .emulateTransitionEnd(TRANSITION_DURATION) :
+                this.element.trigger('focus').trigger(e)
+        },
+
         // these following methods are used to handle overflowing modals
 
         handleUpdate: function () {
@@ -311,12 +340,12 @@ Jx().package("T.UI.Components", function(J){
         },
 
         adjustDialog: function () {
-            var modalIsOverflowing = this.element[0].scrollHeight > document.documentElement.clientHeight
+            var modalIsOverflowing = this.element[0].scrollHeight > document.documentElement.clientHeight;
 
             this.element.css({
                 paddingLeft:  !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : '',
                 paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : ''
-            })
+            });
         },
 
         resetAdjustments: function () {
@@ -398,6 +427,8 @@ Jx().package("T.UI.Components", function(J){
         bindEvents: function(){
             var context = this;
 
+            this.unbindEvents();
+
             if(this.settings.bindTarget){
                 this.elements.original.on('click', function(e){
                     if($(this).is('a')){
@@ -408,9 +439,14 @@ Jx().package("T.UI.Components", function(J){
                 });
             }
 
-            this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
-
-            this.element.on('modal.on.initialized', this.settings.onInitialized);
+            this.elements.original.on('modal.on.initialized', this.settings.onInitialized);
+        },
+        unbindEvents: function(){
+            this.elements.original.off('modal.on.initialized');
+            if(this.settings.bindTarget)
+            {
+                this.elements.original.off('click');
+            }
         },
         show: function(){
             this.pop.show();
@@ -418,15 +454,5 @@ Jx().package("T.UI.Components", function(J){
         hide: function(){
             this.pop.hide();
         }
-    });
-
-    // 嵌套 modal
-    // http://stackoverflow.com/questions/19305821/multiple-modals-overlay
-    $(document).on('show.bs.modal', '.modal', function () {
-        var zIndex = 1040 + (10 * $('.modal:visible').length);
-        $(this).css('z-index', zIndex);
-        setTimeout(function() {
-            $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
-        }, 0);
     });
 });

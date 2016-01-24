@@ -210,7 +210,7 @@ gulp.task('default', ['demo'])
         gulp.src( [
                 'src/demo/controls/*/example.html',
                 'src/demo/controls/*/*.json',
-                'src/demo/controls/*/remote.html'
+                'src/demo/controls/*/remote*.html'
             ] )
             /*.pipe( rename(function (path) {   // 'index.html'
                 //path.dirname += "/dir";
@@ -223,7 +223,7 @@ gulp.task('default', ['demo'])
 		gulp.src( [
                 'src/demo/components/*/example.html',
                 'src/demo/components/*/*.json',
-                'src/demo/components/*/remote.html'
+                'src/demo/components/*/remote*.html'
             ] )
 			/*.pipe( rename(function (path) {	// 'index.html'
 				//path.dirname += "/dir";

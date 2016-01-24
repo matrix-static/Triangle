@@ -220,7 +220,7 @@ angular.module('pnApp.controllers', [])
                 modalId: '#demoPopCreatorModal',
                 show: false,
                 bindTarget: false,
-                remote: '/demo/components/paginator/remote.html',
+                remote: '/demo/components/paginator/remoteCreator.html',
                 parseData: function(data){
                     if(creatorScope){
                         creatorScope.$destroy();
@@ -231,7 +231,30 @@ angular.module('pnApp.controllers', [])
                 onInitialized: function(){
                     $scope.$broadcast("craeteEntity");  //, entity
                     creator.show();
-                }
+                },
+                buttons:[
+                    {
+                        selector: '.cancel',
+                        eventName: 'click',
+                        handler: function(e){
+                            this.hide();
+                        }
+                    },
+                    {
+                        selector: '.close',
+                        eventName: 'click',
+                        handler: function(e){
+                            this.hide();
+                        }
+                    },
+                    {
+                        selector: '.submit',
+                        eventName: 'click',
+                        handler: function(e){
+                            $scope.$broadcast("craeteEntitySubmit");  //, entity
+                        }
+                    }
+                ]
                 // close $scope.distroy
             });
         };
@@ -254,7 +277,7 @@ angular.module('pnApp.controllers', [])
                 modalId: '#demoPopEditorModal',
                 show: false,
                 bindTarget: false,
-                remote: '/demo/components/paginator/remote.html',
+                remote: '/demo/components/paginator/remoteEditor.html',
                 parseData: function(data){
                     if(editorScope){
                         editorScope.$destroy();
@@ -387,6 +410,12 @@ angular.module('pnApp.controllers', [])
             // $scope.entity= entity;
 
             $scope.validatorRef.resetForm();
+        });
+
+        $scope.$on("craeteEntitySubmit",function (event){ // , entity
+            // $scope.entity= entity;
+
+            $scope.validatorRef.checkForm();
         });
     }])
     .controller("editController", ['$scope', '$rootScope', function ($scope, $rootScope){
