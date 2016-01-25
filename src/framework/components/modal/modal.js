@@ -26,16 +26,16 @@ Jx().package("T.UI.Components", function(J){
         remote: '',         // 远程内容
         backdrop: true,     // 遮罩
         keyboard: true,     // 键盘操作支持
-        buttons:[
-            {
-                selector: '.cancel',
+        buttons:{
+            close: {
+                selector: '.close',
                 eventName: 'click',
                 handler: function(e){
                     this.hide();
                 }
             },
-            {
-                selector: '.close',
+            cancel: {
+                selector: '.cancel',
                 eventName: 'click',
                 handler: function(e){
                     this.hide();
@@ -46,7 +46,7 @@ Jx().package("T.UI.Components", function(J){
             //     eventName: 'click',
             //     handler: function(e){}
             // }
-        ],
+        },
         // 覆写
         // 事件
         onInitialized: function(){} // 初始化完成事件
@@ -132,8 +132,8 @@ Jx().package("T.UI.Components", function(J){
         },
         bindEvents: function(){
             // this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
-            for(var i=0; i<this.settings.buttons.length; i++){
-                var button= this.settings.buttons[i];
+            for(var buttonName in this.settings.buttons){
+                var button= this.settings.buttons[buttonName];
                 this.element.on(button.eventName, button.selector, $.proxy(button.handler, this));
             }
         },

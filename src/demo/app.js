@@ -232,29 +232,15 @@ angular.module('pnApp.controllers', [])
                     $scope.$broadcast("craeteEntity");  //, entity
                     creator.show();
                 },
-                buttons:[
-                    {
-                        selector: '.cancel',
-                        eventName: 'click',
-                        handler: function(e){
-                            this.hide();
-                        }
-                    },
-                    {
-                        selector: '.close',
-                        eventName: 'click',
-                        handler: function(e){
-                            this.hide();
-                        }
-                    },
-                    {
+                buttons: {
+                    submit: {
                         selector: '.submit',
                         eventName: 'click',
                         handler: function(e){
                             $scope.$broadcast("craeteEntitySubmit");  //, entity
                         }
                     }
-                ]
+                }
                 // close $scope.distroy
             });
         };
@@ -288,6 +274,15 @@ angular.module('pnApp.controllers', [])
                 onInitialized: function(){
                     $scope.$broadcast("editEntity", entity);
                     editor.show();
+                },
+                buttons: {
+                    submit: {
+                        selector: '.submit',
+                        eventName: 'click',
+                        handler: function(e){
+                            $scope.$broadcast("editorEntitySubmit");  //, entity
+                        }
+                    }
                 }
                 // close $scope.distroy
             });
@@ -493,6 +488,11 @@ angular.module('pnApp.controllers', [])
             $scope.entity= entity;
 
             $scope.validatorRef.resetForm();
+        });
+
+        $scope.$on("editorEntitySubmit",function (event){ // , entity
+            // $scope.entity= entity;
+            $scope.validatorRef.checkForm();
         });
     }]);
 

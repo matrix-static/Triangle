@@ -430,7 +430,7 @@ Jx().package("T.UI.Components", function(J){
 
             this.elements= {
                 // original: this.element,
-                submitButton: $('input:submit:not("save"), button:submit:not("save")', this.container),
+                submitButton: $('input:submit:not(".save"), button:submit:not(".save")', this.container),
                 saveButton: $('input.save:submit, button.save:submit', this.container),
                 currentElements: function(){
                     // 有可能中途disabled，插入元素等。
