@@ -10,8 +10,42 @@ angular.module('pnApp.filters', [])
 		};
 	}]);
 
-
 angular.module('pnApp.services', []).value('version', '0.1')	// 'ngResource'
+    .factory('tModalService', function ($compile){
+
+        console.log('app tModalService');
+        var modalScope;
+
+        return {
+            create: function(options){
+                var parseData= function(data){
+                    if(modalScope){
+                        modalScope.$destroy();
+                    }
+                    modalScope=options.scope.$new();
+                    return $compile(data)(modalScope);
+                };
+
+                var onInitialized= function(){
+                    // modal.show();
+                    this.show();
+                };
+
+                var modal= new T.UI.Components.Modal(options.targetElement, {
+                    modalId: options.modalId,
+                    show: false,
+                    bindTarget: false,
+                    remote: options.remote,     //'/demo/components/paginator/remoteEditor.html',
+                    parseData: options.parseData || parseData,
+                    onInitialized: options.onInitialized || onInitialized,
+                    buttons: options.buttons
+                    // close $scope.distroy
+                });
+
+                return modal;
+            }
+        };
+    })
 	.factory('fooService', function (){
 
 		console.log('app service');
@@ -173,7 +207,7 @@ angular.module('pnApp.controllers', [])
 
         $scope.validatorOptions= validatorOptions;
     }])
-    .controller('paginatorController', ['$scope', '$rootScope', '$compile', function ($scope, $rootScope, $compile){
+    .controller('paginatorController', ['$scope', '$rootScope', '$compile', 'tModalService', function ($scope, $rootScope, $compile, Modal){
         function reloadList(pageIndex){
             var queryData={
                 name: $('#formQuery #name').val(),
@@ -259,21 +293,42 @@ angular.module('pnApp.controllers', [])
             // bind data
             // show
 
-            var editor= new T.UI.Components.Modal(e.target, {
+            // var editor= new T.UI.Components.Modal(e.target, {
+            //     modalId: '#demoPopEditorModal',
+            //     show: false,
+            //     bindTarget: false,
+            //     remote: '/demo/components/paginator/remoteEditor.html',
+            //     parseData: function(data){
+            //         if(editorScope){
+            //             editorScope.$destroy();
+            //         }
+            //         editorScope=$scope.$new();
+            //         return $compile(data)(editorScope);
+            //     },
+            //     onInitialized: function(){
+            //         $scope.$broadcast("editEntity", entity);
+            //         editor.show();
+            //     },
+            //     buttons: {
+            //         submit: {
+            //             selector: '.submit',
+            //             eventName: 'click',
+            //             handler: function(e){
+            //                 $scope.$broadcast("editorEntitySubmit");  //, entity
+            //             }
+            //         }
+            //     }
+            //     // close $scope.distroy
+            // });
+
+            var editor= Modal.create({
                 modalId: '#demoPopEditorModal',
-                show: false,
-                bindTarget: false,
+                targetElement: e.target,
                 remote: '/demo/components/paginator/remoteEditor.html',
-                parseData: function(data){
-                    if(editorScope){
-                        editorScope.$destroy();
-                    }
-                    editorScope=$scope.$new();
-                    return $compile(data)(editorScope);
-                },
+                scope: $scope,
                 onInitialized: function(){
                     $scope.$broadcast("editEntity", entity);
-                    editor.show();
+                    this.show();
                 },
                 buttons: {
                     submit: {
@@ -284,7 +339,6 @@ angular.module('pnApp.controllers', [])
                         }
                     }
                 }
-                // close $scope.distroy
             });
 
             // this.inputElements.original.trigger('modal.on.initialized');

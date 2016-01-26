@@ -31,6 +31,50 @@
             <script src="/demo/assets/bootstrap.js"></script>
         -->
 		
+        <div class="t-modal-container">
+            <!-- 基类(静态文件) -->
+            <div id="t-modal-base">
+                <!-- Modal -->
+                <div class="modal fade" id="demoModal1" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="demoModal2Label">Modal 标题</h4>
+                            </div>
+                            <div class="modal-body">
+                                ...
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default cancel">取消</button>
+                                <button type="button" class="btn btn-primary confirm">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="demoModal2" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="demoModal2Label">Modal 标题2</h4>
+                            </div>
+                            <div class="modal-body">
+                                ...
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default cancel">取消</button>
+                                <button type="button" class="btn btn-primary confirm">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 信息info/警告warning/错误error/确认confirm(yes-no-cancel, ok-cancel, confirm-cancel) -->
+            <div id="t-modal-messagebox"></div>
+            <div id="t-modal-page"></div>
+        </div>
 
         <script src="/refer/modules/zeroclipboard/2.2.0/zeroclipboard.js"></script>
 	  	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->

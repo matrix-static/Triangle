@@ -66,7 +66,7 @@ Jx().package("T.UI", function(J){
             this.pluginId = _currentPluginId;
 
             var attributes = parseAttributes(element, this.attributeMap);
-			this.settings = $.extend({}, this.defaults, attributes, options);
+			this.settings = $.extend(true, {}, this.defaults, attributes, options);
 		},
         
         // 初始化字符串值，对象/数组值，状态值等

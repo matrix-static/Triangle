@@ -20,12 +20,15 @@ Jx().package("T.UI.Components", function(J){
 
     var defaults = {
         // 参数
-        modalId: '',        // 窗口div的id
+        modalId: '',        // 窗口div的id，指定id以后不会重新往modalContainer里面加内容
+        modalCssClass: '',  // 窗口div的自定义css class
         show: false,        // 创建后直接显示
         bindTarget: true,   // 绑定element元素(button等)的click事件
         remote: '',         // 远程内容
+        content: '',        // 本地内容
         backdrop: true,     // 遮罩
         keyboard: true,     // 键盘操作支持
+        modalContainer: '#t-modal-base',     // 放在html文件</body>前的容器id
         buttons:{
             close: {
                 selector: '.close',
@@ -63,11 +66,19 @@ Jx().package("T.UI.Components", function(J){
         // 构造函数
         init:function(elements, options){
             this.inputElements= elements;
-            this.element= this.inputElements.pop;
+            // this.element= this.inputElements.pop;
 
             // 区分一个页面中存在多个控件实例
             _currentPluginId += 1;
-            this.element.data('plugin-id', _currentPluginId);
+            if(this.inputElements.original && this.inputElements.original.length > 0){
+                this._currentPluginId= this.inputElements.original.data('plugin-id');
+                if(!this._currentPluginId){
+                    this._currentPluginId= _currentPluginId;
+                    this.inputElements.original.data('plugin-id', _currentPluginId);
+                }
+            }
+            // this.element.data('plugin-id', _currentPluginId);
+            
 
             this.isShown             = false
             this.originalBodyPad     = null
@@ -77,28 +88,109 @@ Jx().package("T.UI.Components", function(J){
             // // 初始化选项
             // this.initSettings(options);
             this.settings             = options
+            this.modalContainer= $(this.settings.modalContainer);
+            this.settings.modalId= this.settings.modalId || this.settings.modalContainer +'-m'+this._currentPluginId;
             if (typeof (this.settings.parseData) === 'function') {
                 this.parseData = this.settings.parseData;
                 delete this.settings.parseData;
             }
 
+            // this.buildHtml();
+            // // 初始化 html DOM 元素
+            // this.initElements();
+
             // 初始化数据
             this.getData();
 
-            // 初始化 html DOM 元素
-            this.initElements();            
-
-            // 绑定事件
-            this.bindEvents();
+            // // 绑定事件
+            // this.bindEvents();
             // // 绑定事件接口
             // this.bindEventsInterface();
         },
+        getData: function(){
+            var context= this;
+
+            if(this.modalContainer.find(this.settings.modalId).length === 0){
+                context.inputElements.original.trigger('modal.on.initialized');
+            }
+
+            if (this.settings.remote) {                
+                $.ajax({
+                    url: this.settings.remote,
+                    type: 'GET',
+                    dataType: "html"//,
+                    // data: params
+                }).done(function(responseText) {
+                    context.render();
+
+                    context.elements.content.empty();
+                    // context.inputElements.original.trigger('modal.on.loaded');
+                    var innerHtml= context.parseData(responseText);                    
+                    // jqModalContent.append($.parseHTML(innerHtml));
+                    context.elements.content.append(innerHtml);
+
+                    // 绑定事件
+                    context.bindEvents();
+
+                    context.inputElements.original.trigger('modal.on.initialized');
+                })
+            }
+            else{
+                context.render();
+
+                if(this.settings.content){
+                    this.elements.content.empty();
+                    this.elements.content.append(this.settings.content);
+                }
+
+                // 绑定事件
+                this.bindEvents();
+
+                context.inputElements.original.trigger('modal.on.initialized');
+            }
+        },
+        parseData: function(data){
+            return data;
+        },
+        buildHtml: function(){
+            // <button type="button" class="btn btn-default cancel">取消</button>
+            // <button type="button" class="btn btn-primary confirm">确定</button>
+            // var buttonsHtml= '';
+            // for(var buttonName in this.settings.buttons){
+            //     var button= this.settings.buttons[buttonName];
+            //     buttonsHtml += '<button type="button" class="btn btn-primary '+ button.selector. +'">{text}</button>';
+            // }
+
+            
+        },
+        render: function(){            
+            if(this.modalContainer.find(this.settings.modalId).length === 0){
+                var cssClass= this.settings.modalCssClass ? ' '+this.settings.modalCssClass : ''
+                var htmlTempate= ''+
+                    '<div '+
+                    '   class="modal fade'+cssClass+'" '+
+                    '   id="'+ this.settings.modalId.substring(1) +'" '+
+                    '   tabindex="-1">'+
+                    '    <div class="modal-dialog">'+
+                    '        <div class="modal-content">'+
+                    '        </div>'+
+                    '    </div>'+
+                    '</div>';
+                this.modalContainer.append(htmlTempate);
+            }
+
+            this.initElements();
+        },
+        refresh: function(){},
         initElements: function(){
             var context=this;
 
-            this.elements={
+            var jqModal= this.modalContainer.find(this.settings.modalId);
+            this.elements= {
                 body: $(document.body),
-                dialog: context.element.find('.modal-dialog'),
+                modal: jqModal,
+                dialog: jqModal.find('.modal-dialog:first'),    // 嵌套modal必须加:first选择器
+                content: jqModal.find('.modal-content:first'),  // 嵌套modal必须加:first选择器
                 backdrop: null
             };
 
@@ -106,45 +198,22 @@ Jx().package("T.UI.Components", function(J){
                 this.show(this.inputElements.original);
             }
         },
-        getData: function(){
-            var context= this;
-            if (this.settings.remote) {                
-                var jqModalContent= this.element.find('.modal-content:first');  // 嵌套modal必须加:first选择器
-
-                $.ajax({
-                    url: this.settings.remote,
-                    type: 'GET',
-                    dataType: "html"//,
-                    // data: params
-                }).done(function(responseText) {
-                    jqModalContent.empty();
-                    // context.inputElements.original.trigger('modal.on.loaded');
-                    var innerHtml= context.parseData(responseText);                    
-                    // jqModalContent.append($.parseHTML(innerHtml));
-                    jqModalContent.append(innerHtml);
-
-                    context.inputElements.original.trigger('modal.on.initialized');
-                })
-            }
-        },
-        parseData: function(data){
-            return data;
-        },
         bindEvents: function(){
             // this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
             for(var buttonName in this.settings.buttons){
                 var button= this.settings.buttons[buttonName];
-                this.element.on(button.eventName, button.selector, $.proxy(button.handler, this));
+                this.elements.modal.off(button.eventName, button.selector); // unbindEvents
+                this.elements.modal.on(button.eventName, button.selector, $.proxy(button.handler, this));
             }
         },
 
         escape: function () {
             if (this.isShown && this.settings.keyboard) {
-                this.element.on('keydown.modal.on.dismiss', $.proxy(function (e) {
+                this.elements.modal.on('keydown.modal.on.dismiss', $.proxy(function (e) {
                     e.which == 27 && this.hide()
                 }, this))
             } else if (!this.isShown) {
-                this.element.off('keydown.modal.on.dismiss')
+                this.elements.modal.off('keydown.modal.on.dismiss')
             }
         },
 
@@ -162,12 +231,13 @@ Jx().package("T.UI.Components", function(J){
             var context= this;
 
             var e= $.Event('modal.on.show', { relatedTarget: _relatedTarget });
-            this.element.trigger(e);
+            this.elements.modal.trigger(e);
 
             // 嵌套madel
             var zIndex = 1040 + (10 * $('.modal:visible').length);
             // $(this).css('z-index', zIndex);
-            this.inputElements.pop.css('z-index', zIndex);
+            // this.inputElements.pop.css('z-index', zIndex);
+            this.elements.modal.css('z-index', zIndex);
             setTimeout(function() {
                 $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
             }, 0);
@@ -184,11 +254,11 @@ Jx().package("T.UI.Components", function(J){
             this.escape();
             this.resize();
 
-            // this.element.on('click.modal.on.dismiss', '[data-dismiss="modal"]', $.proxy(this.hide, this))
+            // this.elements.modal.on('click.modal.on.dismiss', '[data-dismiss="modal"]', $.proxy(this.hide, this))
 
             this.elements.dialog.on('mousedown.modal.on.dismiss', function () {
-                context.element.one('mouseup.modal.on.dismiss', function (e) {
-                    if ($(e.target).is(context.element)) context.ignoreBackdropClick = true
+                context.elements.modal.one('mouseup.modal.on.dismiss', function (e) {
+                    if ($(e.target).is(context.elements.modal)) context.ignoreBackdropClick = true
                 })
             })
 
@@ -202,7 +272,7 @@ Jx().package("T.UI.Components", function(J){
             }
 
             e = $.Event('modal.on.hide');
-            this.element.trigger(e);
+            this.elements.modal.trigger(e);
 
             if (!this.isShown || e.isDefaultPrevented()) {
                 return;
@@ -216,15 +286,15 @@ Jx().package("T.UI.Components", function(J){
 
             $(document).off('modal.on.focusin');
 
-            this.element
+            this.elements.modal
                 .removeClass('in')
                 .off('click.modal.on.dismiss')
                 .off('mouseup.modal.on.dismiss');
 
             this.elements.dialog.off('mousedown.modal.on.dismiss');
 
-            $.support.transition && this.element.hasClass('fade') ?
-                this.element
+            $.support.transition && this.elements.modal.hasClass('fade') ?
+                this.elements.modal
                     .one('bsTransitionEnd', $.proxy(this.hideModal, this))
                     .emulateTransitionEnd(TRANSITION_DURATION) :
                 this.hideModal()
@@ -232,12 +302,12 @@ Jx().package("T.UI.Components", function(J){
 
         hideModal: function () {
             var context = this
-            this.element.hide()
+            this.elements.modal.hide()
             this.backdrop(function () {
                 context.elements.body.removeClass('modal-open')
                 context.resetAdjustments()
                 context.resetScrollbar()
-                context.element.trigger('modal.on.hidden')
+                context.elements.modal.trigger('modal.on.hidden')
             })
         },
 
@@ -248,7 +318,7 @@ Jx().package("T.UI.Components", function(J){
 
         backdrop: function (callback) {
             var context = this
-            var animate = this.element.hasClass('fade') ? 'fade' : ''
+            var animate = this.elements.modal.hasClass('fade') ? 'fade' : ''
 
             if (this.isShown && this.settings.backdrop) {
                 var doAnimate = $.support.transition && animate
@@ -257,14 +327,14 @@ Jx().package("T.UI.Components", function(J){
                     .addClass('modal-backdrop ' + animate)
                     .appendTo(this.elements.body)
 
-                this.element.on('click.modal.on.dismiss', $.proxy(function (e) {
+                this.elements.modal.on('click.modal.on.dismiss', $.proxy(function (e) {
                     if (this.ignoreBackdropClick) {
                         this.ignoreBackdropClick = false
                         return
                     }
                     if (e.target !== e.currentTarget) return
                     this.settings.backdrop == 'static'
-                        ? this.element[0].focus()
+                        ? this.elements.modal[0].focus()
                         : this.hide()
                 }, this))
 
@@ -287,7 +357,7 @@ Jx().package("T.UI.Components", function(J){
                     context.removeBackdrop()
                     callback && callback()
                 }
-                $.support.transition && this.element.hasClass('fade') ?
+                $.support.transition && this.elements.modal.hasClass('fade') ?
                     this.elements.backdrop
                         .one('bsTransitionEnd', callbackRemove)
                         .emulateTransitionEnd(BACKDROP_TRANSITION_DURATION) :
@@ -299,38 +369,38 @@ Jx().package("T.UI.Components", function(J){
         },
 
         backdropCallback: function (e) {
-            if (!this.element.parent().length) {
-                this.element.appendTo(this.elements.body); // don't move modals dom position
+            if (!this.elements.modal.parent().length) {
+                this.elements.modal.appendTo(this.elements.body); // don't move modals dom position
             }
 
-            this.element
+            this.elements.modal
                 .show()
                 .scrollTop(0);
 
             this.adjustDialog();
 
-            var transition = $.support.transition && this.element.hasClass('fade');
+            var transition = $.support.transition && this.elements.modal.hasClass('fade');
             if (transition) {
-                this.element[0].offsetWidth; // force reflow
+                this.elements.modal[0].offsetWidth; // force reflow
             }
 
-            this.element.addClass('in');
+            this.elements.modal.addClass('in');
 
             $(document)
                 .off('modal.onfocusin') // guard against infinite focus loop
                 .on('modal.onfocusin', $.proxy(function (e) {
-                    if (this.element[0] !== e.target && !this.element.has(e.target).length) {
-                        this.element.trigger('focus')
+                    if (this.elements.modal[0] !== e.target && !this.elements.modal.has(e.target).length) {
+                        this.elements.modal.trigger('focus')
                     }
                 }, this));
 
             transition ?
                 this.elements.dialog // wait for modal to slide in
                     .one('bsTransitionEnd', function () {
-                        this.element.trigger('focus').trigger(e)
+                        this.elements.modal.trigger('focus').trigger(e)
                     })
                     .emulateTransitionEnd(TRANSITION_DURATION) :
-                this.element.trigger('focus').trigger(e)
+                this.elements.modal.trigger('focus').trigger(e)
         },
 
         // these following methods are used to handle overflowing modals
@@ -340,16 +410,16 @@ Jx().package("T.UI.Components", function(J){
         },
 
         adjustDialog: function () {
-            var modalIsOverflowing = this.element[0].scrollHeight > document.documentElement.clientHeight;
+            var modalIsOverflowing = this.elements.modal[0].scrollHeight > document.documentElement.clientHeight;
 
-            this.element.css({
+            this.elements.modal.css({
                 paddingLeft:  !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : '',
                 paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : ''
             });
         },
 
         resetAdjustments: function () {
-            this.element.css({
+            this.elements.modal.css({
                 paddingLeft: '',
                 paddingRight: ''
             })
@@ -420,8 +490,8 @@ Jx().package("T.UI.Components", function(J){
         },
         initElements: function(){
             this.elements={
-                original: this.element,
-                pop: $(this.settings.modalId)
+                original: this.element//,
+                // pop: $(this.settings.modalId)
             }
         },
         bindEvents: function(){
@@ -439,7 +509,7 @@ Jx().package("T.UI.Components", function(J){
                 });
             }
 
-            this.elements.original.on('modal.on.initialized', this.settings.onInitialized);
+            this.elements.original.on('modal.on.initialized', $.proxy(this.settings.onInitialized, this));
         },
         unbindEvents: function(){
             this.elements.original.off('modal.on.initialized');
