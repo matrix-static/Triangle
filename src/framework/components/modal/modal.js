@@ -28,7 +28,7 @@ Jx().package("T.UI.Components", function(J){
         bindTarget: true,   // 绑定element元素(button等)的click事件
         remote: '',         // 远程内容
         content: '',        // 本地内容
-        backdrop: true,     // 遮罩
+        backdrop: true,     // 遮罩(true/false/'static')
         keyboard: true,     // 键盘操作支持
         modalContainer: '#t-modal-base',     // 放在html文件</body>前的容器id
         buttons:{
@@ -161,11 +161,9 @@ Jx().package("T.UI.Components", function(J){
             // for(var buttonName in this.settings.buttons){
             //     var button= this.settings.buttons[buttonName];
             //     buttonsHtml += '<button type="button" class="btn btn-primary '+ button.selector. +'">{text}</button>';
-            // }
-
-            
+            // }            
         },
-        render: function(){            
+        render: function(){
             if(this.modalContainer.find(this.settings.modalId).length === 0){
                 var cssClass= this.settings.modalCssClass ? ' '+this.settings.modalCssClass : ''
                 var htmlTempate= ''+
@@ -227,9 +225,10 @@ Jx().package("T.UI.Components", function(J){
         //     }
         // },
 
-        toggle: function (_relatedTarget) {
-            return this.isShown ? this.hide() : this.show(_relatedTarget)
-        },
+        // toggle: function (_relatedTarget) {
+        //     return this.isShown ? this.hide() : this.show(_relatedTarget);
+        // },
+
         show: function (_relatedTarget) {
             var context= this;
 
@@ -245,9 +244,9 @@ Jx().package("T.UI.Components", function(J){
                 $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
             }, 0);
 
-            if (this.isShown || e.isDefaultPrevented()) return
+            if (this.isShown || e.isDefaultPrevented()) return;
 
-            this.isShown = true
+            this.isShown = true;
 
             // checkScrollbar
             var fullWindowWidth = window.innerWidth;
@@ -277,7 +276,9 @@ Jx().package("T.UI.Components", function(J){
 
             this.elements.dialog.on('mousedown.modal.on.dismiss', function () {
                 context.elements.modal.one('mouseup.modal.on.dismiss', function (e) {
-                    if ($(e.target).is(context.elements.modal)) context.ignoreBackdropClick = true
+                    if ($(e.target).is(context.elements.modal)){
+                        context.ignoreBackdropClick = true;
+                    }
                 })
             })
 
@@ -356,11 +357,14 @@ Jx().package("T.UI.Components", function(J){
                         : this.hide()
                 }, this))
 
-                if (doAnimate) this.elements.backdrop[0].offsetWidth // force reflow
+                // http://stackoverflow.com/questions/9016307/force-reflow-in-css-transitions-in-bootstrap
+                if (doAnimate) this.elements.backdrop[0].offsetWidth; // force reflow
 
-                this.elements.backdrop.addClass('in')
+                this.elements.backdrop.addClass('in');
 
-                if (!callback) return
+                if (!callback){
+                    return;
+                }
 
                 doAnimate ?
                     this.elements.backdrop
@@ -393,9 +397,8 @@ Jx().package("T.UI.Components", function(J){
                 this.elements.modal.appendTo(this.elements.body); // don't move modals dom position
             }
 
-            this.elements.modal
-                .show()
-                .scrollTop(0);
+            this.elements.modal.show();
+            this.elements.modal.scrollTop(0);
 
             this.adjustDialog();
 
@@ -406,21 +409,23 @@ Jx().package("T.UI.Components", function(J){
 
             this.elements.modal.addClass('in');
 
-            $(document)
-                .off('modal.onfocusin') // guard against infinite focus loop
-                .on('modal.onfocusin', $.proxy(function (e) {
-                    if (this.elements.modal[0] !== e.target && !this.elements.modal.has(e.target).length) {
-                        this.elements.modal.trigger('focus')
-                    }
-                }, this));
+            $(document).off('modal.onfocusin'); // guard against infinite focus loop
+            $(document).on('modal.onfocusin', $.proxy(function (e) {
+                if (this.elements.modal[0] !== e.target && !this.elements.modal.has(e.target).length) {
+                    this.elements.modal.trigger('focus')
+                }
+            }, this));
 
-            transition ?
-                this.elements.dialog // wait for modal to slide in
-                    .one('bsTransitionEnd', function () {
-                        this.elements.modal.trigger('focus').trigger(e)
-                    })
-                    .emulateTransitionEnd(TRANSITION_DURATION) :
-                this.elements.modal.trigger('focus').trigger(e)
+            if(transition){
+                var context= this;
+                this.elements.dialog.one('bsTransitionEnd', function () {
+                    context.elements.modal.trigger('focus').trigger(e)
+                });
+                this.elements.dialog.emulateTransitionEnd(TRANSITION_DURATION)
+            }
+            else{
+                this.elements.modal.trigger('focus').trigger(e);
+            }                
         },
 
         // these following methods are used to handle overflowing modals
