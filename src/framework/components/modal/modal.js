@@ -14,6 +14,8 @@ Jx().package("T.UI.Components", function(J){
     // 全局变量、函数、对象
     var _currentPluginId = 0;
 
+    // https://github.com/twbs/bootstrap/blob/83bfff7f0765503b990b96c303eef67009e48d77/js/transition.js#L36
+    // http://blog.alexmaccaw.com/css-transitions
     var TRANSITION_DURATION = 300;
     var BACKDROP_TRANSITION_DURATION = 150;
 
@@ -207,23 +209,24 @@ Jx().package("T.UI.Components", function(J){
             }
         },
 
-        escape: function () {
-            if (this.isShown && this.settings.keyboard) {
-                this.elements.modal.on('keydown.modal.on.dismiss', $.proxy(function (e) {
-                    e.which == 27 && this.hide()
-                }, this))
-            } else if (!this.isShown) {
-                this.elements.modal.off('keydown.modal.on.dismiss')
-            }
-        },
+        // escape: function () {
+        //     if (this.isShown && this.settings.keyboard) {
+        //         this.elements.modal.on('keydown.modal.on.dismiss', $.proxy(function (e) {
+        //             e.which == 27 && this.hide()
+        //         }, this))
+        //     } else if (!this.isShown) {
+        //         this.elements.modal.off('keydown.modal.on.dismiss')
+        //     }
+        // },
 
-        resize: function () {
-            if (this.isShown) {
-                $(window).on('resize.modal', $.proxy(this.handleUpdate, this))
-            } else {
-                $(window).off('resize.modal')
-            }
-        },
+        // resize: function () {
+        //     if (this.isShown) {
+        //         $(window).on('resize.modal', $.proxy(this.adjustDialog, this))
+        //     } else {
+        //         $(window).off('resize.modal')
+        //     }
+        // },
+
         toggle: function (_relatedTarget) {
             return this.isShown ? this.hide() : this.show(_relatedTarget)
         },
@@ -246,13 +249,29 @@ Jx().package("T.UI.Components", function(J){
 
             this.isShown = true
 
-            this.checkScrollbar()
-            this.setScrollbar()
+            // checkScrollbar
+            var fullWindowWidth = window.innerWidth;
+            if (!fullWindowWidth) { // workaround for missing window.innerWidth in IE8
+                var documentElementRect = document.documentElement.getBoundingClientRect();
+                fullWindowWidth = documentElementRect.right - Math.abs(documentElementRect.left);
+            }
+            this.bodyIsOverflowing = document.body.clientWidth < fullWindowWidth;
+            // measureScrollbar
+            var scrollDiv = document.createElement('div');
+            scrollDiv.className = 'modal-scrollbar-measure';
+            this.elements.body.append(scrollDiv);
+            this.scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+            this.elements.body[0].removeChild(scrollDiv);
+            // setScrollbar
+            var bodyPad = parseInt((this.elements.body.css('padding-right') || 0), 10)
+            this.originalBodyPad = document.body.style.paddingRight || ''
+            if (this.bodyIsOverflowing) this.elements.body.css('padding-right', bodyPad + this.scrollbarWidth)
             this.elements.body.addClass('modal-open')
 
-            // 绑定esc键事件
-            this.escape();
-            this.resize();
+            // // 绑定esc键事件
+            // this.escape();
+            // this.resize();
+            $(window).on('resize.modal', $.proxy(this.adjustDialog, this))
 
             // this.elements.modal.on('click.modal.on.dismiss', '[data-dismiss="modal"]', $.proxy(this.hide, this))
 
@@ -280,9 +299,10 @@ Jx().package("T.UI.Components", function(J){
 
             this.isShown = false;
 
-            // 绑定esc键事件
-            this.escape();
-            this.resize();
+            // // 绑定esc键事件
+            // this.escape();
+            // this.resize();
+            $(window).off('resize.modal');
 
             $(document).off('modal.on.focusin');
 
@@ -305,15 +325,13 @@ Jx().package("T.UI.Components", function(J){
             this.elements.modal.hide()
             this.backdrop(function () {
                 context.elements.body.removeClass('modal-open')
-                context.resetAdjustments()
-                context.resetScrollbar()
+                context.elements.modal.css({
+                    paddingLeft: '',
+                    paddingRight: ''
+                })
+                context.elements.body.css('padding-right', context.originalBodyPad)
                 context.elements.modal.trigger('modal.on.hidden')
             })
-        },
-
-        removeBackdrop: function () {
-            this.elements.backdrop && this.elements.backdrop.remove()
-            this.elements.backdrop = null
         },
 
         backdrop: function (callback) {
@@ -354,7 +372,9 @@ Jx().package("T.UI.Components", function(J){
                 this.elements.backdrop.removeClass('in')
 
                 var callbackRemove = function () {
-                    context.removeBackdrop()
+                    // removeBackdrop
+                    context.elements.backdrop && context.elements.backdrop.remove()
+                    context.elements.backdrop = null
                     callback && callback()
                 }
                 $.support.transition && this.elements.modal.hasClass('fade') ?
@@ -405,10 +425,6 @@ Jx().package("T.UI.Components", function(J){
 
         // these following methods are used to handle overflowing modals
 
-        handleUpdate: function () {
-            this.adjustDialog()
-        },
-
         adjustDialog: function () {
             var modalIsOverflowing = this.elements.modal[0].scrollHeight > document.documentElement.clientHeight;
 
@@ -416,42 +432,6 @@ Jx().package("T.UI.Components", function(J){
                 paddingLeft:  !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : '',
                 paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : ''
             });
-        },
-
-        resetAdjustments: function () {
-            this.elements.modal.css({
-                paddingLeft: '',
-                paddingRight: ''
-            })
-        },
-
-        checkScrollbar: function () {
-            var fullWindowWidth = window.innerWidth
-            if (!fullWindowWidth) { // workaround for missing window.innerWidth in IE8
-                var documentElementRect = document.documentElement.getBoundingClientRect()
-                fullWindowWidth = documentElementRect.right - Math.abs(documentElementRect.left)
-            }
-            this.bodyIsOverflowing = document.body.clientWidth < fullWindowWidth
-            this.scrollbarWidth = this.measureScrollbar()
-        },
-
-        setScrollbar: function () {
-            var bodyPad = parseInt((this.elements.body.css('padding-right') || 0), 10)
-            this.originalBodyPad = document.body.style.paddingRight || ''
-            if (this.bodyIsOverflowing) this.elements.body.css('padding-right', bodyPad + this.scrollbarWidth)
-        },
-
-        resetScrollbar: function () {
-            this.elements.body.css('padding-right', this.originalBodyPad)
-        },
-
-        measureScrollbar: function () { // thx walsh
-            var scrollDiv = document.createElement('div')
-            scrollDiv.className = 'modal-scrollbar-measure'
-            this.elements.body.append(scrollDiv)
-            var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth
-            this.elements.body[0].removeChild(scrollDiv)
-            return scrollbarWidth
         }
     });
 
