@@ -315,6 +315,7 @@ Jx().package("T.UI.Components", function(J){
             //     '</div>';
             var dialogId='t-orgselect-dialog' + this.inputElements.original.data('plugin-id');
             var htmlTemplate= ''+
+                '        <div class="modal-content">' + 
                 '            <div class="modal-header">' + 
                 '                <button type="button" class="close"><span aria-hidden="true">&times;</span></button>' + 
                 '                <h4 class="modal-title">选择员工</h4>' + 
@@ -328,7 +329,8 @@ Jx().package("T.UI.Components", function(J){
                 '            <div class="modal-footer">' + 
                 '                <button type="button" class="btn btn-default cancel">取消</button>' + 
                 '                <button type="button" class="btn btn-primary confirm">确定</button>' + 
-                '            </div>';
+                '            </div>' +
+                '        </div>';
 
             this.container=$(htmlTemplate);
             // this.container.insertAfter(this.inputElements.view);
@@ -349,24 +351,15 @@ Jx().package("T.UI.Components", function(J){
             });
 
             this.elements={
-                // confirm: $('.modal-footer button.confirm', this.container),
-                // typeahead: $('.col-header t-typeahead', this.container),
-                // orgTree: $('.modal-body .t-tree', this.container),
-                // rightselect: $('.modal-body .t-rightselect', this.container),
-                // forselectCount: $('.col-header t-forselect-count', this.container),
-                // selectedCount: $('.col-header t-selected-count', this.container),
-                // titleFilter: $('.col-header t-title-filter', this.container),
-                // inner: $('.col-header .t-inner', this.container),
-                // outer: $('.col-header .t-outer', this.container)
-                confirm: $('button.confirm', this.container),
-                typeahead: $('t-typeahead', this.container),
-                orgTree: $('.t-tree', this.container),
-                rightselect: $('.t-rightselect', this.container),
-                forselectCount: $('.t-forselect-count', this.container),
-                selectedCount: $('.t-selected-count', this.container),
-                titleFilter: $('.t-title-filter', this.container),
-                inner: $('.t-inner', this.container),
-                outer: $('.t-outer', this.container)
+                confirm: $('.modal-footer button.confirm', this.container),
+                typeahead: $('.col-header t-typeahead', this.container),
+                orgTree: $('.modal-body .t-tree', this.container),
+                rightselect: $('.modal-body .t-rightselect', this.container),
+                forselectCount: $('.col-header t-forselect-count', this.container),
+                selectedCount: $('.col-header t-selected-count', this.container),
+                titleFilter: $('.col-header t-title-filter', this.container),
+                inner: $('.col-header .t-inner', this.container),
+                outer: $('.col-header .t-outer', this.container)
 
                 // tabs: $('.t-level-tabs li', this.container),
                 // contents: $('.t-level-content', this.container),

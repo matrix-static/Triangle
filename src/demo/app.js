@@ -329,17 +329,30 @@ angular.module('pnApp.controllers', [])
                 onInitialized: function(){
                     $scope.$broadcast("editEntity", entity);
                     this.show();
-                },
-                buttons: {
-                    submit: {
-                        selector: '.submit',
-                        eventName: 'click',
-                        handler: function(e){
-                            $scope.$broadcast("editorEntitySubmit");  //, entity
-                        }
-                    }
-                }
+                }//,
+                // buttons: {
+                //     submit: {
+                //         selector: '.submit',
+                //         eventName: 'click',
+                //         handler: function(e){
+                //             $scope.$broadcast("editorEntitySubmit");  //, entity
+                //         }
+                //     }
+                // }
             });
+
+            var unRegister= $scope.$on('editorSubmitSuccess', function(event){
+                editor.hide();
+
+                // 必须取消事件注册，否则会在$scope.$listener里重复添加事件注册。
+                // 导致不同的动态窗口重复调用$scope.$on的handler函数。
+                unRegister();
+            });
+
+            // TODO: doesn't work ($scope haven't distroyed)
+            // $scope.$on('$destroy', function() {
+            //     unRegister();
+            // });
 
             // this.inputElements.original.trigger('modal.on.initialized');
         };
@@ -544,10 +557,15 @@ angular.module('pnApp.controllers', [])
             $scope.validatorRef.resetForm();
         });
 
-        $scope.$on("editorEntitySubmit",function (event){ // , entity
-            // $scope.entity= entity;
+        $scope.onSubmit= function(e){
             $scope.validatorRef.checkForm();
-        });
+            // $scope.$parent.
+            $scope.$emit('editorSubmitSuccess');
+        };
+        // $scope.$on("editorEntitySubmit",function (event){ // , entity
+        //     // $scope.entity= entity;
+        //     $scope.validatorRef.checkForm();
+        // });
     }]);
 
 angular.module('pnApp.directives', [])

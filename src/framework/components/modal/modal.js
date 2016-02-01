@@ -79,8 +79,7 @@ Jx().package("T.UI.Components", function(J){
                     this.inputElements.original.data('plugin-id', _currentPluginId);
                 }
             }
-            // this.element.data('plugin-id', _currentPluginId);
-            
+            // this.element.data('plugin-id', _currentPluginId);            
 
             this.isShown             = false
             this.originalBodyPad     = null
@@ -92,22 +91,15 @@ Jx().package("T.UI.Components", function(J){
             this.settings             = options
             this.modalContainer= $(this.settings.modalContainer);
             this.settings.modalId= this.settings.modalId || this.settings.modalContainer +'-m'+this._currentPluginId;
+
+            // parse data
             if (typeof (this.settings.parseData) === 'function') {
                 this.parseData = this.settings.parseData;
                 delete this.settings.parseData;
             }
 
-            // this.buildHtml();
-            // // 初始化 html DOM 元素
-            // this.initElements();
-
             // 初始化数据
             this.getData();
-
-            // // 绑定事件
-            // this.bindEvents();
-            // // 绑定事件接口
-            // this.bindEventsInterface();
         },
         getData: function(){
             var context= this;
@@ -123,48 +115,23 @@ Jx().package("T.UI.Components", function(J){
                     dataType: "html"//,
                     // data: params
                 }).done(function(responseText) {
-                    context.render();
-
-                    context.elements.content.empty();
-                    // context.inputElements.original.trigger('modal.on.loaded');
-                    var innerHtml= context.parseData(responseText);                    
-                    // jqModalContent.append($.parseHTML(innerHtml));
-                    context.elements.content.append(innerHtml);
-
-                    // 绑定事件
-                    context.bindEvents();
-
-                    context.inputElements.original.trigger('modal.on.initialized');
+                    var innerHtml= context.parseData(responseText);
+                    context.render(innerHtml);
                 })
             }
             else{
-                context.render();
-
-                if(this.settings.content){
-                    this.elements.content.empty();
-                    this.elements.content.append(this.settings.content);
-                }
-
-                // 绑定事件
-                this.bindEvents();
-
-                context.inputElements.original.trigger('modal.on.initialized');
+                this.render(this.settings.content);
             }
         },
         parseData: function(data){
             return data;
         },
-        buildHtml: function(){
-            // <button type="button" class="btn btn-default cancel">取消</button>
-            // <button type="button" class="btn btn-primary confirm">确定</button>
-            // var buttonsHtml= '';
-            // for(var buttonName in this.settings.buttons){
-            //     var button= this.settings.buttons[buttonName];
-            //     buttonsHtml += '<button type="button" class="btn btn-primary '+ button.selector. +'">{text}</button>';
-            // }            
-        },
-        render: function(){
-            if(this.modalContainer.find(this.settings.modalId).length === 0){
+        buildHtml: function(){},
+        render: function(innerHtml){
+            var jqModal= this.modalContainer.find(this.settings.modalId);
+            if(jqModal.length === 0)
+            {
+                // dynamic build modal
                 var cssClass= this.settings.modalCssClass ? ' '+this.settings.modalCssClass : ''
                 var htmlTempate= ''+
                     '<div '+
@@ -172,14 +139,30 @@ Jx().package("T.UI.Components", function(J){
                     '   id="'+ this.settings.modalId.substring(1) +'" '+
                     '   tabindex="-1">'+
                     '    <div class="modal-dialog">'+
-                    '        <div class="modal-content">'+
-                    '        </div>'+
+                    // '        <div class="modal-content">'+
+                    // '        </div>'+
                     '    </div>'+
                     '</div>';
                 this.modalContainer.append(htmlTempate);
+
+                jqModal= this.modalContainer.find(this.settings.modalId);
+            }
+            
+            if(innerHtml){
+                // var jqContent= jqModal.find('.modal-content:first');
+                // jqContent.empty();
+                // jqContent.append(innerHtml);
+                var jqDialog= jqModal.find('.modal-dialog:first');
+                jqDialog.empty();
+                jqDialog.append(innerHtml);
             }
 
             this.initElements();
+
+            // 绑定事件
+            this.bindEvents();
+
+            this.inputElements.original.trigger('modal.on.initialized');
         },
         refresh: function(){},
         initElements: function(){
@@ -190,7 +173,7 @@ Jx().package("T.UI.Components", function(J){
                 body: $(document.body),
                 modal: jqModal,
                 dialog: jqModal.find('.modal-dialog:first'),    // 嵌套modal必须加:first选择器
-                content: jqModal.find('.modal-content:first'),  // 嵌套modal必须加:first选择器
+                // content: jqModal.find('.modal-content:first'),  // 嵌套modal必须加:first选择器
                 backdrop: null
             };
 
@@ -428,8 +411,6 @@ Jx().package("T.UI.Components", function(J){
             }                
         },
 
-        // these following methods are used to handle overflowing modals
-
         adjustDialog: function () {
             var modalIsOverflowing = this.elements.modal[0].scrollHeight > document.documentElement.clientHeight;
 
@@ -461,9 +442,6 @@ Jx().package("T.UI.Components", function(J){
                 var href= this.element.attr('href');
                 this.settings.remote= !/#/.test(href) && href;
             }
-
-            // // 初始化数据
-            // this.getData();
 
             // 初始化 html DOM 元素
             this.initElements();
