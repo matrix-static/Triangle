@@ -165,23 +165,7 @@ Jx().package("T.UI.Components", function(J){
             // 初始化数据
             $.when(this.getData())
              .done(function(){
-                // -----------------------------------------------
-                // html
-                // -----------------------------------------------
-                context.buildHtml(jqElement);
-                // context.transferAttributes();
-                context.initElements(jqElement);
-                context.refresh();
-                // -----------------------------------------------
-                // states
-                // -----------------------------------------------
-                // this.initStates(jqElement);
-                // -----------------------------------------------
-                // events
-                // -----------------------------------------------
-                // context.buildObservers();
-                context.bindEvents();
-                // context.bindEventsInterface();
+                context.render(jqElement);
             });
         },
 
@@ -259,6 +243,26 @@ Jx().package("T.UI.Components", function(J){
         updateData: function(data){
             var innerData= $.extend(true, [], data);
             this.data= this.parseData(data);
+        },
+
+        render: function(jqElement){
+            // -----------------------------------------------
+            // html
+            // -----------------------------------------------
+            this.buildHtml(jqElement);
+            // this.transferAttributes();
+            this.initElements(jqElement);
+            this.refresh();
+            // -----------------------------------------------
+            // states
+            // -----------------------------------------------
+            // this.initStates(jqElement);
+            // -----------------------------------------------
+            // events
+            // -----------------------------------------------
+            // this.buildObservers();
+            this.bindEvents();
+            // this.bindEventsInterface();
         },
 
         buildHtml: function(element){

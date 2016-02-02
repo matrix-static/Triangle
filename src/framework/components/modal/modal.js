@@ -7,6 +7,7 @@
  * ======================================================================== */
 
 
+
 Jx().package("T.UI.Components", function(J){
     // 严格模式
     'use strict';
@@ -64,31 +65,38 @@ Jx().package("T.UI.Components", function(J){
         keyboard: 'keyboard'
     };
 
-    var ModalPop = new J.Class({
+    this.Modal = new J.Class({extend : T.UI.BaseControl}, {
+        defaults: defaults,
+        attributeMap: attributeMap,
+
         // 构造函数
-        init:function(elements, options){
-            this.inputElements= elements;
-            // this.element= this.inputElements.pop;
+        init:function(element, options){
+            // 初始化选项
+            var jqElement=$(element);
+            this.initSettings(jqElement, options);
+            if(!this.settings.remote){
+                var href= jqElement.attr('href');
+                this.settings.remote= !/#/.test(href) && href;
+            }
 
             // 区分一个页面中存在多个控件实例
             _currentPluginId += 1;
-            if(this.inputElements.original && this.inputElements.original.length > 0){
-                this._currentPluginId= this.inputElements.original.data('plugin-id');
+            if(jqElement && jqElement.length > 0){
+                this._currentPluginId= jqElement.data('plugin-id');
                 if(!this._currentPluginId){
                     this._currentPluginId= _currentPluginId;
-                    this.inputElements.original.data('plugin-id', _currentPluginId);
+                    jqElement.data('plugin-id', _currentPluginId);
                 }
             }
-            // this.element.data('plugin-id', _currentPluginId);            
 
-            this.isShown             = false
-            this.originalBodyPad     = null
-            this.scrollbarWidth      = 0
-            this.ignoreBackdropClick = false
+            this.isShown             = false;
+            this.originalBodyPad     = null;
+            this.scrollbarWidth      = 0;
+            this.ignoreBackdropClick = false;
 
             // // 初始化选项
             // this.initSettings(options);
-            this.settings             = options
+            this.settings             = options;
             this.modalContainer= $(this.settings.modalContainer);
             this.settings.modalId= this.settings.modalId || this.settings.modalContainer +'-m'+this._currentPluginId;
 
@@ -104,9 +112,9 @@ Jx().package("T.UI.Components", function(J){
         getData: function(){
             var context= this;
 
-            if(this.modalContainer.find(this.settings.modalId).length === 0){
-                context.inputElements.original.trigger('modal.on.initialized');
-            }
+            // if(this.modalContainer.find(this.settings.modalId).length === 0){
+            //     context.elements.modal.trigger('modal.on.initialized');
+            // }
 
             if (this.settings.remote) {                
                 $.ajax({
@@ -117,7 +125,7 @@ Jx().package("T.UI.Components", function(J){
                 }).done(function(responseText) {
                     var innerHtml= context.parseData(responseText);
                     context.render(innerHtml);
-                })
+                });
             }
             else{
                 this.render(this.settings.content);
@@ -162,14 +170,16 @@ Jx().package("T.UI.Components", function(J){
             // 绑定事件
             this.bindEvents();
 
-            this.inputElements.original.trigger('modal.on.initialized');
+            this.elements.modal.trigger('modal.on.initialized');
         },
         refresh: function(){},
         initElements: function(){
             var context=this;
 
+
             var jqModal= this.modalContainer.find(this.settings.modalId);
             this.elements= {
+                // original: this.element,
                 body: $(document.body),
                 modal: jqModal,
                 dialog: jqModal.find('.modal-dialog:first'),    // 嵌套modal必须加:first选择器
@@ -178,15 +188,36 @@ Jx().package("T.UI.Components", function(J){
             };
 
             if(this.settings.show){
-                this.show(this.inputElements.original);
+                this.show(this.element);
             }
         },
         bindEvents: function(){
-            // this.element.on('click', '.close, .cancel', $.proxy(this.hide, this));
+            this.unbindEvents();
+
+            if(this.settings.bindTarget){
+                this.elements.original.on('click', function(e){
+                    if($(this).is('a')){
+                        e.preventDefault();
+                    }
+
+                    context.pop.show(context.elements.original);
+                });
+            }
+
+            this.elements.modal.on('modal.on.initialized', $.proxy(this.settings.onInitialized, this));
+
+            // this.elements.modal.on('click', '.close, .cancel', $.proxy(this.hide, this));
             for(var buttonName in this.settings.buttons){
                 var button= this.settings.buttons[buttonName];
                 this.elements.modal.off(button.eventName, button.selector); // unbindEvents
                 this.elements.modal.on(button.eventName, button.selector, $.proxy(button.handler, this));
+            }
+        },
+        unbindEvents: function(){
+            this.elements.modal.off('modal.on.initialized');
+            if(this.settings.bindTarget)
+            {
+                this.elements.modal.off('click');
             }
         },
 
@@ -197,14 +228,6 @@ Jx().package("T.UI.Components", function(J){
         //         }, this))
         //     } else if (!this.isShown) {
         //         this.elements.modal.off('keydown.modal.on.dismiss')
-        //     }
-        // },
-
-        // resize: function () {
-        //     if (this.isShown) {
-        //         $(window).on('resize.modal', $.proxy(this.adjustDialog, this))
-        //     } else {
-        //         $(window).off('resize.modal')
         //     }
         // },
 
@@ -221,7 +244,7 @@ Jx().package("T.UI.Components", function(J){
             // 嵌套madel
             var zIndex = 1040 + (10 * $('.modal:visible').length);
             // $(this).css('z-index', zIndex);
-            // this.inputElements.pop.css('z-index', zIndex);
+            // this.elements.pop.css('z-index', zIndex);
             this.elements.modal.css('z-index', zIndex);
             setTimeout(function() {
                 $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
@@ -252,7 +275,6 @@ Jx().package("T.UI.Components", function(J){
 
             // // 绑定esc键事件
             // this.escape();
-            // this.resize();
             $(window).on('resize.modal', $.proxy(this.adjustDialog, this))
 
             // this.elements.modal.on('click.modal.on.dismiss', '[data-dismiss="modal"]', $.proxy(this.hide, this))
@@ -285,9 +307,7 @@ Jx().package("T.UI.Components", function(J){
 
             // // 绑定esc键事件
             // this.escape();
-            // this.resize();
             $(window).off('resize.modal');
-
             $(document).off('modal.on.focusin');
 
             this.elements.modal
@@ -297,24 +317,28 @@ Jx().package("T.UI.Components", function(J){
 
             this.elements.dialog.off('mousedown.modal.on.dismiss');
 
-            $.support.transition && this.elements.modal.hasClass('fade') ?
+            if($.support.transition && this.elements.modal.hasClass('fade')){
                 this.elements.modal
                     .one('bsTransitionEnd', $.proxy(this.hideModal, this))
-                    .emulateTransitionEnd(TRANSITION_DURATION) :
-                this.hideModal()
+                    .emulateTransitionEnd(TRANSITION_DURATION);
+            }
+            else
+            {
+                this.hideModal();
+            }
         },
 
         hideModal: function () {
             var context = this
             this.elements.modal.hide()
             this.backdrop(function () {
-                context.elements.body.removeClass('modal-open')
+                context.elements.body.removeClass('modal-open');
                 context.elements.modal.css({
                     paddingLeft: '',
                     paddingRight: ''
-                })
-                context.elements.body.css('padding-right', context.originalBodyPad)
-                context.elements.modal.trigger('modal.on.hidden')
+                });
+                context.elements.body.css('padding-right', context.originalBodyPad);
+                context.elements.modal.trigger('modal.on.hidden');
             })
         },
 
@@ -323,7 +347,7 @@ Jx().package("T.UI.Components", function(J){
             var animate = this.elements.modal.hasClass('fade') ? 'fade' : ''
 
             if (this.isShown && this.settings.backdrop) {
-                var doAnimate = $.support.transition && animate
+                var doAnimate = $.support.transition && animate;
 
                 this.elements.backdrop = $(document.createElement('div'))
                     .addClass('modal-backdrop ' + animate)
@@ -349,13 +373,17 @@ Jx().package("T.UI.Components", function(J){
                     return;
                 }
 
-                doAnimate ?
+                if(doAnimate){
                     this.elements.backdrop
                         .one('bsTransitionEnd', callback)
-                        .emulateTransitionEnd(BACKDROP_TRANSITION_DURATION) :
-                    callback()
-
-            } else if (!this.isShown && this.elements.backdrop) {
+                        .emulateTransitionEnd(BACKDROP_TRANSITION_DURATION);
+                }
+                else{
+                    callback();
+                }
+            } 
+            else if (!this.isShown && this.elements.backdrop) 
+            {
                 this.elements.backdrop.removeClass('in')
 
                 var callbackRemove = function () {
@@ -370,8 +398,9 @@ Jx().package("T.UI.Components", function(J){
                         .emulateTransitionEnd(BACKDROP_TRANSITION_DURATION) :
                     callbackRemove()
 
-            } else if (callback) {
-                callback()
+            } 
+            else if (callback) {
+                callback();
             }
         },
 
@@ -418,74 +447,6 @@ Jx().package("T.UI.Components", function(J){
                 paddingLeft:  !this.bodyIsOverflowing && modalIsOverflowing ? this.scrollbarWidth : '',
                 paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.scrollbarWidth : ''
             });
-        }
-    });
-
-    this.Modal = new J.Class({extend : T.UI.BaseControl}, {
-        defaults: defaults,
-        attributeMap: attributeMap,
-
-        init: function(element, options){
-            this.element = $(element);
-            
-            //this.container;
-            //this.elements;
-
-            // this.value = this.element.val();
-
-            // 初始化选项
-            // this.initSettings(options);
-            var jqElement=$(element);
-            this.initSettings(jqElement, options);
-
-            if(!this.settings.remote){
-                var href= this.element.attr('href');
-                this.settings.remote= !/#/.test(href) && href;
-            }
-
-            // 初始化 html DOM 元素
-            this.initElements();
-
-            // 创建 树型 菜单对象
-            this.pop=new ModalPop(this.elements, this.settings);
-
-            this.bindEvents();
-        },
-        initElements: function(){
-            this.elements={
-                original: this.element//,
-                // pop: $(this.settings.modalId)
-            }
-        },
-        bindEvents: function(){
-            var context = this;
-
-            this.unbindEvents();
-
-            if(this.settings.bindTarget){
-                this.elements.original.on('click', function(e){
-                    if($(this).is('a')){
-                        e.preventDefault();
-                    }
-
-                    context.pop.show(context.elements.original);
-                });
-            }
-
-            this.elements.original.on('modal.on.initialized', $.proxy(this.settings.onInitialized, this));
-        },
-        unbindEvents: function(){
-            this.elements.original.off('modal.on.initialized');
-            if(this.settings.bindTarget)
-            {
-                this.elements.original.off('click');
-            }
-        },
-        show: function(){
-            this.pop.show();
-        },
-        hide: function(){
-            this.pop.hide();
         }
     });
 });

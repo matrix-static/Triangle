@@ -558,9 +558,12 @@ angular.module('pnApp.controllers', [])
         });
 
         $scope.onSubmit= function(e){
-            $scope.validatorRef.checkForm();
+            var successed= $scope.validatorRef.checkForm();
+            // alert(successed);
             // $scope.$parent.
-            $scope.$emit('editorSubmitSuccess');
+            if(successed){
+                $scope.$emit('editorSubmitSuccess');
+            }
         };
         // $scope.$on("editorEntitySubmit",function (event){ // , entity
         //     // $scope.entity= entity;
@@ -604,7 +607,8 @@ var pnApp = angular.module('pnApp', [
 	]);
 
 // ui-route
-pnApp.config([
+pnApp
+    .config([
 		//'$stateProvider', 
 		'$routeProvider',
 		//'$urlRouterProvider', 
