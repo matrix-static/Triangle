@@ -89,14 +89,14 @@ Jx().package("T.UI.Components", function(J){
                 }
             }
 
+            // TODO: need to remove
+            this.element= jqElement;
+
             this.isShown             = false;
             this.originalBodyPad     = null;
             this.scrollbarWidth      = 0;
             this.ignoreBackdropClick = false;
 
-            // // 初始化选项
-            // this.initSettings(options);
-            this.settings             = options;
             this.modalContainer= $(this.settings.modalContainer);
             this.settings.modalId= this.settings.modalId || this.settings.modalContainer +'-m'+this._currentPluginId;
 
@@ -179,7 +179,7 @@ Jx().package("T.UI.Components", function(J){
 
             var jqModal= this.modalContainer.find(this.settings.modalId);
             this.elements= {
-                // original: this.element,
+                original: this.element,
                 body: $(document.body),
                 modal: jqModal,
                 dialog: jqModal.find('.modal-dialog:first'),    // 嵌套modal必须加:first选择器
@@ -195,12 +195,13 @@ Jx().package("T.UI.Components", function(J){
             this.unbindEvents();
 
             if(this.settings.bindTarget){
+                var context= this;
                 this.elements.original.on('click', function(e){
                     if($(this).is('a')){
                         e.preventDefault();
                     }
 
-                    context.pop.show(context.elements.original);
+                    context.show(context.elements.original);
                 });
             }
 
