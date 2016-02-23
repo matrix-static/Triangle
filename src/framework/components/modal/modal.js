@@ -450,4 +450,162 @@ Jx().package("T.UI.Components", function(J){
             });
         }
     });
+
+    var ModalStack= new J.Class({
+        init: function(){
+            this.openedWindows= new T.Collections.Map();
+        },
+        open: function(modalInstance, modal) {
+            var modalOpener = $document[0].activeElement,
+                modalBodyClass = modal.openedClass || OPENED_MODAL_CLASS;
+
+            toggleTopWindowClass(false);
+
+            openedWindows.add(modalInstance, {
+                deferred: modal.deferred,
+                renderDeferred: modal.renderDeferred,
+                closedDeferred: modal.closedDeferred,
+                modalScope: modal.scope,
+                backdrop: modal.backdrop,
+                keyboard: modal.keyboard,
+                openedClass: modal.openedClass,
+                windowTopClass: modal.windowTopClass,
+                animation: modal.animation,
+                appendTo: modal.appendTo
+            });
+
+            openedClasses.put(modalBodyClass, modalInstance);
+
+            var appendToElement = modal.appendTo,
+                    currBackdropIndex = backdropIndex();
+
+            if (!appendToElement.length) {
+                throw new Error('appendTo element not found. Make sure that the element passed is in DOM.');
+            }
+
+            if (currBackdropIndex >= 0 && !backdropDomEl) {
+                backdropScope = $rootScope.$new(true);
+                backdropScope.modalOptions = modal;
+                backdropScope.index = currBackdropIndex;
+                backdropDomEl = angular.element('<div uib-modal-backdrop="modal-backdrop"></div>');
+                backdropDomEl.attr('backdrop-class', modal.backdropClass);
+                if (modal.animation) {
+                    backdropDomEl.attr('modal-animation', 'true');
+                }
+                $compile(backdropDomEl)(backdropScope);
+                $animate.enter(backdropDomEl, appendToElement);
+            }
+
+            var angularDomEl = angular.element('<div uib-modal-window="modal-window"></div>');
+            angularDomEl.attr({
+                'template-url': modal.windowTemplateUrl,
+                'window-class': modal.windowClass,
+                'window-top-class': modal.windowTopClass,
+                'size': modal.size,
+                'index': openedWindows.length() - 1,
+                'animate': 'animate'
+            }).html(modal.content);
+            if (modal.animation) {
+                angularDomEl.attr('modal-animation', 'true');
+            }
+
+            $animate.enter($compile(angularDomEl)(modal.scope), appendToElement)
+                .then(function() {
+                    $animate.addClass(appendToElement, modalBodyClass);
+                });
+
+            openedWindows.top().value.modalDomEl = angularDomEl;
+            openedWindows.top().value.modalOpener = modalOpener;
+
+            $modalStack.clearFocusListCache();
+        },
+        close: function(modalInstance, result) {
+            var modalWindow = openedWindows.get(modalInstance);
+            if (modalWindow && broadcastClosing(modalWindow, result, true)) {
+                modalWindow.value.modalScope.$$uibDestructionScheduled = true;
+                modalWindow.value.deferred.resolve(result);
+                removeModalWindow(modalInstance, modalWindow.value.modalOpener);
+                return true;
+            }
+            return !modalWindow;
+        },
+        broadcastClosing: function(modalWindow, resultOrReason, closing) {
+            return !modalWindow.value.modalScope.$broadcast('modal.closing', resultOrReason, closing).defaultPrevented;
+        },
+        dismiss: function(modalInstance, reason) {
+            var modalWindow = openedWindows.get(modalInstance);
+            if (modalWindow && broadcastClosing(modalWindow, reason, false)) {
+                modalWindow.value.modalScope.$$uibDestructionScheduled = true;
+                modalWindow.value.deferred.reject(reason);
+                removeModalWindow(modalInstance, modalWindow.value.modalOpener);
+                return true;
+            }
+            return !modalWindow;
+        },
+        dismissAll: function(reason) {
+            var topModal = this.getTop();
+            while (topModal && this.dismiss(topModal.key, reason)) {
+                topModal = this.getTop();
+            }
+        },
+        getTop: function() {
+            return openedWindows.top();
+        },
+        modalRendered: function(modalInstance) {
+            var modalWindow = openedWindows.get(modalInstance);
+            if (modalWindow) {
+                modalWindow.value.renderDeferred.resolve();
+            }
+        },
+        focusFirstFocusableElement: function() {
+            if (focusableElementList.length > 0) {
+                focusableElementList[0].focus();
+                return true;
+            }
+            return false;
+        },
+        focusLastFocusableElement: function() {
+            if (focusableElementList.length > 0) {
+                focusableElementList[focusableElementList.length - 1].focus();
+                return true;
+            }
+            return false;
+        },
+        isModalFocused: function(evt, modalWindow) {
+            if (evt && modalWindow) {
+                var modalDomEl = modalWindow.value.modalDomEl;
+                if (modalDomEl && modalDomEl.length) {
+                    return (evt.target || evt.srcElement) === modalDomEl[0];
+                }
+            }
+            return false;
+        },
+        isFocusInFirstItem: function(evt) {
+            if (focusableElementList.length > 0) {
+                return (evt.target || evt.srcElement) === focusableElementList[0];
+            }
+            return false;
+        },
+        isFocusInLastItem: function(evt) {
+            if (focusableElementList.length > 0) {
+                return (evt.target || evt.srcElement) === focusableElementList[focusableElementList.length - 1];
+            }
+            return false;
+        },
+        clearFocusListCache: function() {
+            focusableElementList = [];
+            focusIndex = 0;
+        },
+        loadFocusElementList: function(modalWindow) {
+            if (focusableElementList === undefined || !focusableElementList.length) {
+                if (modalWindow) {
+                    var modalDomE1 = modalWindow.value.modalDomEl;
+                    if (modalDomE1 && modalDomE1.length) {
+                        focusableElementList = modalDomE1[0].querySelectorAll(tababbleSelector);
+                    }
+                }
+            }
+        },
+
+    });
 });

@@ -111,7 +111,8 @@ gulp.task('default', ['demo'])
 		/* 合并 js 文件 */
 		gulp.src( [
 				'src/framework/modules/core.js', 
-				'src/framework/modules/base.js', 
+				'src/framework/modules/base.js',
+                'src/framework/modules/Collections/map.js',
                 'src/framework/modules/datetime.js',
                 'src/framework/modules/transition.js',
 				'src/framework/framework.js', 
