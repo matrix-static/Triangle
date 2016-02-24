@@ -683,12 +683,12 @@ angular.module('ui.bootstrap.modal', [])
 
       $scope.items = ['item1', 'item2', 'item3'];
 
-      $scope.animationsEnabled = true;
+      // $scope.animationsEnabled = true;
 
       $scope.open = function (size) {
 
         var modalInstance = $uibModal.open({
-          animation: $scope.animationsEnabled,
+          // animation: $scope.animationsEnabled,
           templateUrl: 'myModalContent.html',
           controller: 'ModalInstanceCtrl',
           size: size,
@@ -706,9 +706,9 @@ angular.module('ui.bootstrap.modal', [])
         });
       };
 
-      $scope.toggleAnimation = function () {
-        $scope.animationsEnabled = !$scope.animationsEnabled;
-      };
+      // $scope.toggleAnimation = function () {
+      //   $scope.animationsEnabled = !$scope.animationsEnabled;
+      // };
 
     })
     .controller('ModalInstanceCtrl', function ($scope, $uibModalInstance, items) {
