@@ -1,0 +1,1571 @@
+/*****************************************************************************
+ *  FILE:  anytime.css - The Any+Time(TM) JavaScript Library (stylesheet)
+ *
+ *  VERSION: 5.1.2
+ *
+ *  Copyright 2008-2015 Andrew M. Andrews III (www.AMA3.com). Some Rights
+ *  Reserved. This work licensed under the Creative Commons Attribution-
+ *  Noncommercial-Share Alike 3.0 Unported License except in jurisdicitons
+ *  for which the license has been ported by Creative Commons International,
+ *  where the work is licensed under the applicable ported license instead.
+ *  For a copy of the unported license, visit
+ *  http://creativecommons.org/licenses/by-nc-sa/3.0/
+ *  or send a letter to Creative Commons, 171 Second Street, Suite 300,
+ *  San Francisco, California, 94105, USA.  For ported versions of the
+ *  license, visit http://creativecommons.org/international/
+ *
+ *  Alternative licensing arrangements may be made by contacting the
+ *  author at http://www.AMA3.com/
+ *
+ *  This file provides default styling for the Any+Time JavaScript Library's
+ *  calendar widget.  The styles within can be overridden to customize the
+ *  picker's appearance for a particular platform.  jQuery UI styles (such
+ *  as those created by jQuery ThemeRoller) will override the styles in this
+ *  stylesheet.
+ *
+ *  The Any+Time(TM) styles and code in anytime.js have been tested (but not
+ *  extensively) on the following Windows platforms:
+ *    IE 8 (XP)
+ *    IE 11 (8.1)
+ *    Firefox 26
+ *    Chrome 31
+ *
+ *  Any+Time is a trademark of Andrew M. Andrews III.
+ ****************************************************************************/
+/* The following styles ascertain that the types of elements used by
+ *  our picker have reasonable styles, especially font, font-size,
+ *  list-style-type, margin and padding.
+ */
+.AnyTime-pkr * {
+  border: 0;
+  font: inherit;
+  font-size: x-small;
+  font-style: normal;
+  font-weight: normal;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/*  .AnyTime-win simulates a "window" that might be a popup or inline.
+ */
+.AnyTime-win {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  display: inline-block;
+  font: normal normal normal xx-small / normal sans-serif;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+.AnyTime-pkr,
+.AnyTime-pkr * {
+  text-align: center;
+}
+/*  .AnyTime-cloak covers an AnyTime-pkr whenever an AnyTime-yr-selector
+ *  is placed over it.  The picker cannot be accessed until the
+ *  AnyTime-yr-selector has been dismissed (possibly by clicking the
+ *  AnyTime-cloak).
+ */
+.AnyTime-pkr .AnyTime-cloak {
+  background-color: #D7D7D7;
+  opacity: 0.7;
+  position: absolute;
+  filter: alpha(opacity=70);
+}
+/*  .AnyTime-hdr is the title bar at the top of a "window." In addition to
+ *  the title label, the title bar for popup (non-inline) pickers also
+ *  contains .AnyTime-x-btn.
+ */
+.AnyTime-pkr .AnyTime-hdr {
+  background-color: #ffffff;
+  color: #606062;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: medium;
+  font-weight: normal;
+  -moz-border-radius: 1px;
+  -webkit-border-radius: 1px;
+  border-radius: 1px;
+}
+/*  .AnyTime-x-btn is a pseudo-button that, when clicked, causes the entire
+ *  picker to disappear (the picker also disappears if the user clicks
+ *  almost anywhere off of it, or presses ESC).
+ */
+.AnyTime-pkr .AnyTime-x-btn {
+  background-color: #FCFCFF;
+  border: 1px solid #F99;
+  color: #FF9F9F;
+  cursor: default;
+  float: right;
+  margin: 0.25em 0.25em 0 0;
+  width: 1.5em;
+  -moz-border-radius: 0.4em;
+  -webkit-border-radius: 0.4em;
+  border-radius: 0.4em;
+}
+/*  .AnyTime-btn is a pseudo-button for selection of a format field value.
+ */
+.AnyTime-pkr .AnyTime-btn {
+  background-color: #FCFCFE;
+  border: 1px solid #999;
+  color: #606062;
+  cursor: default;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0 0.1em 0.1em 0;
+  padding: 0.2em 0.3em 0.2em 0.3em;
+  -moz-border-radius: 0.1em;
+  -webkit-border-radius: 0.1em;
+  border-radius: 0.1em;
+}
+/*  .AnyTime-body contains everything in thee picker except the title bar.
+ */
+.AnyTime-pkr .AnyTime-body {
+  margin: 0 1em 1em 0;
+}
+/*  .AnyTime-date contains all content (labels and pseudo-buttons) for selecting
+ *  a date (or part thereof).
+ */
+.AnyTime-pkr .AnyTime-date {
+  display: inline-block;
+  margin-left: 1em;
+  vertical-align: top;
+}
+/*  .AnyTime-lbl headings appear before each group of pseudo-buttons for a
+ *  particular format field.  Each specific label has a class, also.
+ */
+.AnyTime-pkr .AnyTime-lbl {
+  color: #606063;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 100%;
+  font-weight: normal;
+  font-style: normal;
+  margin-top: 0.8em;
+}
+/*
+ *  .AnyTime-yrs contains the year-selection pseudo-buttons.
+ */
+.AnyTime-pkr .AnyTime-yrs {
+  width: 20em;
+}
+/*
+ *  Following are classes for the pseudo-buttons within .AnyTime-yrs
+ */
+.AnyTime-pkr .AnyTime-yrs-past-btn,
+.AnyTime-pkr .AnyTime-yrs-ahead-btn {
+  display: inline-block;
+  width: 2.4em;
+}
+.AnyTime-pkr .AnyTime-yr-prior-btn,
+.AnyTime-pkr .AnyTime-yr-cur-btn,
+.AnyTime-pkr .AnyTime-yr-next-btn {
+  display: inline-block;
+  width: 4.8em;
+}
+/*  .AnyTime-mons contains the month-selection pseudo-buttons.
+ */
+.AnyTime-pkr .AnyTime-mons {
+  width: 20em;
+}
+.AnyTime-pkr .AnyTime-mons:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+/*  .AnyTime-mon-btn is for the pseudo-buttons within .AnyTime-mons
+ *  Each pseudo-button also has a class of its own.
+ */
+.AnyTime-pkr .AnyTime-mon-btn {
+  float: left;
+  width: 3.2em;
+}
+.AnyTime-pkr .AnyTime-mon7-btn {
+  clear: left;
+}
+/*  .AnyTime-dom-table is the table containing days-of-the-month.
+ *  .AnyTime-dom-head is the table heading, containing days-of-the-week labels.
+ *  tr.AnyTime-dow is the row in the heading.
+ *  td.AnyTime-dow is a column heading; each heading has its own class, also.
+ *  .AnyTime-dom-body is the table heading, containing days-of-the-week labels.
+ *  .AnyTime-wk is a table row, containing pseudo-buttons for days.
+ *  Each week has its own class (.AnyTime-wk***), also.
+ */
+.AnyTime-pkr .AnyTime-dom-table {
+  background-color: #F0F0F1;
+  border: 1px solid #E3E3E4;
+  border-spacing: 1px;
+  width: 20em;
+}
+.AnyTime-pkr th.AnyTime-dow {
+  background-color: #C0C0C1;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 95%;
+  font-weight: normal;
+  font-style: normal;
+  padding: 0.1em 0.3em;
+}
+/*  .AnyTime-dom-btn is a pseudo-button for a day-of-the-month.
+ *  .AnyTime-dom-btn-filled is a button containing a specific day-of-the-month.
+ *  .AnyTime-dom-btn-empty is a button for an empty cell (no day-of-the-month).
+ *  .AnyTime-dom-btn-empty-above-filled is an empty button above a filled button.
+ *  .AnyTime-dom-btn-empty-before-filled is empty, left of a filled button.
+ *  .AnyTime-dom-btn-empty-after-filled is empty, right of a filled button.
+ *  .AnyTime-dom-btn-empty-below-filled is empty, below a filled button.
+ */
+.AnyTime-pkr .AnyTime-dom-btn {
+  text-align: right;
+  padding-right: 0.5em;
+}
+.AnyTime-pkr .AnyTime-dom-btn-empty,
+.AnyTime-pkr .AnyTime-min-ten-btn-empty,
+.AnyTime-pkr .AnyTime-min-one-btn-empty,
+.AnyTime-pkr .AnyTime-sec-ten-btn-empty,
+.AnyTime-pkr .AnyTime-sec-one-btn-empty {
+  background-color: #F3F3F4;
+  border: 1px solid #C0C0c1;
+}
+/*  .AnyTime-time contains all content (labels and pseudo-buttons) for selecting
+ *  a time (or part thereof).
+ */
+.AnyTime-pkr .AnyTime-time,
+.AnyTime-pkr .AnyTime-hrs-am,
+.AnyTime-pkr .AnyTime-hrs-pm,
+.AnyTime-pkr .AnyTime-mins-tens,
+.AnyTime-pkr .AnyTime-mins-ones,
+.AnyTime-pkr .AnyTime-secs-tens,
+.AnyTime-pkr .AnyTime-secs-ones {
+  display: inline-block;
+}
+/*  .AnyTime-hrs contains two columns (.AnyTime-hrs-am and .AnyTime-hrs-pm) of
+ *  pseudo-buttons for selecting hours.
+ */
+.AnyTime-pkr .AnyTime-hrs,
+.AnyTime-pkr .AnyTime-mins,
+.AnyTime-pkr .AnyTime-secs,
+.AnyTime-pkr .AnyTime-offs {
+  display: inline-block;
+  margin-left: 1em;
+}
+/*  .AnyTime-hr-btn is a pseudo-button for selecting an hour.
+ *  Each button also has a style of its own.
+ */
+.AnyTime-pkr .AnyTime-hr-btn {
+  text-align: right;
+  width: 3.5em;
+}
+/*  .AnyTime-mins contains two columns (.AnyTime-mins-tens and .AnyTime-mins-ones)
+ *  of pseudo-buttons for selecting minutes.
+ *
+ *  .AnyTime-min-ten-btn is a button in the .AnyTime-mins-tens column.
+ *  .AnyTime-min-one-btn is a button in the .AnyTime-ones-tens column.
+ *  Each button also has its own style.
+ */
+.AnyTime-pkr .AnyTime-min-ten-btn,
+.AnyTime-pkr .AnyTime-min-one-btn {
+  width: 2em;
+}
+/*  .AnyTime-secs contains two columns (.AnyTime-secs-tens and .AnyTime-secs-ones)
+ *  of pseudo-buttons for selecting seconds.
+ *
+ *  .AnyTime-sec-ten-btn is a button in the .AnyTime-secs-tens column.
+ *  .AnyTime-sec-one-btn is a button in the .AnyTime-ones-tens column.
+ *  Each button also has its own style.
+ */
+.AnyTime-pkr .AnyTime-sec-ten-btn,
+.AnyTime-pkr .AnyTime-sec-one-btn {
+  width: 2em;
+}
+/*  .AnyTime-offs contains the UTC offset (timezone) selection pseudo-buttons.
+ *  The two buttons have their own styles
+ */
+.AnyTime-pkr .AnyTime-off-cur-btn {
+  display: inline-block;
+  overflow: hidden;
+}
+.AnyTime-pkr .AnyTime-off-select-btn {
+  display: inline-block;
+  vertical-align: top;
+  width: 2em;
+}
+/*  .AnyTime-yr-selector is an overlay (popup) for selecting a specific year.
+ *  The picker attempts to size the overlay automatically, based on
+ *  whether "era" buttons are displayed.
+ *
+ *  AnyTime-hdr-yr-selector is its title bar.
+ *  AnyTime-body-yr-selector is its body.
+ *
+ *  .AnyTime-yr-mil is the column of millenium-selector pseudo-buttons.
+ *  .AnyTime-yr-cent is the column of century-selector pseudo-buttons.
+ *  .AnyTime-yr-dec is the column of decade-selector pseudo-buttons.
+ *  .AnyTime-yr-yr is the column of year-selector pseudo-buttons.
+ *
+ *  .AnyTime-mil-btn is a millenium-selector button.
+ *  .AnyTime-cent-btn is a century-selector button.
+ *  .AnyTime-dec-btn is a decade-selector button.
+ *  .AnyTime-yr-btn is a year-selector button.
+ *  Each button has its own class, also.
+ *
+ *  .AnyTime-yr-era contains the column of era-selection pseudo-buttons.
+ *  Each era button has class .AnyTime-era-btn as well as its own class.
+ */
+.AnyTime-pkr .AnyTime-yr-selector {
+  position: absolute;
+}
+.AnyTime-pkr .AnyTime-body-yr-selector {
+  margin: 0.8em 1em;
+}
+.AnyTime-pkr .AnyTime-yr-mil,
+.AnyTime-pkr .AnyTime-yr-cent,
+.AnyTime-pkr .AnyTime-yr-dec,
+.AnyTime-pkr .AnyTime-yr-yr,
+.AnyTime-pkr .AnyTime-yr-era {
+  display: inline-block;
+  vertical-align: top;
+}
+.AnyTime-pkr .AnyTime-mil-btn,
+.AnyTime-pkr .AnyTime-cent-btn,
+.AnyTime-pkr .AnyTime-dec-btn,
+.AnyTime-pkr .AnyTime-yr-btn {
+  width: 2em;
+}
+.AnyTime-pkr .AnyTime-era-btn {
+  margin-left: 1em;
+}
+/*  .AnyTime-off-selector is an overlay (popup) for selecting a specific year.
+ *  The picker attempts to size the overlay automatically.
+ *  .AnyTime-hdr-off-selector is its title bar.
+ *  .AnyTime-body-off-selector is its body.
+ *  .AnyTime-off-off is the column of offset-selector pseudo-buttons.
+ *  .AnyTime-off-off-btn is an offset-selector pseudo-button.
+ *  .AnyTime-off-off-last-btn is the last offset-selector pseudo-button.
+ */
+.AnyTime-pkr .AnyTime-off-selector {
+  margin: 1em 2em;
+  position: absolute;
+}
+.AnyTime-pkr .AnyTime-body-off-selector {
+  margin: 0.8em 1em;
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: nowrap;
+}
+.AnyTime-pkr .AnyTime-off-off-btn {
+  text-align: left;
+}
+/*  .AnyTime-cur-btn is applied to every pseudo-button that represents
+ *  a currently-selected value.  They should stand out from the other
+ *  buttons, using a different background-color, border, color, font,
+ *  font-style and/or font-weight.  Note that color alone is not
+ *  sufficient for color-blind users to differentiate the buttons.
+ */
+.AnyTime-pkr .AnyTime-cur-btn {
+  border: 1px solid #333334;
+  background-color: #C0C0C1;
+  color: #FCFCFE;
+  font-weight: bold;
+}
+/*  .AnyTime-out-btn is applied to every pseudo-button that represents
+ *  a value that should not be selected because it would make the value.
+ *  out-of-range.  Typically, this is to give it a "grayed-out" appearance.
+ *  Note that color alone is not sufficient for color-blind users to
+ *  differentiate the buttons, but since there's no harm in pressing these
+ *  buttons, it's probably no big deal.
+ */
+.AnyTime-pkr .AnyTime-out-btn {
+  background-color: #F0F0F1;
+  border: 1px solid #C0C0c1;
+}
+/*  .AnyTime-focus-btn is applied to the single pseudo-button that appears to
+ *  have keyboard focus.  It should stand out from all other buttons,
+ *  using a different background-color, border, color, font, font-style
+ *  and/or font-weight.  Note that color alone is not sufficient for
+ *  color-blind users to differentiate the button.  Because most UIs
+ *  represent focus using a dashed or dotted border, this is recommended.
+ */
+.AnyTime-pkr .AnyTime-focus-btn {
+  border: 1px dashed black;
+}
+/*
+ *  END OF FILE
+ */
+
+
+/* combobox less */
+.form-search .combobox-container,
+.form-inline .combobox-container {
+  display: inline-block;
+  margin-bottom: 0;
+  vertical-align: top;
+}
+.form-search .combobox-container .input-group-addon,
+.form-inline .combobox-container .input-group-addon {
+  width: auto;
+}
+.combobox-selected .caret {
+  display: none;
+}
+/* :not doesn't work in IE8 */
+.combobox-container:not(.combobox-selected) .glyphicon-remove {
+  display: none;
+}
+.typeahead-long {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.control-group.error .combobox-container .add-on {
+  color: #B94A48;
+  border-color: #B94A48;
+}
+.control-group.error .combobox-container .caret {
+  border-top-color: #B94A48;
+}
+.control-group.warning .combobox-container .add-on {
+  color: #C09853;
+  border-color: #C09853;
+}
+.control-group.warning .combobox-container .caret {
+  border-top-color: #C09853;
+}
+.control-group.success .combobox-container .add-on {
+  color: #468847;
+  border-color: #468847;
+}
+.control-group.success .combobox-container .caret {
+  border-top-color: #468847;
+}
+
+
+/*!
+ * Datetimepicker for Bootstrap 3
+ * version : 4.17.37
+ * https://github.com/Eonasdan/bootstrap-datetimepicker/
+ */
+.t-dtpicker-widget {
+  list-style: none;
+}
+.t-dtpicker-widget.dropdown-menu {
+  margin: 2px 0;
+  padding: 4px;
+  width: 19em;
+}
+@media (min-width: 768px) {
+  .t-dtpicker-widget.dropdown-menu.timepicker-sbs {
+    width: 38em;
+  }
+}
+@media (min-width: 992px) {
+  .t-dtpicker-widget.dropdown-menu.timepicker-sbs {
+    width: 38em;
+  }
+}
+@media (min-width: 1200px) {
+  .t-dtpicker-widget.dropdown-menu.timepicker-sbs {
+    width: 38em;
+  }
+}
+.t-dtpicker-widget.dropdown-menu:before,
+.t-dtpicker-widget.dropdown-menu:after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+}
+.t-dtpicker-widget.dropdown-menu.bottom:before {
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #cccccc;
+  border-bottom-color: rgba(0, 0, 0, 0.2);
+  top: -7px;
+  left: 7px;
+}
+.t-dtpicker-widget.dropdown-menu.bottom:after {
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid white;
+  top: -6px;
+  left: 8px;
+}
+.t-dtpicker-widget.dropdown-menu.top:before {
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid #cccccc;
+  border-top-color: rgba(0, 0, 0, 0.2);
+  bottom: -7px;
+  left: 6px;
+}
+.t-dtpicker-widget.dropdown-menu.top:after {
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid white;
+  bottom: -6px;
+  left: 7px;
+}
+.t-dtpicker-widget.dropdown-menu.pull-right:before {
+  left: auto;
+  right: 6px;
+}
+.t-dtpicker-widget.dropdown-menu.pull-right:after {
+  left: auto;
+  right: 7px;
+}
+.t-dtpicker-widget .list-unstyled {
+  margin: 0;
+}
+.t-dtpicker-widget a[data-action] {
+  padding: 6px 0;
+}
+.t-dtpicker-widget a[data-action]:active {
+  box-shadow: none;
+}
+.t-dtpicker-widget .timepicker-hour,
+.t-dtpicker-widget .timepicker-minute,
+.t-dtpicker-widget .timepicker-second {
+  width: 54px;
+  font-weight: bold;
+  font-size: 1.2em;
+  margin: 0;
+}
+.t-dtpicker-widget button[data-action] {
+  padding: 6px;
+}
+.t-dtpicker-widget .btn[data-action="incrementHours"]::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Increment Hours";
+}
+.t-dtpicker-widget .btn[data-action="incrementMinutes"]::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Increment Minutes";
+}
+.t-dtpicker-widget .btn[data-action="decrementHours"]::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Decrement Hours";
+}
+.t-dtpicker-widget .btn[data-action="decrementMinutes"]::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Decrement Minutes";
+}
+.t-dtpicker-widget .btn[data-action="showHours"]::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Show Hours";
+}
+.t-dtpicker-widget .btn[data-action="showMinutes"]::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Show Minutes";
+}
+.t-dtpicker-widget .btn[data-action="togglePeriod"]::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Toggle AM/PM";
+}
+.t-dtpicker-widget .btn[data-action="clear"]::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Clear the picker";
+}
+.t-dtpicker-widget .btn[data-action="today"]::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Set the date to today";
+}
+.t-dtpicker-widget .picker-switch {
+  text-align: center;
+}
+.t-dtpicker-widget .picker-switch::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Toggle Date and Time Screens";
+}
+.t-dtpicker-widget .picker-switch td {
+  padding: 0;
+  margin: 0;
+  height: auto;
+  width: auto;
+  line-height: inherit;
+}
+.t-dtpicker-widget .picker-switch td span {
+  line-height: 2.5;
+  height: 2.5em;
+  width: 100%;
+}
+.t-dtpicker-widget table {
+  width: 100%;
+  margin: 0;
+}
+.t-dtpicker-widget table td,
+.t-dtpicker-widget table th {
+  text-align: center;
+  border-radius: 4px;
+}
+.t-dtpicker-widget table th {
+  height: 20px;
+  line-height: 20px;
+  width: 20px;
+}
+.t-dtpicker-widget table th.picker-switch {
+  width: 145px;
+}
+.t-dtpicker-widget table th.disabled,
+.t-dtpicker-widget table th.disabled:hover {
+  background: none;
+  color: #777777;
+  cursor: not-allowed;
+}
+.t-dtpicker-widget table th.prev::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Previous Month";
+}
+.t-dtpicker-widget table th.next::after {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  content: "Next Month";
+}
+.t-dtpicker-widget table thead tr:first-child th {
+  cursor: pointer;
+}
+.t-dtpicker-widget table thead tr:first-child th:hover {
+  background: #eeeeee;
+}
+.t-dtpicker-widget table td {
+  height: 54px;
+  line-height: 54px;
+  width: 54px;
+}
+.t-dtpicker-widget table td.cw {
+  font-size: .8em;
+  height: 20px;
+  line-height: 20px;
+  color: #777777;
+}
+.t-dtpicker-widget table td.day {
+  height: 20px;
+  line-height: 20px;
+  width: 20px;
+}
+.t-dtpicker-widget table td.day:hover,
+.t-dtpicker-widget table td.hour:hover,
+.t-dtpicker-widget table td.minute:hover,
+.t-dtpicker-widget table td.second:hover {
+  background: #eeeeee;
+  cursor: pointer;
+}
+.t-dtpicker-widget table td.old,
+.t-dtpicker-widget table td.new {
+  color: #777777;
+}
+.t-dtpicker-widget table td.today {
+  position: relative;
+}
+.t-dtpicker-widget table td.today:before {
+  content: '';
+  display: inline-block;
+  border: solid transparent;
+  border-width: 0 0 7px 7px;
+  border-bottom-color: #337ab7;
+  border-top-color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+}
+.t-dtpicker-widget table td.active,
+.t-dtpicker-widget table td.active:hover {
+  background-color: #337ab7;
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+.t-dtpicker-widget table td.active.today:before {
+  border-bottom-color: #fff;
+}
+.t-dtpicker-widget table td.disabled,
+.t-dtpicker-widget table td.disabled:hover {
+  background: none;
+  color: #777777;
+  cursor: not-allowed;
+}
+.t-dtpicker-widget table td span {
+  display: inline-block;
+  width: 54px;
+  height: 54px;
+  line-height: 54px;
+  margin: 2px 1.5px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.t-dtpicker-widget table td span:hover {
+  background: #eeeeee;
+}
+.t-dtpicker-widget table td span.active {
+  background-color: #337ab7;
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+.t-dtpicker-widget table td span.old {
+  color: #777777;
+}
+.t-dtpicker-widget table td span.disabled,
+.t-dtpicker-widget table td span.disabled:hover {
+  background: none;
+  color: #777777;
+  cursor: not-allowed;
+}
+.t-dtpicker-widget.usetwentyfour td.hour {
+  height: 27px;
+  line-height: 27px;
+}
+.t-dtpicker-widget.wider {
+  width: 21em;
+}
+.t-dtpicker-widget .datepicker-decades .decade {
+  line-height: 1.8em !important;
+}
+.input-group.date .input-group-addon {
+  cursor: pointer;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* level less */
+.t-level-menu {
+  font-size: 12px;
+  /*width:360px;*/
+  width: 460px;
+  padding: 18px;
+}
+.t-level-close {
+  position: absolute;
+  width: 18px;
+  padding: 3px;
+  top: -8px;
+  right: -8px;
+  cursor: pointer;
+  background-color: #777;
+  border-radius: 18px;
+}
+.t-level-path {
+  overflow: hidden;
+}
+.t-level-tabs {
+  float: left;
+  width: 100%;
+  height: 25px;
+  margin-bottom: 0px;
+  padding-left: 0px;
+  border-bottom: 2px solid #edd28b;
+  overflow: visible;
+  zoom: 1;
+}
+.t-level-tabs li {
+  float: left;
+  display: list-node;
+  clear: none;
+  list-style: none;
+  padding: 0px;
+}
+.t-level-tabs li a {
+  float: left;
+  height: 23px;
+  margin-right: 3px;
+  padding: 0px 15px 1px 15px;
+  border: 1px solid #ddd;
+  border-bottom: 0;
+  text-aligh: center;
+  text-decoration: none;
+  font: 700 15px/23px 'microsoft yahei';
+  background-color: #ffffff;
+}
+.t-level-tabs li.active a {
+  height: 25px;
+  line-height: 22px;
+  border: 2px solid #edd28b;
+  border-bottom: 0;
+  padding-bottom: 0px;
+}
+.t-level-nodes {
+  padding-left: 0px;
+  text-align: center;
+}
+.t-level-nodes li {
+  float: left;
+  width: 80px;
+  line-height: 19px;
+  padding: 2px 8px 2px 8px;
+  font-size: 12px;
+  list-style: none;
+  color: #005aa0;
+}
+.t-level-nodes li:hover {
+  cursor: pointer;
+  background-color: #005aa0;
+  color: #ffffff;
+}
+
+/* likeit less */
+.t-likeit {
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  position: relative;
+  line-height: 36px;
+  padding-left: 50px;
+}
+.t-likeit:before {
+  content: '';
+  width: 38px;
+  height: 38px;
+  display: inline-block;
+  position: absolute;
+  left: 0px;
+  top: 50%;
+  margin-top: -19px;
+  background: url("/framework/media/images/likeit/like.png") no-repeat center center;
+}
+.t-likeit.liked:before {
+  background: url("/framework/media/images/likeit/liked.png") no-repeat center center;
+}
+
+.loadmask {
+  z-index: 100;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  zoom: 1;
+}
+.loadmask-msg {
+  z-index: 20001;
+  position: absolute;
+  top: 0;
+  left: 0;
+  line-height: 1;
+  /* this enables us to center the label text relative to the spinner */
+}
+.masked {
+  overflow: hidden !important;
+}
+.masked-relative {
+  position: relative !important;
+}
+.masked-hidden {
+  visibility: hidden !important;
+}
+.isloading-wrapper.isloading-right {
+  margin-left: 10px;
+}
+.isloading-overlay {
+  position: relative;
+  text-align: center;
+}
+.isloading-overlay .isloading-wrapper {
+  background: #FFFFFF;
+  display: inline-block;
+  margin: 0 auto;
+  padding: 10px 20px;
+  top: 10%;
+  z-index: 9000;
+}
+
+.dropdown-large {
+  position: static !important;
+}
+.dropdown-menu-large {
+  margin-left: 16px;
+  margin-right: 16px;
+  padding: 20px 0px;
+}
+.dropdown-menu-large > li > ul {
+  padding: 0;
+  margin: 0;
+}
+.dropdown-menu-large > li > ul > li {
+  list-style: none;
+}
+.dropdown-menu-large > li > ul > li > a {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.428571429;
+  color: #333333;
+  white-space: normal;
+}
+.dropdown-menu-large > li ul > li > a:hover,
+.dropdown-menu-large > li ul > li > a:focus {
+  text-decoration: none;
+  color: #262626;
+  background-color: #f5f5f5;
+}
+.dropdown-menu-large .disabled > a,
+.dropdown-menu-large .disabled > a:hover,
+.dropdown-menu-large .disabled > a:focus {
+  color: #999999;
+}
+.dropdown-menu-large .disabled > a:hover,
+.dropdown-menu-large .disabled > a:focus {
+  text-decoration: none;
+  background-color: transparent;
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  cursor: not-allowed;
+}
+.dropdown-menu-large .dropdown-header {
+  color: #428bca;
+  font-size: 18px;
+}
+@media (max-width: 768px) {
+  .dropdown-menu-large {
+    margin-left: 0 ;
+    margin-right: 0 ;
+  }
+  .dropdown-menu-large > li {
+    margin-bottom: 30px;
+  }
+  .dropdown-menu-large > li:last-child {
+    margin-bottom: 0;
+  }
+  .dropdown-menu-large .dropdown-header {
+    padding: 3px 15px !important;
+  }
+}
+
+/**
+ * Bootstrap Multiselect (https://github.com/davidstutz/bootstrap-multiselect)
+ * 
+ * Apache License, Version 2.0:
+ * Copyright (c) 2012 - 2015 David Stutz
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a
+ * copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ * 
+ * BSD 3-Clause License:
+ * Copyright (c) 2012 - 2015 David Stutz
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *    - Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *    - Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *    - Neither the name of David Stutz nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without
+ *      specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+.multiselect-container {
+  position: absolute;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.multiselect-container .input-group {
+  margin: 5px;
+}
+.multiselect-container > li {
+  padding: 0;
+}
+.multiselect-container > li > a.multiselect-all label {
+  font-weight: bold;
+}
+.multiselect-container > li.multiselect-group label {
+  margin: 0;
+  padding: 3px 20px 3px 20px;
+  height: 100%;
+  font-weight: bold;
+}
+.multiselect-container > li.multiselect-group-clickable label {
+  cursor: pointer;
+}
+.multiselect-container > li > a {
+  padding: 0;
+}
+.multiselect-container > li > a > label {
+  margin: 0;
+  height: 100%;
+  cursor: pointer;
+  font-weight: normal;
+  padding: 3px 20px 3px 40px;
+}
+.multiselect-container > li > a > label.radio,
+.multiselect-container > li > a > label.checkbox {
+  margin: 0;
+}
+.multiselect-container > li > a > label > input[type="checkbox"] {
+  margin-bottom: 5px;
+}
+.btn-group > .btn-group:nth-child(2) > .multiselect.btn {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+.form-inline .multiselect-container label.checkbox,
+.form-inline .multiselect-container label.radio {
+  padding: 3px 20px 3px 40px;
+}
+.form-inline .multiselect-container li a label.checkbox input[type="checkbox"],
+.form-inline .multiselect-container li a label.radio input[type="radio"] {
+  margin-left: -20px;
+  margin-right: 0;
+}
+
+/* spinner less */
+/*
+ *  Bootstrap TouchSpin - v3.0.1
+ *  A mobile and touch friendly input spinner component for Bootstrap 3.
+ *  http://www.virtuosoft.eu/code/bootstrap-spinner/
+ *
+ *  Made by István Ujj-Mészáros
+ *  Under Apache License v2.0 License
+ */
+.bootstrap-spinner .input-group-btn-vertical {
+  position: relative;
+  white-space: nowrap;
+  width: 1%;
+  vertical-align: middle;
+  display: table-cell;
+}
+.bootstrap-spinner .input-group-btn-vertical > .btn {
+  display: block;
+  float: none;
+  width: 100%;
+  max-width: 100%;
+  padding: 8px 10px;
+  margin-left: -1px;
+  position: relative;
+}
+.bootstrap-spinner .input-group-btn-vertical .bootstrap-spinner-up {
+  border-radius: 0;
+  border-top-right-radius: 4px;
+}
+.bootstrap-spinner .input-group-btn-vertical .bootstrap-spinner-down {
+  margin-top: -2px;
+  border-radius: 0;
+  border-bottom-right-radius: 4px;
+}
+.bootstrap-spinner .input-group-btn-vertical i {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  font-size: 9px;
+  font-weight: normal;
+}
+
+
+
+
+table.dataTable {
+  clear: both;
+  margin-top: 6px !important;
+  margin-bottom: 6px !important;
+  max-width: none !important;
+}
+table.dataTable td,
+table.dataTable th {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+table.dataTable td.dataTables_empty,
+table.dataTable th.dataTables_empty {
+  text-align: center;
+}
+table.dataTable.nowrap th,
+table.dataTable.nowrap td {
+  white-space: nowrap;
+}
+div.dataTables_wrapper div.dataTables_length label {
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap;
+}
+div.dataTables_wrapper div.dataTables_length select {
+  width: 75px;
+  display: inline-block;
+}
+div.dataTables_wrapper div.dataTables_filter {
+  text-align: right;
+}
+div.dataTables_wrapper div.dataTables_filter label {
+  font-weight: normal;
+  white-space: nowrap;
+  text-align: left;
+}
+div.dataTables_wrapper div.dataTables_filter input {
+  margin-left: 0.5em;
+  display: inline-block;
+  width: auto;
+}
+div.dataTables_wrapper div.dataTables_info {
+  padding-top: 8px;
+  white-space: nowrap;
+}
+div.dataTables_wrapper div.dataTables_paginate {
+  margin: 0;
+  white-space: nowrap;
+  text-align: right;
+}
+div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+  margin: 2px 0;
+  white-space: nowrap;
+}
+div.dataTables_wrapper div.dataTables_processing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  margin-left: -100px;
+  margin-top: -26px;
+  text-align: center;
+  padding: 1em 0;
+}
+table.dataTable thead > tr > th.sorting_asc,
+table.dataTable thead > tr > th.sorting_desc,
+table.dataTable thead > tr > th.sorting,
+table.dataTable thead > tr > td.sorting_asc,
+table.dataTable thead > tr > td.sorting_desc,
+table.dataTable thead > tr > td.sorting {
+  padding-right: 30px;
+}
+table.dataTable thead > tr > th:active,
+table.dataTable thead > tr > td:active {
+  outline: none;
+}
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+  cursor: pointer;
+  position: relative;
+}
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:after,
+table.dataTable thead .sorting_asc_disabled:after,
+table.dataTable thead .sorting_desc_disabled:after {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: block;
+  font-family: 'Glyphicons Halflings';
+  opacity: 0.5;
+}
+table.dataTable thead .sorting:after {
+  opacity: 0.2;
+  content: "\e150";
+  /* sort */
+}
+table.dataTable thead .sorting_asc:after {
+  content: "\e155";
+  /* sort-by-attributes */
+}
+table.dataTable thead .sorting_desc:after {
+  content: "\e156";
+  /* sort-by-attributes-alt */
+}
+table.dataTable thead .sorting_asc_disabled:after,
+table.dataTable thead .sorting_desc_disabled:after {
+  color: #eee;
+}
+div.dataTables_scrollHead table.dataTable {
+  margin-bottom: 0 !important;
+}
+div.dataTables_scrollBody table {
+  border-top: none;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+div.dataTables_scrollBody table thead .sorting:after,
+div.dataTables_scrollBody table thead .sorting_asc:after,
+div.dataTables_scrollBody table thead .sorting_desc:after {
+  display: none;
+}
+div.dataTables_scrollBody table tbody tr:first-child th,
+div.dataTables_scrollBody table tbody tr:first-child td {
+  border-top: none;
+}
+div.dataTables_scrollFoot table {
+  margin-top: 0 !important;
+  border-top: none;
+}
+@media screen and (max-width: 767px) {
+  div.dataTables_wrapper div.dataTables_length,
+  div.dataTables_wrapper div.dataTables_filter,
+  div.dataTables_wrapper div.dataTables_info,
+  div.dataTables_wrapper div.dataTables_paginate {
+    text-align: center;
+  }
+}
+table.dataTable.table-condensed > thead > tr > th {
+  padding-right: 20px;
+}
+table.dataTable.table-condensed .sorting:after,
+table.dataTable.table-condensed .sorting_asc:after,
+table.dataTable.table-condensed .sorting_desc:after {
+  top: 6px;
+  right: 6px;
+}
+table.table-bordered.dataTable {
+  border-collapse: separate !important;
+}
+table.table-bordered.dataTable th,
+table.table-bordered.dataTable td {
+  border-left-width: 0;
+}
+table.table-bordered.dataTable th:last-child,
+table.table-bordered.dataTable th:last-child,
+table.table-bordered.dataTable td:last-child,
+table.table-bordered.dataTable td:last-child {
+  border-right-width: 0;
+}
+table.table-bordered.dataTable tbody th,
+table.table-bordered.dataTable tbody td {
+  border-bottom-width: 0;
+}
+div.dataTables_scrollHead table.table-bordered {
+  border-bottom-width: 0;
+}
+div.table-responsive > div.dataTables_wrapper > div.row {
+  margin: 0;
+}
+div.table-responsive > div.dataTables_wrapper > div.row > div[class^="col-"]:first-child {
+  padding-left: 0;
+}
+div.table-responsive > div.dataTables_wrapper > div.row > div[class^="col-"]:last-child {
+  padding-right: 0;
+}
+
+/* login less */
+body {
+  /*background:url('http://www.wallpaperup.com/uploads/wallpapers/2012/10/21/20181/cad2441dd3252cf53f12154412286ba0.jpg');*/
+  /*padding:50px;*/
+}
+#login-dp {
+  min-width: 250px;
+  padding: 14px 14px 0;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+#login-dp .help-block {
+  font-size: 12px;
+}
+#login-dp .bottom {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-top: 1px solid #ddd;
+  clear: both;
+  padding: 14px;
+}
+#login-dp .social-buttons {
+  margin: 12px 0;
+}
+#login-dp .social-buttons a {
+  width: 49%;
+}
+#login-dp .form-group {
+  margin-bottom: 10px;
+}
+.btn-fb {
+  color: #fff;
+  background-color: #3b5998;
+}
+.btn-fb:hover {
+  color: #fff;
+  background-color: #496ebc;
+}
+.btn-tw {
+  color: #fff;
+  background-color: #55acee;
+}
+.btn-tw:hover {
+  color: #fff;
+  background-color: #59b5fa;
+}
+@media (max-width: 768px) {
+  #login-dp {
+    background-color: inherit;
+    color: #fff;
+  }
+  #login-dp .bottom {
+    background-color: inherit;
+    border-top: 0 none;
+  }
+}
+
+
+/* orgselect less */
+/* .t-orgselect- */
+.t-orgselect-dialog div.modal-dialog {
+  width: 800px;
+}
+.t-orgselect-dialog div.row {
+  margin: 0px;
+}
+.t-orgselect-dialog div.modal-header {
+  padding: 6px 12px 6px 12px;
+}
+.t-orgselect-dialog div.modal-body {
+  padding: 3px;
+}
+.t-orgselect-dialog div.modal-footer {
+  text-align: center;
+}
+.t-orgselect-dialog div.col-header {
+  height: 48px;
+  border: 1px solid #ccc;
+  margin: 2px 0;
+  text-align: center;
+}
+.t-orgselect-dialog .t-tree-wraper {
+  height: 335px;
+  border: 1px solid #ccc;
+  overflow-y: scroll;
+}
+.t-orgselect-dialog .t-tree li.list-group-item {
+  border-left: 0px;
+  border-right: 0px;
+  padding: 5px 15px 5px 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+t-orgselect-menu {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+t-orgselect-menu li {
+  widht: 75px;
+  margin: 2px 3px;
+  padding: 1px 1px 1px 3px;
+  border: 1px solid #ccc;
+  float: left;
+  text-align: left;
+  zoom: 1;
+}
+t-orgselect-menu li span {
+  line-height: 25px;
+  display: inline;
+}
+t-orgselect-menu li a {
+  width: 24px;
+  padding: 3px 6px;
+  display: block;
+  float: right;
+}
+
+
+
+/*
+ * metismenu - v1.1.3
+ * Easy menu jQuery plugin for Twitter Bootstrap 3
+ * https://github.com/onokumus/metisMenu
+ *
+ * Made by Osman Nuri Okumus
+ * Under MIT License
+ */
+.arrow {
+  float: right;
+  line-height: 1.42857;
+}
+.glyphicon.arrow:before {
+  content: "\e079";
+}
+.active > a > .glyphicon.arrow:before {
+  content: "\e114";
+}
+/*
+ * Require Font-Awesome
+ * http://fortawesome.github.io/Font-Awesome/
+*/
+.fa.arrow:before {
+  content: "\f104";
+}
+.active > a > .fa.arrow:before {
+  content: "\f107";
+}
+.plus-times {
+  float: right;
+}
+.fa.plus-times:before {
+  content: "\f067";
+}
+.active > a > .fa.plus-times {
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.plus-minus {
+  float: right;
+}
+.fa.plus-minus:before {
+  content: "\f067";
+}
+.active > a > .fa.plus-minus:before {
+  content: "\f068";
+}
+
+/* =========================================================
+ * bootstrap-treeview.css v1.2.0
+ * =========================================================
+ * Copyright 2013 Jonathan Miles 
+ * Project URL : http://www.jondmiles.com/bootstrap-treeview
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================= */
+.t-tree .list-group-item {
+  cursor: pointer;
+}
+.t-tree span.indent {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.t-tree span.icon {
+  width: 12px;
+  margin-right: 5px;
+}
+.t-tree .node-disabled {
+  color: silver;
+  cursor: not-allowed;
+}
+.t-tree .node-unselectable {
+  color: silver;
+}
+.t-tree .node-selected {
+  color: #ffffff;
+  background-color: #428bca;
+}
+.t-tree .search-result {
+  color: #D9534F;
+  background-color: #ffffff;
+}
+.t-tree-node {
+  color: #428bca;
+  background-color: "purple";
+  /*border: none;*/
+  border: 1px solid #dddddd;
+}
+.t-tree-node:not(.node-disabled):hover {
+  background-color: #F5F5F5;
+}
+
