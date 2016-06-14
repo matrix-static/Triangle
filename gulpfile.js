@@ -1,9 +1,10 @@
-var NAME = 'Triangle';
-var VERSION = '0.0.1'
+var config = require('./config'),
 
 var gulp = require('gulp');
 var browserSync = require('browser-sync');	// .create() 不能加create
 var fileInclude = require('gulp-file-include');		// html文件包含
+// var plugins = require('gulp-load-plugins')();	// 加载package.json文件中所有的gulp模块
+// var semver = require('semver');	// https://github.com/npm/node-semver#readme
 var rename = require('gulp-rename');		// 重命名
 var clean = require('gulp-clean');			// 清理文件
 var less = require('gulp-less');			// less 支持
@@ -13,6 +14,8 @@ var uglify = require('gulp-uglify');		// 压缩js
 var jshint = require('gulp-jshint');			// 语法检查
 var zip = require('gulp-zip');
 
+// var sVersion = require('./package.json').version,
+// var sNewVersion = semver.inc(sVersion, 'patch');
 
 gulp.task('default', ['demo'])
 	.task('clean', ['clean-build'])
@@ -105,7 +108,7 @@ gulp.task('default', ['demo'])
 				'!src/framework/layouts/**/*.less'		// layouts是完整示例，不需要整合进Triangle.css
 			] )
 			.pipe( less() )
-			.pipe( concat(NAME+'.css') )
+			.pipe( concat(config.projectName+'.css') )
 			.pipe( gulp.dest('build/framework') );
 
 		/* 合并 js 文件 */
@@ -126,7 +129,7 @@ gulp.task('default', ['demo'])
 			] )
 			.pipe( jshint('.jshintrc') )
 			.pipe( jshint.reporter('default') )	// js语法检查
-			.pipe( concat(NAME+'.js') )
+			.pipe( concat(config.projectName+'.js') )
 			.pipe( gulp.dest('build/framework') );
 
 		/* 合并 js -jq 文件 */
@@ -136,7 +139,7 @@ gulp.task('default', ['demo'])
 			] )
 			.pipe( jshint('.jshintrc') )
 			.pipe( jshint.reporter('default') )	// js语法检查
-			.pipe( concat(NAME+'-jq.js') )
+			.pipe( concat(config.projectName+'-jq.js') )
 			.pipe( gulp.dest('build/framework') );
 
 		/* 合并 js -ng 文件 */
@@ -146,7 +149,7 @@ gulp.task('default', ['demo'])
 			] )
 			// .pipe( jshint('.jshintrc') )
 			// .pipe( jshint.reporter('default') )	// js语法检查
-			.pipe( concat(NAME+'-ng.js') )
+			.pipe( concat(config.projectName+'-ng.js') )
 			.pipe( gulp.dest('build/framework') );
 
         // 复制refer modules
@@ -312,36 +315,36 @@ gulp.task('default', ['demo'])
 	// 发布 框架
 	.task('dist-fram', ['dist-libs', 'build-fram'], function(){
 		/* 合并 并 压缩 less 文件 */
-		gulp.src( ['build/framework/' + NAME + '.css'] )
+		gulp.src( ['build/framework/' + config.projectName + '.css'] )
 			.pipe( gulp.dest('dist/framework') )
 			.pipe( minifycss() )
-			.pipe( rename(NAME+'.min.css') )
+			.pipe( rename(config.projectName+'.min.css') )
 			.pipe( gulp.dest('dist/framework') );
 		/* 合并 并 压缩 js 文件 */
-		gulp.src( ['build/framework/' + NAME + '.js'] )
+		gulp.src( ['build/framework/' + config.projectName + '.js'] )
             .pipe( jshint('.jshintrc') )
             .pipe( jshint.reporter('default') ) // js语法检查
 			.pipe( gulp.dest('dist/framework') )
 			.pipe( uglify() )
-			.pipe( rename(NAME+'.min.js') )
+			.pipe( rename(config.projectName+'.min.js') )
 			.pipe( gulp.dest('dist/framework') );
         /* 合并 js -jq 文件 */
         gulp.src( [
-                'build/framework/' + NAME + '-jq.js'
+                'build/framework/' + config.projectName + '-jq.js'
             ] )
             .pipe( jshint('.jshintrc') )
             .pipe( jshint.reporter('default') ) // js语法检查
             .pipe( gulp.dest('dist/framework') )
             .pipe( uglify() )
-            .pipe( rename(NAME+'-jq.min.js') )
+            .pipe( rename(config.projectName+'-jq.min.js') )
             .pipe( gulp.dest('dist/framework') );
 		/* 合并 并 压缩 js ng 文件 */
-		gulp.src( ['build/framework/' + NAME + '-ng.js'] )
+		gulp.src( ['build/framework/' + config.projectName + '-ng.js'] )
             .pipe( jshint('.jshintrc') )
             .pipe( jshint.reporter('default') ) // js语法检查
 			.pipe( gulp.dest('dist/framework') )
 			.pipe( uglify() )
-			.pipe( rename(NAME+'-ng.min.js') )
+			.pipe( rename(config.projectName+'-ng.min.js') )
 			.pipe( gulp.dest('dist/framework') );
 
         /* 复制 refer modules*/
@@ -372,8 +375,8 @@ gulp.task('default', ['demo'])
                 'dist/refer/**/*',
                 'dist/iefix/**/*'
             ], {base: './dist'})
-            .pipe( zip(NAME + '_v' + VERSION + '.zip') )
-            .pipe( gulp.dest('_releases/v' + VERSION + '/') );   // ' + NAME + '/
+            .pipe( zip(config.projectName + '_v' + config.projectVersion + '.zip') )
+            .pipe( gulp.dest('_releases/v' + config.projectVersion + '/') );   // ' + config.projectName + '/
     })
 
 	/* 监视 文件的变化 */
