@@ -1,4 +1,4 @@
-var config = require('./config'),
+var config = require('./config');
 
 var gulp = require('gulp');
 var browserSync = require('browser-sync');	// .create() 不能加create

@@ -3,7 +3,7 @@ module.exports = {
 	projectVersion: '0.0.1',	// http://semver.org/
     dir:{
     	src: 'src',
-    	test: 'test'
+    	test: 'test',
     	dist: 'dist',
     	release: 'release'
     },
